@@ -1,0 +1,29 @@
+{
+  "name": "contracts",
+  "root": "apps/contracts",
+  "sourceRoot": "apps/contracts",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "anchor build",
+        "cwd": "apps/contracts"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "anchor test",
+        "cwd": "apps/contracts"
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "anchor deploy",
+        "cwd": "apps/contracts"
+      }
+    }
+  }
+}

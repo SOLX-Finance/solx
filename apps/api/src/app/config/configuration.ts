@@ -12,6 +12,7 @@ export default registerAs('app', () => {
     port: env.PORT,
     apiPrefix: env.API_PREFIX,
     apiUrl: env.API_URL,
+    pinoLogLevel: env.PINO_LOG_LEVEL,
 
     // CORS configuration
     corsOrigins: env.CORS_ORIGINS,

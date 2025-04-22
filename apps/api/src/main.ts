@@ -10,6 +10,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { LoggerErrorInterceptor, Logger as PinoLogger } from 'nestjs-pino';
 
 import { AppModule } from './app/app.module';
 
@@ -41,6 +42,8 @@ async function bootstrap() {
       new ClassSerializerInterceptor(app.get(Reflector)),
     );
 
+    app.useLogger(await app.get(PinoLogger));
+    app.useGlobalInterceptors(new LoggerErrorInterceptor());
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,

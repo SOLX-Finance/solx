@@ -11,10 +11,12 @@ import { AppService } from './app.service';
 import appConfig from './config/configuration';
 import { validateEnv } from './config/env.schema';
 import { HealthController } from './health/health.controller';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
   imports: [
     DataAccessModule,
+    LoggerModule.forRoot({ global: true }),
 
     // Configuration
     ConfigModule.forRoot({

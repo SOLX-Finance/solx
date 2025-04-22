@@ -8,6 +8,9 @@ export const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   API_PREFIX: z.string().default('api'),
   API_URL: z.string().default('http://localhost:3000'),
+  PINO_LOG_LEVEL: z
+    .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
+    .default('info'),
 
   // CORS
   CORS_ORIGINS: z.string().default('http://localhost:4200'),

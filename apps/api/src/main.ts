@@ -1,21 +1,94 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
+import {
+  ClassSerializerInterceptor,
+  INestApplication,
+  Logger,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 
-import { Logger } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 
+function setupSwagger<T>(app: INestApplication<T>, prefix: string) {
+  const config = new DocumentBuilder()
+    .setTitle('SOLX API')
+    .setDescription('The API for SOLX')
+    .setVersion('1.0')
+    .addBearerAuth({ type: 'apiKey', scheme: 'bearer', bearerFormat: 'JWT' })
+    .addTag('solx')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup(`${prefix}/swagger`, app, document);
+}
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix);
-  const port = process.env.PORT || 3000;
-  await app.listen(port);
-  Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
-  );
+  try {
+    const app = await NestFactory.create(AppModule, {
+      logger: ['error', 'warn', 'log', 'debug', 'verbose'],
+      bufferLogs: true,
+    });
+
+    const configService = app.get(ConfigService);
+
+    app.use(helmet());
+    app.use(compression());
+
+    app.useGlobalInterceptors(
+      new ClassSerializerInterceptor(app.get(Reflector)),
+    );
+
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
+      }),
+    );
+
+    app.use(cookieParser(configService.get<string>('app.cookieSecret')));
+
+    const corsOrigins = configService.get<string>('app.corsOrigins').split(',');
+    app.enableCors({
+      origin: corsOrigins,
+      credentials: true,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+    });
+
+    const globalPrefix = configService.get<string>('app.apiPrefix');
+    app.setGlobalPrefix(globalPrefix);
+    setupSwagger(app, globalPrefix);
+
+    const port = configService.get<number>('app.port');
+    await app.listen(port);
+    Logger.log(
+      `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
+    );
+    Logger.log(
+      `🚀 Swagger is running on: http://localhost:${port}/${globalPrefix}/swagger`,
+    );
+
+    const signals = ['SIGTERM', 'SIGINT'];
+    for (const signal of signals) {
+      process.on(signal, async () => {
+        Logger.log(`Received ${signal}, shutting down...`, 'Bootstrap');
+        await app.close();
+        Logger.log('Application shutdown complete', 'Bootstrap');
+        process.exit(0);
+      });
+    }
+  } catch (error) {
+    Logger.error(`Error during bootstrap: ${error.message}`, 'Bootstrap');
+    process.exit(1);
+  }
 }
 
 bootstrap();

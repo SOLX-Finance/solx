@@ -18,6 +18,13 @@
         "cwd": "apps/contracts"
       }
     },
+    "run:test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "anchor run test-staking",
+        "cwd": "apps/contracts"
+      }
+    },
     "deploy": {
       "executor": "nx:run-commands",
       "options": {

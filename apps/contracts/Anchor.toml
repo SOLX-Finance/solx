@@ -5,14 +5,20 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-contracts = "2ZcYtu6b6P6rKXittUPvncSaLRuEtNSoqeRc9RVCHY4q"
+contracts = "3YZMgcQTSYXeQd6Ma7WRDGRMMZFd29m5Vdr1DHFqq7qW"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
-wallet = "/Users/kostyamospan/.config/solana/id.json"
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[test.validator]
+bind_address = "0.0.0.0"
+url = "https://api.devnet.solana.com"
+ledger = ".anchor/test-ledger"
+rpc_port = 8899
 
 [scripts]
-test = "jest --maxWorkers=1 --testTimeout=1000000"
+test = "anchor build && yarn ts-mocha -p ./apps/contracts/tsconfig.json --trace-warnings -t 1000000 ./apps/contracts/tests/contracts.ts"

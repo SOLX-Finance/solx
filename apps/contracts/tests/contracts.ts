@@ -1,16 +1,20 @@
-import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
-import { Contracts } from "../target/types/contracts";
+import { initSvm } from './fixtures/contract.fixture';
+import { processTransaction } from './common/utils';
+import { Transaction } from '@solana/web3.js';
+import { expect } from 'chai';
 
-describe("contracts", () => {
-  // Configure the client to use the local cluster.
-  anchor.setProvider(anchor.AnchorProvider.env());
+describe('contracts', () => {
+  it('Is initialized!', async () => {
+    const { svm, program, accounts } = initSvm();
 
-  const program = anchor.workspace.Contracts as Program<Contracts>;
+    const ix = new Transaction().add(
+      await program.methods.initialize().instruction()
+    );
 
-  it("Is initialized!", async () => {
-    // Add your test here.
-    const tx = await program.methods.initialize().rpc();
-    console.log("Your transaction signature", tx);
+    const tx = await processTransaction(svm, ix, [accounts[0]]);
+
+    expect(tx).to.not.be.undefined;
+
+    console.log('Your transaction signature', tx);
   });
 });

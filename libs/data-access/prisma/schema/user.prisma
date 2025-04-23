@@ -7,7 +7,7 @@ enum Role {
 model User {
   id            String  @id @default(uuid())
   email         String  @unique
-  walletAddress String? @unique
+  walletAddress String? @unique @map("wallet_address")
   roles         Role[]  @default([])
   isBlocked     Boolean @default(false) @map("is_blocked")
 

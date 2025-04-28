@@ -41,10 +41,10 @@ export default registerAs('app', () => {
       ],
     },
 
-    // JWT configuration
-    jwt: {
-      secret: env.JWT_SECRET,
-      expiresIn: env.JWT_EXPIRES_IN,
+    // Privy configuration
+    privy: {
+      appId: env.PRIVY_APP_ID,
+      secret: env.PRIVY_SECRET,
     },
 
     // Database configuration

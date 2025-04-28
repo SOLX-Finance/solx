@@ -19,11 +19,16 @@ function setupSwagger<T>(app: INestApplication<T>, prefix: string) {
     .setTitle('SOLX API')
     .setDescription('The API for SOLX')
     .setVersion('1.0')
-    .addBearerAuth({ type: 'apiKey', scheme: 'bearer', bearerFormat: 'JWT' })
+    .addCookieAuth('privy-id-token')
     .addTag('solx')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup(`${prefix}/swagger`, app, document);
+  SwaggerModule.setup(`${prefix}/swagger`, app, document, {
+    swaggerOptions: {
+      persistAuthorization: true, // Keep auth token after reload
+      withCredentials: true, // Ensures cookies are sent with request
+    },
+  });
 }
 
 async function bootstrap() {

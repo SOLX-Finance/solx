@@ -3,15 +3,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { TerminusModule } from '@nestjs/terminus';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { DataAccessModule } from '@solx/data-access';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import appConfig from './config/configuration';
 import { validateEnv } from './config/env.schema';
 import { HealthController } from './health/health.controller';
 import { LoggerModule } from './logger/logger.module';
+import { AuthModule } from './auth/auth.module';
+import { GlobalGuard } from './guards/global.guard';
 
 @Module({
   imports: [
@@ -38,13 +38,15 @@ import { LoggerModule } from './logger/logger.module';
 
     // Health checks
     TerminusModule,
+
+    // Auth
+    AuthModule.forRoot(),
   ],
-  controllers: [AppController, HealthController],
+  controllers: [HealthController],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: GlobalGuard,
     },
   ],
 })

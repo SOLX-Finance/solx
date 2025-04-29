@@ -7,6 +7,7 @@ import {
   PrismaHealthIndicator,
 } from '@nestjs/terminus';
 import { PrismaService } from '@solx/data-access';
+import { Public } from '../auth/decorators/is-public.decorator';
 
 @Controller('health')
 export class HealthController {
@@ -18,19 +19,13 @@ export class HealthController {
     private configService: ConfigService,
   ) {}
 
+  @Public()
   @Get()
   @HealthCheck()
   check() {
-    const apiUrl = this.configService.get<string>('app.apiUrl');
-    const apiPrefix = this.configService.get<string>('app.apiPrefix');
-    const healthCheckUrl = `${apiUrl}/${apiPrefix}`;
-
     return this.health.check([
       // Database health check
       async () => this.prismaHealth.pingCheck('prisma', this.prisma),
-
-      // API self check
-      () => this.http.pingCheck('api', healthCheckUrl),
     ]);
   }
 }

@@ -17,7 +17,6 @@ export class PrismaUserRepository {
     const record = await this.prisma.user.findUnique({
       where: { id: userId },
     });
-    if (!record) return null;
     return record;
   }
 

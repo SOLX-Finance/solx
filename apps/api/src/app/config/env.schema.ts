@@ -28,11 +28,9 @@ export const envSchema = z.object({
   THROTTLE_LONG_TTL: z.coerce.number().default(60000),
   THROTTLE_LONG_LIMIT: z.coerce.number().default(10),
 
-  // JWT
-  JWT_SECRET: z
-    .string()
-    .min(32, 'JWT secret should be at least 32 characters long'),
-  JWT_EXPIRES_IN: z.string().default('1d'),
+  // Privy
+  PRIVY_APP_ID: z.string(),
+  PRIVY_SECRET: z.string(),
 
   // Database
   DATABASE_URL: z.string(),

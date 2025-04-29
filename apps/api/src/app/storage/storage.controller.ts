@@ -14,18 +14,32 @@ import {
 import { Public } from '../auth/decorators/is-public.decorator';
 import { StorageService } from './storage.service';
 import { FileType } from '@prisma/client';
+import {
+  GenerateUploadUrlRequestDto,
+  GenerateUploadUrlResponseDto,
+} from './dtos/generate-upload-url.dto';
+import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { GetPublicFileRequestDto } from './dtos/get-public-file.dto copy';
+import {
+  GetFileReadUrlRequestDto,
+  GetFileReadUrlResponseDto,
+} from './dtos/get-file-read-url.dto';
 
 @Controller('storage')
 export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
   @Post('upload-url')
+  @ApiOperation({ summary: 'Generate a signed upload URL' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a signed upload URL',
+    type: GenerateUploadUrlResponseDto,
+  })
   async generateUploadUrl(
-    // TODO: move to DTO
-    @Query('fileType', new ParseEnumPipe(FileType)) fileType: FileType,
-    @Query('contentType') contentType: string,
+    @Query() { fileType, contentType }: GenerateUploadUrlRequestDto,
     @RequestUser() user: UserClaims,
-  ) {
+  ): Promise<GenerateUploadUrlResponseDto> {
     return await this.storageService.getUploadUrl({
       fileType,
       contentType,
@@ -35,10 +49,16 @@ export class StorageController {
 
   @Public()
   @Get(':fileId')
+  @ApiOperation({ summary: 'Get a public file' })
+  @ApiParam({ name: 'fileId', type: String })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a public file',
+    type: StreamableFile,
+  })
   async getPublicFile(
-    // TODO: move to DTO
-    @Param('fileId') fileId: string,
-  ) {
+    @Param() { fileId }: GetPublicFileRequestDto,
+  ): Promise<StreamableFile> {
     const fileContent = await this.storageService.getFileContent({
       fileId,
       validateType: true,
@@ -47,11 +67,17 @@ export class StorageController {
   }
 
   @Get('read-url/:fileId')
+  @ApiOperation({ summary: 'Get a private file read URL' })
+  @ApiParam({ name: 'fileId', type: String })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a private file read URL',
+    type: GetFileReadUrlResponseDto,
+  })
   async getPrivateFileReadUrl(
-    // TODO: move to DTO
-    @Param('fileId') fileId: string,
+    @Param() { fileId }: GetFileReadUrlRequestDto,
     @RequestUser() user: UserClaims,
-  ) {
+  ): Promise<GetFileReadUrlResponseDto> {
     return await this.storageService.getReadUrl({
       fileId,
       userId: user.dbUser.id,

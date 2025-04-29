@@ -18,7 +18,6 @@ export class AuthModule {
           provide: PrivyClient,
           inject: [ConfigService],
           useFactory(config: ConfigService) {
-            console.log(config.get('app.privy'));
             return new PrivyClient(
               config.getOrThrow('app.privy.appId'),
               config.getOrThrow('app.privy.secret'),

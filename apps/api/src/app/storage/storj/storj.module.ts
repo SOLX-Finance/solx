@@ -44,6 +44,8 @@ import { S3Client } from '@aws-sdk/client-s3';
             accessKeyId: config.getOrThrow('app.storj.accessKeyId'),
             secretAccessKey: config.getOrThrow('app.storj.secretAccessKey'),
           },
+          // TODO: move to config
+          region: 'eu1',
           forcePathStyle: true,
         });
       },

@@ -5,7 +5,7 @@ import {
   Param,
   Query,
   StreamableFile,
-  ParseEnumPipe,
+  Res,
 } from '@nestjs/common';
 import {
   RequestUser,
@@ -24,6 +24,7 @@ import {
   GetFileReadUrlRequestDto,
   GetFileReadUrlResponseDto,
 } from './dtos/get-file-read-url.dto';
+import { Response } from 'express';
 
 @Controller('storage')
 export class StorageController {
@@ -58,12 +59,20 @@ export class StorageController {
   })
   async getPublicFile(
     @Param() { fileId }: GetPublicFileRequestDto,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
-    const fileContent = await this.storageService.getFileContent({
+    const { content, type } = await this.storageService.getFileContent({
       fileId,
       validateType: true,
     });
-    return new StreamableFile(fileContent);
+
+    // Set content type to image
+    res.set({
+      'Content-Type': type,
+      'Content-Disposition': 'inline',
+    });
+
+    return new StreamableFile(content);
   }
 
   @Get('read-url/:fileId')

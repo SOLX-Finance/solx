@@ -7,6 +7,7 @@ import {
 import { StorjService } from './storj/storj.service';
 import { PrismaService } from '@solx/data-access';
 import { FileType } from '@prisma/client';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class StorageService {
@@ -24,11 +25,18 @@ export class StorageService {
     contentType: string;
     userId: string;
   }) {
+    const uuid = randomUUID();
+
+    const remoteId = `${fileType.toLowerCase()}/${uuid}`;
+
+    // TODO: use repository
     const file = await this.prisma.file.create({
       data: {
+        id: uuid,
         type: fileType,
         mimeType: contentType,
         userId,
+        remoteId,
       },
     });
 
@@ -44,6 +52,7 @@ export class StorageService {
   }
 
   async getReadUrl({ fileId, userId }: { fileId: string; userId: string }) {
+    // TODO: use repository
     const file = await this.prisma.file.findUnique({
       where: { id: fileId },
     });
@@ -72,6 +81,7 @@ export class StorageService {
 
   async deleteFile({ fileId }: { fileId: string }): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
+      // TODO: use repository
       const file = await tx.file.findUnique({
         where: { id: fileId },
       });
@@ -95,6 +105,8 @@ export class StorageService {
     fileId: string;
     validateType: boolean;
   }) {
+    // TODO: use repository
+
     const file = await this.prisma.file.findUnique({
       where: { id: fileId },
     });
@@ -109,6 +121,9 @@ export class StorageService {
       throw new BadRequestException('File is not accessible');
     }
 
-    return await this.storjService.getFileContent(file.remoteId);
+    return {
+      content: await this.storjService.getFileContent(file.remoteId),
+      type: file.mimeType,
+    };
   }
 }

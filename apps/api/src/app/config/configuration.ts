@@ -47,6 +47,15 @@ export default registerAs('app', () => {
       secret: env.PRIVY_SECRET,
     },
 
+    // Storj configuration
+    storj: {
+      bucket: env.STORJ_BUCKET,
+      accessKeyId: env.STORJ_ACCESS_KEY_ID,
+      secretAccessKey: env.STORJ_SECRET_ACCESS_KEY,
+      readUrlExpiration: env.STORJ_READ_URL_EXPIRATION,
+      uploadUrlExpiration: env.STORJ_UPLOAD_URL_EXPIRATION,
+    },
+
     // Database configuration
     database: {
       url: env.DATABASE_URL,

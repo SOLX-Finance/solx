@@ -13,11 +13,12 @@ model User {
 
   // Profile
   username         String? @unique
-  profilePicture   File?   @relation(fields: [profilePictureId], references: [id])
   profilePictureId String? @map("profile_picture_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  uploadedFiles File[]
 
   @@map("user")
 }

@@ -12,6 +12,7 @@ import { HealthController } from './health/health.controller';
 import { LoggerModule } from './logger/logger.module';
 import { AuthModule } from './auth/auth.module';
 import { GlobalGuard } from './guards/global.guard';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -41,6 +42,9 @@ import { GlobalGuard } from './guards/global.guard';
 
     // Auth
     AuthModule.forRoot(),
+
+    // Storage
+    StorageModule,
   ],
   controllers: [HealthController],
   providers: [

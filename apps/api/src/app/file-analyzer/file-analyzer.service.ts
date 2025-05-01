@@ -13,13 +13,18 @@ export class FileAnalyzerService {
   ) {}
 
   async analyzeAndUpdateFile(file: File) {
-    const { content, type } = await this.storageService.getFileContentFromFile({
+    const { content } = await this.storageService.getFileContentFromFile({
       file,
     });
 
-    const analysisResult = await this.aiService.analyzeFile(
-      content.toString('base64'),
+    const base64Content = content.toString('base64');
+
+    const contentHash = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(base64Content),
     );
+
+    const analysisResult = await this.aiService.analyzeFile(base64Content);
 
     await this.prisma.$transaction(async (tx) => {
       await tx.file.update({
@@ -27,6 +32,7 @@ export class FileAnalyzerService {
         data: {
           aiReviewed: true,
           aiReviewDetails: analysisResult,
+          contentHash: Buffer.from(contentHash).toString('hex'),
         },
       });
 

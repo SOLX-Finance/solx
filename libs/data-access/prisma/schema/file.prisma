@@ -8,14 +8,15 @@ enum FileType {
 model File {
   id              String   @id @default(uuid())
   type            FileType
-  remoteId        String   @unique @map("remote_id")
+  remoteId        String   @unique @default(uuid()) @map("remote_id")
   mimeType        String   @map("mime_type")
   aiReviewed      Boolean  @default(false) @map("ai_reviewed")
   aiReviewDetails Json?    @map("ai_review_details")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  User      User[]
+  User      User     @relation(fields: [userId], references: [id])
+  userId    String
 
   @@map("file")
 }

@@ -34,6 +34,13 @@ export const envSchema = z.object({
 
   // Database
   DATABASE_URL: z.string(),
+
+  // Storj/S3 Configuration
+  STORJ_ACCESS_KEY_ID: z.string(),
+  STORJ_SECRET_ACCESS_KEY: z.string(),
+  STORJ_BUCKET: z.string(),
+  STORJ_READ_URL_EXPIRATION: z.coerce.number().default(3600),
+  STORJ_UPLOAD_URL_EXPIRATION: z.coerce.number().default(3600),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>;

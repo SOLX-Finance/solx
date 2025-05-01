@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { generateObject, LanguageModel } from 'ai';
 import { z } from 'zod';
 
@@ -6,7 +6,10 @@ export const AI_LANGUAGE_MODEL = 'AI_LANGUAGE_MODEL';
 
 @Injectable()
 export class AiService {
-  constructor(private readonly languageModule: LanguageModel) {}
+  constructor(
+    @Inject(AI_LANGUAGE_MODEL)
+    private readonly languageModule: LanguageModel,
+  ) {}
 
   async analyzeFile(fileContentBase64: string) {
     const response = await this.generateObject(fileContentBase64);

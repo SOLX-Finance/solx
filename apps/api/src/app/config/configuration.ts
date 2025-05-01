@@ -66,5 +66,10 @@ export default registerAs('app', () => {
     database: {
       url: env.DATABASE_URL,
     },
+
+    // Redis configuration
+    redis: {
+      url: env.REDIS_URL,
+    },
   };
 });

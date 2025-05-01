@@ -13,6 +13,8 @@ import { LoggerModule } from './logger/logger.module';
 import { AuthModule } from './auth/auth.module';
 import { GlobalGuard } from './guards/global.guard';
 import { StorageModule } from './storage/storage.module';
+import { BullModule } from '@nestjs/bullmq';
+import { QueueProcessorModule } from './queue-processor/queue-processor.module';
 
 @Module({
   imports: [
@@ -34,6 +36,20 @@ import { StorageModule } from './storage/storage.module';
       useFactory: (config: ConfigService) => config.get('app.throttler'),
     }),
 
+    // BullMQ
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => {
+        const redisUrl = config.getOrThrow('app.redis.url');
+
+        return {
+          connection: {
+            url: redisUrl,
+          },
+        };
+      },
+    }),
+
     // HTTP client
     HttpModule,
 
@@ -45,6 +61,9 @@ import { StorageModule } from './storage/storage.module';
 
     // Storage
     StorageModule,
+
+    // Queue processor
+    QueueProcessorModule,
   ],
   controllers: [HealthController],
   providers: [

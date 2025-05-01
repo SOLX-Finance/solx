@@ -8,12 +8,17 @@ import { StorjService } from './storj/storj.service';
 import { PrismaService } from '@solx/data-access';
 import { File, FileType, Prisma, PrismaClient } from '@prisma/client';
 import { randomUUID } from 'crypto';
+import { InjectQueue } from '@nestjs/bullmq';
+import { ANALYZE_FILE_QUEUE, AnalyzeFilePayload } from '@solx/queues';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class StorageService {
   constructor(
     private readonly storjService: StorjService,
     private readonly prisma: PrismaService,
+    @InjectQueue(ANALYZE_FILE_QUEUE.name)
+    private indexedTxQueue: Queue<AnalyzeFilePayload>,
   ) {}
 
   async getUploadUrl({
@@ -118,6 +123,12 @@ export class StorageService {
     }
 
     return this.getFileContentFromFile({ file });
+  }
+
+  async onFileUploaded(file: File) {
+    await this.indexedTxQueue.add(ANALYZE_FILE_QUEUE.name, {
+      fileId: file.id,
+    });
   }
 
   async getFileContentFromFile({ file }: { file: File }) {

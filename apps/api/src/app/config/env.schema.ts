@@ -45,6 +45,9 @@ export const envSchema = z.object({
   // AI
   AI_API_KEY: z.string(),
   AI_MODEL_ID: z.string().default('gpt-4o-mini'),
+
+  // Redis
+  REDIS_URL: z.string().default('redis://localhost:6379'),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>;

@@ -41,6 +41,10 @@ export const envSchema = z.object({
   STORJ_BUCKET: z.string(),
   STORJ_READ_URL_EXPIRATION: z.coerce.number().default(3600),
   STORJ_UPLOAD_URL_EXPIRATION: z.coerce.number().default(3600),
+
+  // AI
+  AI_API_KEY: z.string(),
+  AI_MODEL_ID: z.string().default('gpt-4o-mini'),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>;

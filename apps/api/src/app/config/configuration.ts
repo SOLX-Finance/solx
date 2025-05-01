@@ -56,6 +56,12 @@ export default registerAs('app', () => {
       uploadUrlExpiration: env.STORJ_UPLOAD_URL_EXPIRATION,
     },
 
+    // AI configuration
+    ai: {
+      apiKey: env.AI_API_KEY,
+      modelId: env.AI_MODEL_ID,
+    },
+
     // Database configuration
     database: {
       url: env.DATABASE_URL,

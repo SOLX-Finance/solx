@@ -6,19 +6,25 @@ skip-lint = false
 
 [programs.localnet]
 contracts = "3YZMgcQTSYXeQd6Ma7WRDGRMMZFd29m5Vdr1DHFqq7qW"
+solx = "5nCJ7xpgDfsSpcnbpRZf8WadzyxwShFoK8FRrVfYcSJ5"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
-wallet = "~/.config/solana/id.json"
+cluster = "Localnet"
+wallet = "/Users/nick/.config/solana/id.json"
+
+[scripts]
+test = "anchor build && yarn ts-mocha -p ./apps/contracts/tsconfig.json --trace-warnings -t 1000000 ./apps/contracts/tests/contracts.ts"
+
+[test]
+startup_wait = 5000
+shutdown_wait = 2000
+upgradeable = false
 
 [test.validator]
 bind_address = "0.0.0.0"
 url = "https://api.devnet.solana.com"
 ledger = ".anchor/test-ledger"
 rpc_port = 8899
-
-[scripts]
-test = "anchor build && yarn ts-mocha -p ./apps/contracts/tsconfig.json --trace-warnings -t 1000000 ./apps/contracts/tests/contracts.ts"

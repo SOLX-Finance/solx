@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@solx/data-access": ["libs/data-access/src/index.ts"]
+      "@solx/data-access": ["libs/data-access/src/index.ts"],
+      "@solx/queues": ["libs/queues/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

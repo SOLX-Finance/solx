@@ -1,3 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
 
-export const CONTRACTS_PROGRAM_ID = new PublicKey("3YZMgcQTSYXeQd6Ma7WRDGRMMZFd29m5Vdr1DHFqq7qW");
+export const SOLX_PROGRAM_ID = new PublicKey(
+  '8jbXs1fR9Bm5dh7N6Dr4ySsZWEeHeKTgsTYFjL386bcN',
+);

@@ -1,12 +1,12 @@
-import { FailedTransactionMetadata, LiteSVM } from 'litesvm';
 import { Keypair, Signer, Transaction } from '@solana/web3.js';
+import { FailedTransactionMetadata, LiteSVM } from 'litesvm';
 
 let latestSlot = 0n;
 let sec = 0n;
 export const processTransaction = async (
   svm: LiteSVM,
   transaction: Transaction,
-  signers: (Keypair | Signer)[]
+  signers: (Keypair | Signer)[],
 ) => {
   latestSlot = BigInt(latestSlot) + 1n;
   svm.warpToSlot(latestSlot);

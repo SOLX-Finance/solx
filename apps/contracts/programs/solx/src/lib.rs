@@ -15,7 +15,7 @@ pub use utils::*;
 pub use decimal_correction::*;
 pub use event::*;
 
-declare_id!("5nCJ7xpgDfsSpcnbpRZf8WadzyxwShFoK8FRrVfYcSJ5");
+declare_id!("8jbXs1fR9Bm5dh7N6Dr4ySsZWEeHeKTgsTYFjL386bcN");
 
 #[program]
 pub mod solx {

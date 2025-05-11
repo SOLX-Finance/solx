@@ -7,7 +7,7 @@ pub struct Initialize<'info> {
   #[account(mut)]
   pub signer: Signer<'info>,
 
-  #[account(mut)]
+  #[account(init, payer = signer, space = 8 + GlobalState::INIT_SPACE)]
   pub global_state: Account<'info, GlobalState>,
 
   #[account(

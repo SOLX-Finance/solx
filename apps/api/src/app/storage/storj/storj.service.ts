@@ -1,4 +1,3 @@
-import { Inject, Injectable } from '@nestjs/common';
 import {
   S3Client,
   GetObjectCommand,
@@ -6,6 +5,7 @@ import {
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Inject, Injectable } from '@nestjs/common';
 
 export const STORJ_BUCKET = 'STORJ_BUCKET';
 export const STORJ_READ_URL_EXPIRATION = 'STORJ_READ_URL_EXPIRATION';

@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { PrismaService } from '@solx/data-access';
 import { ANALYZE_FILE_QUEUE, AnalyzeFilePayload } from '@solx/queues';
 import { Job } from 'bullmq';
+
 import { FileAnalyzerService } from '../file-analyzer/file-analyzer.service';
 
 @Processor(ANALYZE_FILE_QUEUE.name)
@@ -16,7 +17,8 @@ export class FileAnalyzerProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job<AnalyzeFilePayload, any, string>): Promise<any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async process(job: Job<AnalyzeFilePayload, any, string>): Promise<void> {
     const { fileId } = job.data;
 
     const file = await this.prisma.file.findUniqueOrThrow({

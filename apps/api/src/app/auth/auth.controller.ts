@@ -1,7 +1,8 @@
 import { ConflictException, Controller, Post } from '@nestjs/common';
+
 import { AuthService } from './auth.service';
-import { RequestUser, UserClaims } from './decorators/request-user.decorator';
 import { AllowNoDbUser } from './decorators/allow-no-db-user.decorator';
+import { RequestUser, UserClaims } from './decorators/request-user.decorator';
 
 @Controller('auth')
 export class AuthController {

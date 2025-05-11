@@ -1,6 +1,6 @@
 import { createParamDecorator } from '@nestjs/common';
-import { User as PrivyUser } from '@privy-io/server-auth';
 import { User } from '@prisma/client';
+import { User as PrivyUser } from '@privy-io/server-auth';
 
 export class UserClaims {
   externalUser: PrivyUser;

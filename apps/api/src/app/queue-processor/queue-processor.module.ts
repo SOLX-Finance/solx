@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
-import { FileAnalyzerProcessor } from './file-analyzer.processor';
 import { DataAccessModule } from '@solx/data-access';
+
+import { FileAnalyzerProcessor } from './file-analyzer.processor';
+
 import { FileAnalyzerModule } from '../file-analyzer/file-analyzer.module';
 
 @Module({

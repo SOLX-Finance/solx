@@ -1,8 +1,7 @@
 // auth/guards/global.guard.ts
 import { Injectable, ExecutionContext, CanActivate } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+
 import { PrivyAuthGuard } from '../auth/guards/privy-auth.guard';
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class GlobalGuard implements CanActivate {

@@ -1,4 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -6,15 +7,14 @@ import { TerminusModule } from '@nestjs/terminus';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { DataAccessModule } from '@solx/data-access';
 
+import { AuthModule } from './auth/auth.module';
 import appConfig from './config/configuration';
 import { validateEnv } from './config/env.schema';
+import { GlobalGuard } from './guards/global.guard';
 import { HealthController } from './health/health.controller';
 import { LoggerModule } from './logger/logger.module';
-import { AuthModule } from './auth/auth.module';
-import { GlobalGuard } from './guards/global.guard';
-import { StorageModule } from './storage/storage.module';
-import { BullModule } from '@nestjs/bullmq';
 import { QueueProcessorModule } from './queue-processor/queue-processor.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [

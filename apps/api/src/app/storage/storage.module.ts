@@ -1,10 +1,11 @@
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { DataAccessModule } from '@solx/data-access';
+import { ANALYZE_FILE_QUEUE } from '@solx/queues';
+
+import { StorageController } from './storage.controller';
 import { StorageService } from './storage.service';
 import { StorjModule } from './storj/storj.module';
-import { StorageController } from './storage.controller';
-import { BullModule } from '@nestjs/bullmq';
-import { ANALYZE_FILE_QUEUE } from '@solx/queues';
 
 @Module({
   imports: [

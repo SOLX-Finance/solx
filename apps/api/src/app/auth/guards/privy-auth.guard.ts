@@ -5,12 +5,13 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { PrivyClient } from '@privy-io/server-auth';
-import { isAllowedNoDbUser } from '../decorators/allow-no-db-user.decorator';
 import { Reflector } from '@nestjs/core';
-import { isPublic } from '../decorators/is-public.decorator';
+import { PrivyClient } from '@privy-io/server-auth';
 import { PrismaService } from '@solx/data-access';
+import { Request } from 'express';
+
+import { isAllowedNoDbUser } from '../decorators/allow-no-db-user.decorator';
+import { isPublic } from '../decorators/is-public.decorator';
 
 export const UsePrivyAuthGuard = () => UseGuards(PrivyAuthGuard);
 
@@ -55,7 +56,7 @@ export class PrivyAuthGuard implements CanActivate {
         dbUser,
       };
       return true;
-    } catch (error) {
+    } catch (_) {
       throw new UnauthorizedException('Invalid JWT token');
     }
   }

@@ -1,16 +1,17 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import {
   BadRequestException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-
-import { StorjService } from './storj/storj.service';
+import { File, FileType, Prisma } from '@prisma/client';
 import { PrismaService } from '@solx/data-access';
-import { File, FileType, Prisma, PrismaClient } from '@prisma/client';
-import { randomUUID } from 'crypto';
-import { InjectQueue } from '@nestjs/bullmq';
 import { ANALYZE_FILE_QUEUE, AnalyzeFilePayload } from '@solx/queues';
 import { Queue } from 'bullmq';
+
+import { randomUUID } from 'crypto';
+
+import { StorjService } from './storj/storj.service';
 
 @Injectable()
 export class StorageService {

@@ -7,8 +7,8 @@ export class AuthService {
   async createUserFromPrivyUser(privyUser: User) {
     return await this.prisma.user.create({
       data: {
-        email: privyUser.email?.address!,
-        walletAddress: privyUser.wallet?.address!,
+        email: privyUser.email!.address!,
+        walletAddress: privyUser.wallet!.address!,
         id: privyUser.id,
       },
     });

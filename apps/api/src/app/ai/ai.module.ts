@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
-import { AI_LANGUAGE_MODEL, AiService } from './ai.service';
-import { ConfigService } from '@nestjs/config';
 import { createOpenAI } from '@ai-sdk/openai';
+import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+import { AI_LANGUAGE_MODEL, AiService } from './ai.service';
 @Module({
   providers: [
     AiService,

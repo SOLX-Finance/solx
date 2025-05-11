@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { AiService } from '../ai/ai.service';
 import { File } from '@prisma/client';
-import { StorageService } from '../storage/storage.service';
 import { PrismaService } from '@solx/data-access';
+
+import { AiService } from '../ai/ai.service';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class FileAnalyzerService {

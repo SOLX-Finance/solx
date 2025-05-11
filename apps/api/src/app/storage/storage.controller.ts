@@ -7,24 +7,25 @@ import {
   StreamableFile,
   Res,
 } from '@nestjs/common';
-import {
-  RequestUser,
-  UserClaims,
-} from '../auth/decorators/request-user.decorator';
-import { Public } from '../auth/decorators/is-public.decorator';
-import { StorageService } from './storage.service';
-import { FileType } from '@prisma/client';
+import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { Response } from 'express';
+
 import {
   GenerateUploadUrlRequestDto,
   GenerateUploadUrlResponseDto,
 } from './dtos/generate-upload-url.dto';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { GetPublicFileRequestDto } from './dtos/get-public-file.dto copy';
 import {
   GetFileReadUrlRequestDto,
   GetFileReadUrlResponseDto,
 } from './dtos/get-file-read-url.dto';
-import { Response } from 'express';
+import { GetPublicFileRequestDto } from './dtos/get-public-file.dto copy';
+import { StorageService } from './storage.service';
+
+import { Public } from '../auth/decorators/is-public.decorator';
+import {
+  RequestUser,
+  UserClaims,
+} from '../auth/decorators/request-user.decorator';
 
 @Controller('storage')
 export class StorageController {

@@ -1,7 +1,6 @@
-import { FileType } from '@prisma/client';
-import { ParseEnumPipe } from '@nestjs/common';
-import { IsEnum, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { FileType } from '@prisma/client';
+import { IsEnum, IsString } from 'class-validator';
 
 export class GenerateUploadUrlRequestDto {
   @ApiProperty({ enum: FileType })

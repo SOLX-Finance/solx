@@ -4,6 +4,7 @@ pub mod instructions;
 pub mod state;
 pub mod utils;
 pub mod decimal_correction;
+pub mod event;
 
 use anchor_lang::prelude::*;
 
@@ -12,14 +13,22 @@ pub use instructions::*;
 pub use state::*;
 pub use utils::*;
 pub use decimal_correction::*;
+pub use event::*;
+
 declare_id!("5nCJ7xpgDfsSpcnbpRZf8WadzyxwShFoK8FRrVfYcSJ5");
 
 #[program]
 pub mod solx {
   use super::*;
 
-  pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-    initialize::handler(ctx)
+  pub fn initialize(
+    ctx: Context<Initialize>,
+    authority: Pubkey,
+    operator: Pubkey,
+    treasury: Pubkey,
+    fee: u64
+  ) -> Result<()> {
+    initialize::handler(ctx, authority, operator, treasury, fee)
   }
 
   pub fn purchase(ctx: Context<PurchaseListing>, id: u64) -> Result<()> {
@@ -44,5 +53,24 @@ pub mod solx {
       collateral_amount,
       price_amount
     )
+  }
+
+  pub fn initiate_dispute(
+    ctx: Context<InitiateDispute>,
+    id: u64
+  ) -> Result<()> {
+    initiate_dispute::handle(ctx, id)
+  }
+
+  pub fn resolve_dispute(
+    ctx: Context<ResolveDispute>,
+    id: u64,
+    verdict: Verdict
+  ) -> Result<()> {
+    resolve_dispute::handle(ctx, id, verdict)
+  }
+
+  pub fn close_listing(ctx: Context<CloseListing>, id: u64) -> Result<()> {
+    close_listing::handle(ctx, id)
   }
 }

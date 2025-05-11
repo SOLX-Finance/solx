@@ -5,7 +5,7 @@ use pyth_solana_receiver_sdk::price_update::{
   PriceUpdateV2,
 };
 
-use crate::PRICE_MAX_AGE;
+use crate::{ Listing, ListingState, PRICE_MAX_AGE };
 
 pub fn get_currency<'info>(
   price_update: &Account<'info, PriceUpdateV2>,
@@ -28,4 +28,12 @@ pub fn get_currency<'info>(
 pub fn get_timestamp() -> Result<u64> {
   let clock = Clock::get()?;
   Ok(clock.unix_timestamp as u64)
+}
+
+pub fn reset_listing(listing: &mut Listing) {
+  listing.payment_mint = Pubkey::default();
+  listing.buyer = Pubkey::default();
+  listing.payment_amount = 0;
+  listing.expiry_ts = 0;
+  listing.state = ListingState::Opened;
 }

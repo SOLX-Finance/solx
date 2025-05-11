@@ -26,7 +26,14 @@ use anchor_spl::token_interface::{
 use mpl_token_metadata::types::DataV2;
 
 use crate::error::SolxError;
-use crate::{ seeds, GlobalState, Listing, ListingState, WhitelistedState };
+use crate::{
+  seeds,
+  GlobalState,
+  Listing,
+  ListingCreated,
+  ListingState,
+  WhitelistedState,
+};
 
 #[derive(Accounts)]
 #[instruction(id: u64)]
@@ -47,7 +54,7 @@ pub struct CreateListing<'info> {
     seeds = [
       Listing::SEED,
       global_state.key().as_ref(),
-      id.to_le_bytes().as_ref(),
+      nft_mint.key().as_ref(),
     ],
     bump
   )]
@@ -59,8 +66,8 @@ pub struct CreateListing<'info> {
 
   #[account(
       mut,
-      associated_token::mint = collateral_mint,
-      associated_token::authority = listing,
+      constraint = listing_collateral_mint_account.mint.key().eq(&collateral_mint.key()) @ SolxError::InvalidCollateralMint,
+      constraint = listing_collateral_mint_account.owner.key().eq(&listing.key()) @ SolxError::Forbidden,
   )]
   pub listing_collateral_mint_account: Box<
     InterfaceAccount<'info, TokenAccountTrait>
@@ -68,8 +75,8 @@ pub struct CreateListing<'info> {
 
   #[account(
       mut,
-      associated_token::mint = collateral_mint,
-      associated_token::authority = lister,
+      constraint = lister_collateral_mint_account.mint.key().eq(&collateral_mint.key()) @ SolxError::InvalidCollateralMint,
+      constraint = lister_collateral_mint_account.owner.key().eq(&lister.key()) @ SolxError::Forbidden,
   )]
   pub lister_collateral_mint_account: Box<
     InterfaceAccount<'info, TokenAccountTrait>
@@ -104,10 +111,9 @@ pub struct CreateListing<'info> {
   pub nft_mint: Account<'info, Mint>,
 
   #[account(
-    init_if_needed,
-    payer = payer,
-    associated_token::mint = nft_mint,
-    associated_token::authority = payer
+    mut,
+    constraint = nft_token_account.owner.eq(&lister.key()),
+    constraint = nft_token_account.mint.eq(&nft_mint.key())
   )]
   pub nft_token_account: Account<'info, TokenAccount>,
 
@@ -231,9 +237,21 @@ pub fn handle(
   let listing = &mut ctx.accounts.listing;
 
   listing.collateral_amount = collateral_amount;
+  listing.collateral_mint = ctx.accounts.collateral_mint.key();
   listing.price_usd = price_amount;
   listing.nft = ctx.accounts.nft_metadata.key();
-  listing.state = ListingState::Open;
+  listing.state = ListingState::Opened;
+
+  emit!(ListingCreated {
+    id,
+    global_state: ctx.accounts.global_state.key(),
+    listing: ctx.accounts.listing.key(),
+    nft: ctx.accounts.nft_mint.key(),
+    buyer: ctx.accounts.lister.key(),
+    collateral_mint: ctx.accounts.collateral_mint.key(),
+    collateral_amount,
+    price_usd: price_amount,
+  });
 
   Ok(())
 }

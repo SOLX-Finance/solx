@@ -9,3 +9,6 @@ pub use whitelisted_state::*;
 
 pub mod payment_mint_state;
 pub use payment_mint_state::*;
+
+pub mod dispute_state;
+pub use dispute_state::*;

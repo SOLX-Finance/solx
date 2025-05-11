@@ -1,6 +1,7 @@
 use anchor_lang::{ prelude::* };
 use anchor_spl::{
-  token::{ self, transfer, Token, Transfer },
+  token::{ self, transfer, Mint, Token, Transfer },
+  token_2022::Token2022,
   token_interface::{ Mint as MintTrait, TokenAccount as TokenAccountTrait },
 };
 use pyth_solana_receiver_sdk::price_update::PriceUpdateV2;
@@ -9,9 +10,11 @@ use crate::{
   error::SolxError,
   get_currency,
   get_timestamp,
+  seeds,
   DecimalsCorrection,
   GlobalState,
   Listing,
+  ListingPurchased,
   ListingState,
   PaymentMintState,
   WhitelistedState,
@@ -30,10 +33,20 @@ pub struct PurchaseListing<'info> {
   #[account(mut,  seeds = [
       Listing::SEED,
       global_state.key().as_ref(),
-      id.to_le_bytes().as_ref(),
+      nft_mint.key().as_ref(),
     ],
     bump)]
   pub listing: Account<'info, Listing>,
+
+  #[account(
+    seeds = [
+      seeds::MINT_SEED,
+      global_state.key().as_ref(),
+      id.to_le_bytes().as_ref(),
+    ],
+    bump
+  )]
+  pub nft_mint: Account<'info, Mint>,
 
   #[account(
       mut,
@@ -55,13 +68,21 @@ pub struct PurchaseListing<'info> {
 
   #[account(
     mut,
-    seeds = [WhitelistedState::PAYMENT_MINT_SEED, payment_mint.key().as_ref()],
+    seeds = [
+      WhitelistedState::PAYMENT_MINT_SEED,
+      global_state.key().as_ref(),
+      payment_mint.key().as_ref(),
+    ],
     bump
   )]
   pub whitelisted_state: Account<'info, WhitelistedState>,
 
   #[account(
-    seeds = [PaymentMintState::SEED, payment_mint.key().as_ref()],
+    seeds = [
+      PaymentMintState::SEED,
+      global_state.key().as_ref(),
+      payment_mint.key().as_ref(),
+    ],
     bump
   )]
   pub payment_mint_state: Account<'info, PaymentMintState>,
@@ -77,6 +98,8 @@ pub struct PurchaseListing<'info> {
   pub system_program: Program<'info, System>,
 
   pub token_program: Program<'info, Token>,
+
+  pub token_program_2022: Program<'info, Token2022>,
 }
 
 pub fn handle(ctx: Context<PurchaseListing>, id: u64) -> Result<()> {
@@ -84,7 +107,7 @@ pub fn handle(ctx: Context<PurchaseListing>, id: u64) -> Result<()> {
 
   let listing = &mut accounts.listing;
 
-  require!(listing.state == ListingState::Open, SolxError::InvalidState);
+  require!(listing.state == ListingState::Opened, SolxError::InvalidState);
 
   let payment_mint_currency = get_currency(
     &accounts.price_update,
@@ -100,7 +123,14 @@ pub fn handle(ctx: Context<PurchaseListing>, id: u64) -> Result<()> {
     .unwrap();
 
   let cpi_ctx = CpiContext::new(
-    accounts.token_program.to_account_info(),
+    if
+      accounts.buyer_payment_mint_account.to_account_info().owner ==
+      accounts.token_program.key
+    {
+      accounts.token_program.to_account_info()
+    } else {
+      accounts.token_program_2022.to_account_info()
+    },
     Transfer {
       from: accounts.buyer_payment_mint_account.to_account_info(),
       to: accounts.listing_payment_mint_account.to_account_info(),
@@ -115,7 +145,22 @@ pub fn handle(ctx: Context<PurchaseListing>, id: u64) -> Result<()> {
 
   listing.buyer = accounts.buyer.key();
 
+  listing.payment_amount = to_pay_amount;
+
+  listing.payment_mint = accounts.payment_mint.key();
+
   listing.state = ListingState::Purchased;
+
+  emit!(ListingPurchased {
+    id,
+    global_state: accounts.global_state.key(),
+    listing: listing.key(),
+    nft: accounts.nft_mint.key(),
+    buyer: accounts.buyer.key(),
+    payment_mint: accounts.payment_mint.key(),
+    payment_amount: to_pay_amount,
+    dispute_period_expiry_ts: listing.expiry_ts,
+  });
 
   Ok(())
 }

@@ -4,6 +4,11 @@ use anchor_lang::prelude::*;
 #[derive(InitSpace)]
 pub struct GlobalState {
   pub authority: Pubkey,
+  pub operator: Pubkey,
+
+  pub treasury: Pubkey,
+
+  pub fee: u64,
 }
 
 impl GlobalState {

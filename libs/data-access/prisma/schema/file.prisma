@@ -3,6 +3,8 @@ enum FileType {
   SALE_CONTENT
   SALE_DEMO
   SALE_PREVIEW
+
+  @@schema("api")
 }
 
 model File {
@@ -21,6 +23,8 @@ model File {
   updatedAt DateTime  @updatedAt @map("updated_at")
   User      User      @relation(fields: [userId], references: [id])
   userId    String
+  Sale      Sale[]
 
   @@map("file")
+  @@schema("api")
 }

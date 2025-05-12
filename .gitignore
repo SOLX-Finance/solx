@@ -60,3 +60,7 @@ vitest.config.*.timestamp*
 .env.production
 .env.test
 !.env.example
+
+# Generated files
+libs/data-access/generated/api
+libs/data-access/generated/indexer

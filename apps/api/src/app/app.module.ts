@@ -14,6 +14,7 @@ import { GlobalGuard } from './guards/global.guard';
 import { HealthController } from './health/health.controller';
 import { LoggerModule } from './logger/logger.module';
 import { QueueProcessorModule } from './queue-processor/queue-processor.module';
+import { SaleModule } from './sale/sale.module';
 import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
 
@@ -68,6 +69,9 @@ import { UsersModule } from './users/users.module';
 
     // Marketplace modules (Projects, Purchases, ...)
     UsersModule,
+
+    // Sale module
+    SaleModule,
   ],
   controllers: [HealthController],
   providers: [

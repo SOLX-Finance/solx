@@ -6,12 +6,24 @@ enum Role {
   @@schema("api")
 }
 
+enum KycStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  VERIFIED
+  REJECTED
+}
+
 model User {
   id            String  @id @default(uuid())
   email         String  @unique
   walletAddress String  @unique @map("wallet_address")
-  roles         Role[]  @default([])
+  roles         Role[]  @default([USER])
   isBlocked     Boolean @default(false) @map("is_blocked")
+
+  // KYC verification
+  kycStatus     KycStatus @default(NOT_STARTED) @map("kyc_status")
+  kycDetails    Json?     @map("kyc_details")
+  kycVerifiedAt DateTime? @map("kyc_verified_at")
 
   // Profile
   username         String? @unique
@@ -20,6 +32,7 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  // Relations
   uploadedFiles File[]
 
   @@map("user")

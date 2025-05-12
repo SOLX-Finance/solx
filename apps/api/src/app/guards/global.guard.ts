@@ -1,4 +1,3 @@
-// auth/guards/global.guard.ts
 import { Injectable, ExecutionContext, CanActivate } from '@nestjs/common';
 
 import { PrivyAuthGuard } from '../auth/guards/privy-auth.guard';

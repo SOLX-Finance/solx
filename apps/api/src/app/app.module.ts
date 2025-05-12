@@ -15,6 +15,7 @@ import { HealthController } from './health/health.controller';
 import { LoggerModule } from './logger/logger.module';
 import { QueueProcessorModule } from './queue-processor/queue-processor.module';
 import { StorageModule } from './storage/storage.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -64,6 +65,9 @@ import { StorageModule } from './storage/storage.module';
 
     // Queue processor
     QueueProcessorModule,
+
+    // Marketplace modules (Projects, Purchases, ...)
+    UsersModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -1,0 +1,19 @@
+model Sale {
+  id String @id @default(uuid())
+
+  listingId        String
+  nftMint          String
+  buyer            String
+  collateralMint   String
+  collateralAmount String
+  priceUsd         String
+
+  file   File   @relation(fields: [fileId], references: [id])
+  fileId String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sale")
+  @@schema("indexer")
+}

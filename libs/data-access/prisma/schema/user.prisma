@@ -2,6 +2,8 @@ enum Role {
   USER
   ADMIN
   SUPERADMIN
+
+  @@schema("api")
 }
 
 enum KycStatus {
@@ -34,4 +36,5 @@ model User {
   uploadedFiles File[]
 
   @@map("user")
+  @@schema("api")
 }

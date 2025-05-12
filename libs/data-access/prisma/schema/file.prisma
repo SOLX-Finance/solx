@@ -7,6 +7,8 @@ enum FileType {
   SALE_CONTENT
   SALE_DEMO
   SALE_PREVIEW
+
+  @@schema("api")
 }
 
 enum AiScanResult {
@@ -32,6 +34,8 @@ model File {
   deleted   Boolean   @default(false)
   deletedAt DateTime? @map("deleted_at")
 
+  Sale      Sale[]
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -39,5 +43,7 @@ model File {
   User   User   @relation(fields: [userId], references: [id])
   userId String
 
+
   @@map("file")
+  @@schema("api")
 }

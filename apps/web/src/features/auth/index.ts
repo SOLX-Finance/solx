@@ -1,1 +1,1 @@
-// Currently no components to export
+export { AuthProvider, useAuth } from './contexts/AuthContext';

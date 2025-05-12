@@ -9,6 +9,12 @@ export const envSchema = z.object({
   // Privy authentication
   PRIVY_APP_ID: z.string().min(1, 'Privy App ID is required'),
   PRIVY_CLIENT_ID: z.string().min(1, 'Privy Client ID is required'),
+
+  // API configuration
+  API_URL: z
+    .string()
+    .url('API URL must be a valid URL')
+    .default('http://localhost:3000/api'),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>;
@@ -18,6 +24,7 @@ export const validateEnv = (): EnvSchema => {
     NODE_ENV: import.meta.env.MODE || 'development',
     PRIVY_APP_ID: import.meta.env.VITE_PRIVY_APP_ID,
     PRIVY_CLIENT_ID: import.meta.env.VITE_PRIVY_CLIENT_ID,
+    API_URL: import.meta.env.VITE_API_URL,
   };
 
   try {

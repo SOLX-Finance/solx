@@ -14,10 +14,13 @@ export class AuthService {
       return existingUser;
     }
 
+    const email = privyUser.email?.address ?? '';
+    const walletAddress = privyUser.wallet?.address ?? '';
+
     return await this.userRepository.save({
       id: privyUser.id,
-      email: privyUser.email?.address ?? '',
-      walletAddress: privyUser.wallet?.address ?? '',
+      email,
+      walletAddress,
       roles: [Role.USER],
       isBlocked: false,
       kycStatus: KycStatus.NOT_STARTED,

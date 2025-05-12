@@ -2385,6 +2385,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@esbuild-plugins/node-globals-polyfill@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "@esbuild-plugins/node-globals-polyfill@npm:0.2.3"
+  peerDependencies:
+    esbuild: "*"
+  checksum: 10c0/da3591b3943076a8d4a78320c176f37e5a5802512e2c3a792d4dfe495c051e097668dc56513160147b43e86987078559490164905ef41d1326ac0a9e7a6498ac
+  languageName: node
+  linkType: hard
+
 "@esbuild/aix-ppc64@npm:0.25.3":
   version: 0.25.3
   resolution: "@esbuild/aix-ppc64@npm:0.25.3"
@@ -7491,6 +7500,7 @@ __metadata:
     "@aws-sdk/client-s3": "npm:^3.798.0"
     "@aws-sdk/s3-request-presigner": "npm:^3.798.0"
     "@coral-xyz/anchor": "npm:^0.29.0"
+    "@esbuild-plugins/node-globals-polyfill": "npm:^0.2.3"
     "@eslint/js": "npm:^9.25.1"
     "@nestjs/axios": "npm:^4.0.0"
     "@nestjs/bullmq": "npm:^11.0.1"
@@ -7539,7 +7549,7 @@ __metadata:
     "@vitest/ui": "npm:^3.0.0"
     ai: "npm:^4.3.13"
     autoprefixer: "npm:10.4.13"
-    axios: "npm:^1.6.0"
+    axios: "npm:^1.9.0"
     bullmq: "npm:^5.52.0"
     chai: "npm:^5.2.0"
     class-transformer: "npm:^0.5.1"
@@ -10213,7 +10223,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.6.0, axios@npm:^1.7.4, axios@npm:^1.8.2, axios@npm:^1.8.3":
+"axios@npm:^1.7.4, axios@npm:^1.8.2, axios@npm:^1.8.3, axios@npm:^1.9.0":
   version: 1.9.0
   resolution: "axios@npm:1.9.0"
   dependencies:

@@ -7,7 +7,8 @@ import React, {
   ReactNode,
 } from 'react';
 
-import usePrivy from '../../../hooks/usePrivy';
+import usePrivy from '@/hooks/usePrivy';
+import { httpClient } from '@/services/httpClient';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -37,7 +38,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (ready) {
       setIsLoading(false);
     }
-  }, [ready]);
+
+    // Sync user with backend when authenticated
+    if (ready && authenticated && user) {
+      httpClient
+        .post('/auth/user')
+        .then(() => console.log('User synced with backend'))
+        .catch((error) =>
+          console.error('Error syncing user with backend:', error),
+        );
+    }
+  }, [ready, authenticated, user]);
 
   const hasWallet = Boolean(user?.wallet?.address);
   const hasVerifiedEmail = Boolean(user?.email?.address);

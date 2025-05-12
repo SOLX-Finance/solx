@@ -18,14 +18,12 @@ pub struct ListingCreated {
   pub nft: Pubkey,
   pub buyer: Pubkey,
   pub collateral_mint: Pubkey,
-  pub id: u64,
   pub collateral_amount: u64,
   pub price_usd: u64,
 }
 
 #[event]
 pub struct ListingPurchased {
-  pub id: u64,
   pub global_state: Pubkey,
   pub listing: Pubkey,
   pub nft: Pubkey,
@@ -40,7 +38,6 @@ pub struct ListingClosed {
   pub global_state: Pubkey,
   pub listing: Pubkey,
   pub nft: Pubkey,
-  pub id: u64,
 }
 
 #[event]
@@ -49,7 +46,6 @@ pub struct ListingDisputed {
   pub initiator: Pubkey,
   pub listing: Pubkey,
   pub nft: Pubkey,
-  pub id: u64,
 }
 
 #[event]
@@ -57,6 +53,5 @@ pub struct DisputeResolved {
   pub global_state: Pubkey,
   pub listing: Pubkey,
   pub nft: Pubkey,
-  pub id: u64,
   pub verdict: Verdict,
 }

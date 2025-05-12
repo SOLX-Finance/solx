@@ -11,7 +11,6 @@ use crate::{
   get_currency,
   get_timestamp,
   seeds,
-  DecimalsCorrection,
   GlobalState,
   Listing,
   ListingPurchased,
@@ -22,7 +21,7 @@ use crate::{
 };
 
 #[derive(Accounts)]
-#[instruction(id: u64)]
+#[instruction(id: [u8; 16])]
 pub struct PurchaseListing<'info> {
   #[account(mut)]
   pub buyer: Signer<'info>,
@@ -39,11 +38,7 @@ pub struct PurchaseListing<'info> {
   pub listing: Account<'info, Listing>,
 
   #[account(
-    seeds = [
-      seeds::MINT_SEED,
-      global_state.key().as_ref(),
-      id.to_le_bytes().as_ref(),
-    ],
+    seeds = [seeds::MINT_SEED, global_state.key().as_ref(), id.as_ref()],
     bump
   )]
   pub nft_mint: Account<'info, Mint>,
@@ -102,7 +97,7 @@ pub struct PurchaseListing<'info> {
   pub token_program_2022: Program<'info, Token2022>,
 }
 
-pub fn handle(ctx: Context<PurchaseListing>, id: u64) -> Result<()> {
+pub fn handle(ctx: Context<PurchaseListing>, id: [u8; 16]) -> Result<()> {
   let accounts = ctx.accounts;
 
   let listing = &mut accounts.listing;
@@ -152,7 +147,6 @@ pub fn handle(ctx: Context<PurchaseListing>, id: u64) -> Result<()> {
   listing.state = ListingState::Purchased;
 
   emit!(ListingPurchased {
-    id,
     global_state: accounts.global_state.key(),
     listing: listing.key(),
     nft: accounts.nft_mint.key(),

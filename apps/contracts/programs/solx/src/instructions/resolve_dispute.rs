@@ -29,7 +29,7 @@ use crate::{
 };
 
 #[derive(Accounts)]
-#[instruction(id: u64)]
+#[instruction(id: [u8; 16])]
 pub struct ResolveDispute<'info> {
   #[account(
     mut,
@@ -60,11 +60,7 @@ pub struct ResolveDispute<'info> {
   pub listing: Account<'info, Listing>,
 
   #[account(
-    seeds = [
-      seeds::MINT_SEED,
-      global_state.key().as_ref(),
-      id.to_le_bytes().as_ref(),
-    ],
+    seeds = [seeds::MINT_SEED, global_state.key().as_ref(), id.as_ref()],
     bump
   )]
   pub nft_mint: Account<'info, Mint>,
@@ -173,7 +169,7 @@ pub struct ResolveDispute<'info> {
 
 pub fn handle(
   ctx: Context<ResolveDispute>,
-  id: u64,
+  id: [u8; 16],
   verdict: Verdict
 ) -> Result<()> {
   let accounts = ctx.accounts;
@@ -222,7 +218,6 @@ pub fn handle(
       reset_listing(listing);
 
       emit!(DisputeResolved {
-        id,
         global_state: accounts.global_state.key(),
         listing: listing.key(),
         nft: nft_mint.key(),
@@ -273,7 +268,6 @@ pub fn handle(
       listing.state = ListingState::Banned;
 
       emit!(DisputeResolved {
-        id,
         global_state: accounts.global_state.key(),
         listing: listing.key(),
         nft: nft_mint.key(),
@@ -317,7 +311,6 @@ pub fn handle(
       )?;
 
       emit!(DisputeResolved {
-        id,
         global_state: accounts.global_state.key(),
         listing: listing.key(),
         nft: nft_mint.key(),

@@ -19,7 +19,7 @@ use crate::{
 };
 
 #[derive(Accounts)]
-#[instruction(id: u64)]
+#[instruction(id: [u8; 16])]
 pub struct CloseListing<'info> {
   #[account(mut)]
   pub authority: Signer<'info>,
@@ -28,7 +28,7 @@ pub struct CloseListing<'info> {
   pub payer: Signer<'info>,
 
   #[account(mut)]
-  pub global_state: Account<'info, GlobalState>,
+  pub global_state: Box<Account<'info, GlobalState>>,
 
   #[account(
     mut,
@@ -39,7 +39,7 @@ pub struct CloseListing<'info> {
     ],
     bump
   )]
-  pub listing: Account<'info, Listing>,
+  pub listing: Box<Account<'info, Listing>>,
 
   #[account(
       mut,
@@ -105,32 +105,32 @@ pub struct CloseListing<'info> {
     seeds = [WhitelistedState::PAYMENT_MINT_SEED, collateral_mint.key().as_ref()],
     bump
   )]
-  pub collateral_whitelisted_state: Account<'info, WhitelistedState>,
+  pub collateral_whitelisted_state: Box<Account<'info, WhitelistedState>>,
 
   #[account(
     mut,
     seeds = [WhitelistedState::PAYMENT_MINT_SEED, payment_mint.as_ref().unwrap().key().as_ref()],
     bump
   )]
-  pub payment_whitelisted_state: Option<Account<'info, WhitelistedState>>,
+  pub payment_whitelisted_state: Option<Box<Account<'info, WhitelistedState>>>,
 
   #[account(
     mut,
     seeds = [
       seeds::MINT_SEED,
       global_state.key().as_ref(),
-      id.to_le_bytes().as_ref(),
+      id.as_ref(),
     ],
     bump
   )]
-  pub nft_mint: Account<'info, Mint>,
+  pub nft_mint: Box<Account<'info, Mint>>,
 
   #[account(
     mut,
     constraint = nft_token_account.owner.eq(&authority.key()),
     constraint = nft_token_account.mint.eq(&nft_mint.key())
   )]
-  pub nft_token_account: Account<'info, TokenAccount>,
+  pub nft_token_account: Box<Account<'info, TokenAccount>>,
 
   pub system_program: Program<'info, System>,
 
@@ -141,7 +141,7 @@ pub struct CloseListing<'info> {
   pub rent: Sysvar<'info, Rent>,
 }
 
-pub fn handle(ctx: Context<CloseListing>, id: u64) -> Result<()> {
+pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
   let accounts = ctx.accounts;
 
   let global_state_key = accounts.global_state.key();

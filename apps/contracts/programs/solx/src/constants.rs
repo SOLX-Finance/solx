@@ -13,6 +13,11 @@ pub mod seeds {
   pub const EDITION_SEED: &[u8; 7] = b"edition";
 }
 
+pub mod wsol {
+  use anchor_lang::declare_id;
+  declare_id!("So11111111111111111111111111111111111111112");
+}
+
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub enum Verdict {
   BuyerFault,

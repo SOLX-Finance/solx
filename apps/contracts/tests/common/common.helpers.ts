@@ -25,17 +25,56 @@ import {
   TransactionInstruction,
 } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
+import expect from 'expect';
 import { Clock, LiteSVM } from 'litesvm';
 
 import { processTransaction } from './utils';
 
-import { SOL_MINT, SYSTEM_PROGRAM_ID } from '../constants/constants';
+import {
+  METADATA_PROGRAM_ID,
+  seeds,
+  SOL_MINT,
+  SYSTEM_PROGRAM_ID,
+} from '../constants/constants';
+import { SOLX_PROGRAM_ID } from '../constants/contract.constants';
 
 export type OptionalCommonParams = {
   from?: Keypair;
   revertedWith?: {
     message?: string;
   };
+};
+
+export const expectNotReverted = async (promise: Promise<unknown>) => {
+  try {
+    await promise;
+  } catch (err) {
+    console.error(
+      `Expected tx to not revert, but it reverted. Err: ${err.toString()}`,
+    );
+    expect(true).toEqual(false);
+  }
+};
+
+export const expectReverted = async (
+  promise: Promise<unknown>,
+  reason?: string,
+) => {
+  let isReverted = true;
+
+  try {
+    await promise;
+    isReverted = false;
+    throw '';
+  } catch (err) {
+    const message = err.toString();
+    if (!isReverted) {
+      console.error('Expect reverted, but it didn`t revert');
+      expect(true).toStrictEqual(false);
+    } else if (reason) {
+      expect(message).toContain(reason);
+    }
+  }
 };
 
 export const getBalance = async (
@@ -259,4 +298,44 @@ export async function wrapSol(
   }
 
   return ata;
+}
+
+export function getListing(globalState: PublicKey, nftMint: PublicKey) {
+  return PublicKey.findProgramAddressSync(
+    [seeds.LISTING_SEED, globalState.toBuffer(), nftMint.toBuffer()],
+    SOLX_PROGRAM_ID,
+  );
+}
+
+export function getWhitelistedState(globalState: PublicKey, mint: PublicKey) {
+  return PublicKey.findProgramAddressSync(
+    [seeds.PAYMENT_MINT_SEED, globalState.toBuffer(), mint.toBuffer()],
+    SOLX_PROGRAM_ID,
+  );
+}
+
+export function getNftMint(globalState: PublicKey, id: Uint8Array) {
+  return PublicKey.findProgramAddressSync(
+    [seeds.MINT_SEED, globalState.toBuffer(), id],
+    SOLX_PROGRAM_ID,
+  );
+}
+
+export function getMasterEditionAccount(nftMint: PublicKey) {
+  return PublicKey.findProgramAddressSync(
+    [
+      seeds.METADATA_SEED,
+      METADATA_PROGRAM_ID.toBuffer(),
+      nftMint.toBuffer(),
+      seeds.MASTER_EDITION_SEED,
+    ],
+    METADATA_PROGRAM_ID,
+  );
+}
+
+export function getNftMetadata(nftMint: PublicKey) {
+  return PublicKey.findProgramAddressSync(
+    [seeds.METADATA_SEED, METADATA_PROGRAM_ID.toBuffer(), nftMint.toBuffer()],
+    METADATA_PROGRAM_ID,
+  );
 }

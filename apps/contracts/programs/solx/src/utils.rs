@@ -4,6 +4,7 @@ use pyth_solana_receiver_sdk::price_update::{
   Price,
   PriceUpdateV2,
 };
+use solana_program::{ program::{ invoke_signed }, system_instruction };
 
 use crate::{ Listing, ListingState, PRICE_MAX_AGE };
 
@@ -36,4 +37,22 @@ pub fn reset_listing(listing: &mut Listing) {
   listing.payment_amount = 0;
   listing.expiry_ts = 0;
   listing.state = ListingState::Opened;
+}
+
+pub fn send_sol<'a>(
+  system_program: &AccountInfo<'a>,
+  from: &AccountInfo<'a>,
+  to: &AccountInfo<'a>,
+  lamports: u64,
+  signer_seeds: Option<&[&[&[u8]]]>
+) -> Result<()> {
+  let signer_seeds = signer_seeds.unwrap_or(&[&[]]);
+
+  invoke_signed(
+    &system_instruction::transfer(&from.key(), &to.key(), lamports),
+    &[from.clone(), to.clone(), system_program.clone()],
+    signer_seeds
+  )?;
+
+  Ok(())
 }

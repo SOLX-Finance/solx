@@ -115,12 +115,31 @@ export class IndexerProcessor extends WorkerHost {
       throw new Error('User not found');
     }
 
+    const sale = await tx.sale.findFirst({
+      where: {
+        listingId: data.id,
+      },
+    });
+
+    if (!sale) {
+      throw new Error('Sale not found');
+    }
+
     await tx.file.update({
       where: {
         id: file.id,
       },
       data: {
         userId: user.id,
+      },
+    });
+
+    await tx.sale.update({
+      where: {
+        id: sale.id,
+      },
+      data: {
+        buyer: data.buyer,
       },
     });
   }

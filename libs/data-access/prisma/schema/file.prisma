@@ -17,6 +17,8 @@ enum AiScanResult {
   CLEAN
   SUSPICIOUS
   MALICIOUS
+
+  @@schema("api")
 }
 
 model File {
@@ -34,7 +36,7 @@ model File {
   deleted   Boolean   @default(false)
   deletedAt DateTime? @map("deleted_at")
 
-  Sale      Sale[]
+  Sale Sale[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -42,7 +44,6 @@ model File {
   // Relations
   User   User   @relation(fields: [userId], references: [id])
   userId String
-
 
   @@map("file")
   @@schema("api")

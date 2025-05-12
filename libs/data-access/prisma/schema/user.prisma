@@ -11,6 +11,8 @@ enum KycStatus {
   IN_PROGRESS
   VERIFIED
   REJECTED
+
+  @@schema("api")
 }
 
 model User {

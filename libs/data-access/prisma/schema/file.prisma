@@ -1,26 +1,43 @@
 enum FileType {
+  // User files
   PROFILE_PICTURE
+  KYC_DOCUMENT
+
+  // Project files
   SALE_CONTENT
   SALE_DEMO
   SALE_PREVIEW
 }
 
+enum AiScanResult {
+  NOT_SCANNED
+  SCANNING
+  CLEAN
+  SUSPICIOUS
+  MALICIOUS
+}
+
 model File {
-  id              String   @id @default(uuid())
-  type            FileType
-  remoteId        String   @unique @default(uuid()) @map("remote_id")
-  mimeType        String   @map("mime_type")
-  aiReviewed      Boolean  @default(false) @map("ai_reviewed")
-  aiReviewDetails Json?    @map("ai_review_details")
-  contentHash     String?  @map("content_hash")
+  id          String   @id @default(uuid())
+  type        FileType
+  remoteId    String   @unique @default(uuid()) @map("remote_id")
+  mimeType    String   @map("mime_type")
+  contentHash String?  @map("content_hash")
 
-  deleted Boolean @default(false)
+  // AI Security Scanning
+  aiReviewed      Boolean      @default(false) @map("ai_reviewed")
+  aiScanResult    AiScanResult @default(NOT_SCANNED) @map("ai_scan_result")
+  aiReviewDetails Json?        @map("ai_review_details")
 
+  deleted   Boolean   @default(false)
   deletedAt DateTime? @map("deleted_at")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  User      User      @relation(fields: [userId], references: [id])
-  userId    String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  User   User   @relation(fields: [userId], references: [id])
+  userId String
 
   @@map("file")
 }

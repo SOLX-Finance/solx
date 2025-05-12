@@ -2,6 +2,7 @@ model Sale {
   id String @id @default(uuid())
 
   listingId        String
+  listing          String
   nftMint          String
   buyer            String
   collateralMint   String

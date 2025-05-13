@@ -14,6 +14,7 @@ pub use state::*;
 pub use utils::*;
 pub use decimal_correction::*;
 pub use event::*;
+pub use decimal_correction::*;
 
 declare_id!("8jbXs1fR9Bm5dh7N6Dr4ySsZWEeHeKTgsTYFjL386bcN");
 
@@ -79,5 +80,13 @@ pub mod solx {
     whitelisted: bool
   ) -> Result<()> {
     whitelist::handle(ctx, mint, whitelisted)
+  }
+
+  pub fn update_mint(
+    ctx: Context<UpdateMint>,
+    payment_mint: Pubkey,
+    feed: String
+  ) -> Result<()> {
+    update_mint::handle(ctx, payment_mint, feed)
   }
 }

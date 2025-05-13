@@ -339,3 +339,17 @@ export function getNftMetadata(nftMint: PublicKey) {
     METADATA_PROGRAM_ID,
   );
 }
+
+export function getVault(globalState: PublicKey) {
+  return PublicKey.findProgramAddressSync(
+    [seeds.VAULT_SEED, globalState.toBuffer()],
+    SOLX_PROGRAM_ID,
+  );
+}
+
+export function getPaymentMintState(globalState: PublicKey, mint: PublicKey) {
+  return PublicKey.findProgramAddressSync(
+    [seeds.PAYMENT_MINT_STATE_SEED, globalState.toBuffer(), mint.toBuffer()],
+    SOLX_PROGRAM_ID,
+  );
+}

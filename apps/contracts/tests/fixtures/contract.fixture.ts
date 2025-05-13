@@ -20,6 +20,7 @@ import { LiteSVM } from 'litesvm';
 import { Solx, IDL } from '../../target/types/solx';
 import {
   createMint,
+  getPaymentMintState,
   getWhitelistedState,
   toBN,
 } from '../common/common.helpers';
@@ -27,7 +28,9 @@ import { LiteSvmProgram } from '../common/LiteSvm';
 import { AddedAccount } from '../common/types';
 import { processTransaction } from '../common/utils';
 import {
+  FEED_IDS,
   METADATA_PROGRAM_ID,
+  PYTH_PRICE_UPDATE,
   seeds,
   SOL_MINT,
   USDC_MINT,
@@ -37,7 +40,7 @@ import { SOLX_PROGRAM_ID } from '../constants/contract.constants';
 export const connection = new Connection('https://solana-rpc.publicnode.com');
 
 let WSOL_DATA: any = undefined;
-
+let PYTH_PRICE_UPDATE_DATA: any = undefined;
 export const initSvm = async () => {
   const svm = new LiteSVM();
 
@@ -52,7 +55,20 @@ export const initSvm = async () => {
     }
   }
 
+  if (!PYTH_PRICE_UPDATE_DATA) {
+    const pythPriceUpdateData =
+      await connection.getAccountInfo(PYTH_PRICE_UPDATE);
+
+    if (pythPriceUpdateData) {
+      PYTH_PRICE_UPDATE_DATA = {
+        ...pythPriceUpdateData,
+        rentEpoch: 123,
+      };
+    }
+  }
+
   svm.setAccount(SOL_MINT, WSOL_DATA);
+  svm.setAccount(PYTH_PRICE_UPDATE, PYTH_PRICE_UPDATE_DATA);
 
   const accounts: Keypair[] = [];
   const accountsToInject: AddedAccount[] = [];
@@ -227,6 +243,36 @@ export const initSvm = async () => {
 
   await processTransaction(svm, whitelistUsdcIx, [authority]);
   await processTransaction(svm, whitelistSolIx, [authority]);
+
+  const [solMintState] = getPaymentMintState(globalState.publicKey, SOL_MINT);
+  const [usdcMintState] = getPaymentMintState(globalState.publicKey, usdcMint);
+
+  const updateSolMintIx = new Transaction().add(
+    await customProgram.methods
+      .updateMint(SOL_MINT, FEED_IDS.SOL)
+      .accounts({
+        authority: authority.publicKey,
+        globalState: globalState.publicKey,
+        paymentMintState: solMintState,
+      })
+      .signers([authority])
+      .instruction(),
+  );
+
+  const updateUsdcMintIx = new Transaction().add(
+    await customProgram.methods
+      .updateMint(usdcMint, FEED_IDS.USDC)
+      .accounts({
+        authority: authority.publicKey,
+        globalState: globalState.publicKey,
+        paymentMintState: usdcMintState,
+      })
+      .signers([authority])
+      .instruction(),
+  );
+
+  await processTransaction(svm, updateSolMintIx, [authority]);
+  await processTransaction(svm, updateUsdcMintIx, [authority]);
 
   return {
     svm,

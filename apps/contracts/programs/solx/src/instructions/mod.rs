@@ -18,3 +18,6 @@ pub use close_listing::*;
 
 pub mod whitelist;
 pub use whitelist::*;
+
+pub mod update_mint;
+pub use update_mint::*;

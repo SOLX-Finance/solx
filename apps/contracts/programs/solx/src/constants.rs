@@ -6,6 +6,8 @@ pub const PRICE_MAX_AGE: u8 = 120;
 
 pub const PERCENTAGE_SCALE: u64 = 1_000_000_000;
 
+pub const PRICE_SCALE: u64 = PERCENTAGE_SCALE;
+
 pub mod seeds {
   pub const VAULT_SEED: &[u8; 7] = b"d_vault";
   pub const MINT_SEED: &[u8; 4] = b"mint";

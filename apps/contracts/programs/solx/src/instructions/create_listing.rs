@@ -42,6 +42,10 @@ pub struct MintNft<'info> {
   #[account(mut)]
   pub global_state: Box<Account<'info, GlobalState>>,
 
+  #[account(mut,seeds = [seeds::VAULT_SEED, global_state.key().as_ref()], bump)]
+  /// CHECK:
+  pub vault: AccountInfo<'info>,
+
   #[account(address = global_state.authority)]
   /// CHECK:
   pub global_state_authority: AccountInfo<'info>,
@@ -50,8 +54,8 @@ pub struct MintNft<'info> {
     init,
     payer = payer,
     mint::decimals = 0,
-    mint::authority = lister,
-    mint::freeze_authority = lister,
+    mint::authority = vault,
+    mint::freeze_authority = vault,
     seeds = [seeds::MINT_SEED, global_state.key().as_ref(), id.as_ref()],
     bump
   )]
@@ -65,11 +69,26 @@ pub struct MintNft<'info> {
   )]
   pub nft_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
-  #[account(mut)]
+  #[account(
+      mut,
+      seeds = [
+        seeds::METADATA_SEED,
+        metadata_program.key().as_ref(),
+        nft_mint.key().as_ref(),
+        seeds::EDITION_SEED,
+      ],
+      bump,
+      seeds::program = metadata_program.key()
+    )]
   /// CHECK:
   pub master_edition_account: UncheckedAccount<'info>,
 
-  #[account(mut)]
+  #[account(
+    mut,
+    seeds = [seeds::METADATA_SEED, metadata_program.key().as_ref(), nft_mint.key().as_ref()], 
+    bump,
+    seeds::program = metadata_program.key()
+  )]
   /// CHECK:
   pub nft_metadata: UncheckedAccount<'info>,
 
@@ -87,30 +106,38 @@ pub fn handle_mint_nft(
   symbol: String,
   uri: String
 ) -> Result<()> {
-  let nft_mint = ctx.accounts.nft_mint.key();
+  let global_state_key = ctx.accounts.global_state.key();
 
-  // Mint NFT
+  let vault_seeds: &[&[&[u8]]] = &[
+    &[seeds::VAULT_SEED, global_state_key.as_ref(), &[ctx.bumps.vault]],
+  ];
+
   mint_to(
-    CpiContext::new(ctx.accounts.token_program.to_account_info(), MintTo {
-      authority: ctx.accounts.lister.to_account_info(),
-      to: ctx.accounts.nft_token_account.to_account_info(),
-      mint: ctx.accounts.nft_mint.to_account_info(),
-    }),
+    CpiContext::new_with_signer(
+      ctx.accounts.token_program.to_account_info(),
+      MintTo {
+        authority: ctx.accounts.vault.to_account_info(),
+        to: ctx.accounts.nft_token_account.to_account_info(),
+        mint: ctx.accounts.nft_mint.to_account_info(),
+      },
+      vault_seeds
+    ),
     1
   )?;
 
   create_metadata_accounts_v3(
-    CpiContext::new(
+    CpiContext::new_with_signer(
       ctx.accounts.metadata_program.to_account_info(),
       CreateMetadataAccountsV3 {
         payer: ctx.accounts.payer.to_account_info(),
         mint: ctx.accounts.nft_mint.to_account_info(),
         metadata: ctx.accounts.nft_metadata.to_account_info(),
-        mint_authority: ctx.accounts.lister.to_account_info(),
+        mint_authority: ctx.accounts.vault.to_account_info(),
         update_authority: ctx.accounts.global_state_authority.to_account_info(),
         system_program: ctx.accounts.system_program.to_account_info(),
         rent: ctx.accounts.rent.to_account_info(),
-      }
+      },
+      vault_seeds
     ),
     DataV2 {
       name,
@@ -127,19 +154,20 @@ pub fn handle_mint_nft(
   )?;
 
   create_master_edition_v3(
-    CpiContext::new(
+    CpiContext::new_with_signer(
       ctx.accounts.metadata_program.to_account_info(),
       CreateMasterEditionV3 {
         edition: ctx.accounts.master_edition_account.to_account_info(),
         payer: ctx.accounts.payer.to_account_info(),
         mint: ctx.accounts.nft_mint.to_account_info(),
         metadata: ctx.accounts.nft_metadata.to_account_info(),
-        mint_authority: ctx.accounts.lister.to_account_info(),
+        mint_authority: ctx.accounts.vault.to_account_info(),
         update_authority: ctx.accounts.global_state_authority.to_account_info(),
         system_program: ctx.accounts.system_program.to_account_info(),
         token_program: ctx.accounts.token_program.to_account_info(),
         rent: ctx.accounts.rent.to_account_info(),
-      }
+      },
+      vault_seeds
     ),
     Some(1)
   )?;
@@ -197,13 +225,15 @@ pub struct CreateListing<'info> {
       collateral_mint.key().as_ref()
     ],
     bump,
-    constraint = whitelisted_state.whitelisted == true @ SolxError::MintNotWhitelisted
+    constraint = whitelisted_state.whitelisted.eq(&true) @ SolxError::MintNotWhitelisted
   )]
   pub whitelisted_state: Box<Account<'info, WhitelistedState>>,
 
-  #[account(mut)]
-  /// CHECK:
-  pub nft_metadata: UncheckedAccount<'info>,
+  #[account(
+    constraint = nft_token_account.mint.key().eq(&nft_mint.key()) @ SolxError::InvalidNftMint,
+    constraint = nft_token_account.owner.key().eq(&lister.key()) @ SolxError::Forbidden,
+  )]
+  pub nft_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
   #[account()]
   pub nft_mint: Box<InterfaceAccount<'info, Mint>>,
@@ -248,7 +278,7 @@ pub fn handle_create_listing(
   listing.collateral_amount = collateral_amount;
   listing.collateral_mint = ctx.accounts.collateral_mint.key();
   listing.price_usd = price_amount;
-  listing.nft = ctx.accounts.nft_metadata.key();
+  listing.nft = ctx.accounts.nft_mint.key();
   listing.state = ListingState::Opened;
 
   emit!(ListingCreated {

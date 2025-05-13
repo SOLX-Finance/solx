@@ -10,6 +10,7 @@ use anchor_spl::token_interface::{
 
 use crate::error::SolxError;
 use crate::{
+  get_timestamp,
   seeds,
   GlobalState,
   Listing,
@@ -161,6 +162,15 @@ pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
     accounts.listing.state == ListingState::Purchased;
 
   require!(open_or_purchased, SolxError::InvalidState);
+
+  let now = get_timestamp()?;
+
+  if accounts.listing.state == ListingState::Purchased {
+    require!(
+      now > accounts.listing.expiry_ts,
+      SolxError::DisputePeriodNotExpired
+    );
+  }
 
   if open_or_purchased {
     transfer(

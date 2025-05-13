@@ -36,6 +36,7 @@ model User {
 
   // Relations
   uploadedFiles File[]
+  Sale          Sale[]
 
   @@map("user")
   @@schema("api")

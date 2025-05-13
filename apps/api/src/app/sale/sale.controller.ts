@@ -1,7 +1,18 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Sale } from '@prisma/client';
 
+import {
+  CreateSaleRequestDto,
+  CreateSaleResponseDto,
+} from './dtos/create-sale.dto';
 import { GetSaleByIdRequestDto } from './dtos/get-sale-by-id.dto';
 import {
   GetSalesByUserRequestDto,
@@ -11,12 +22,35 @@ import { GetSalesResponseDto } from './dtos/get-sales.dto';
 import { SaleService } from './sale.service';
 
 import { Public } from '../auth/decorators/is-public.decorator';
+import {
+  RequestUser,
+  UserClaims,
+} from '../auth/decorators/request-user.decorator';
 
 @Controller('sales')
 export class SaleController {
   constructor(private readonly saleService: SaleService) {}
 
-  @Public()
+  @Post()
+  @ApiOperation({ summary: 'Create a sale' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the id of the created sale',
+  })
+  async createSale(
+    @Body() body: CreateSaleRequestDto,
+    @RequestUser() user: UserClaims,
+  ): Promise<CreateSaleResponseDto> {
+    const sale = await this.saleService.createSale({
+      ...body,
+      user: user.dbUser,
+    });
+
+    return {
+      id: sale.id,
+    };
+  }
+
   @Get('/active')
   @ApiOperation({ summary: 'Get all sales' })
   @ApiResponse({

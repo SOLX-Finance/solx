@@ -10,10 +10,15 @@ use anchor_spl::token_interface::{
 
 use crate::error::SolxError;
 use crate::{
+  bytes_to_uuid,
   get_timestamp,
   seeds,
+  send_sol,
+  transfer_lamports,
+  wsol,
   GlobalState,
   Listing,
+  ListingClosed,
   ListingState,
   WhitelistedState,
   PERCENTAGE_SCALE,
@@ -26,10 +31,14 @@ pub struct CloseListing<'info> {
   pub authority: Signer<'info>,
 
   #[account(mut)]
-  pub payer: Signer<'info>,
-
-  #[account(mut)]
   pub global_state: Box<Account<'info, GlobalState>>,
+
+  #[account(
+    mut,
+    address = global_state.treasury
+  )]
+  /// CHECK:
+  pub treasury: AccountInfo<'info>,
 
   #[account(
     mut,
@@ -56,8 +65,8 @@ pub struct CloseListing<'info> {
       constraint = listing_payment_mint_account.mint.key().eq(&payment_mint.as_ref().unwrap().key()) @ SolxError::InvalidPaymentMint,
       constraint = listing_payment_mint_account.owner.key().eq(&listing.key()) @ SolxError::Forbidden,
   )]
-  pub listing_payment_mint_account: Box<
-    InterfaceAccount<'info, TokenAccountTrait>
+  pub listing_payment_mint_account: Option<
+    Box<InterfaceAccount<'info, TokenAccountTrait>>
   >,
 
   #[account(
@@ -103,14 +112,14 @@ pub struct CloseListing<'info> {
 
   #[account(
     mut,
-    seeds = [WhitelistedState::PAYMENT_MINT_SEED, collateral_mint.key().as_ref()],
+    seeds = [WhitelistedState::PAYMENT_MINT_SEED, global_state.key().as_ref(), collateral_mint.key().as_ref()],
     bump
   )]
   pub collateral_whitelisted_state: Box<Account<'info, WhitelistedState>>,
 
   #[account(
     mut,
-    seeds = [WhitelistedState::PAYMENT_MINT_SEED, payment_mint.as_ref().unwrap().key().as_ref()],
+    seeds = [WhitelistedState::PAYMENT_MINT_SEED, global_state.key().as_ref(), payment_mint.as_ref().unwrap().key().as_ref()],
     bump
   )]
   pub payment_whitelisted_state: Option<Box<Account<'info, WhitelistedState>>>,
@@ -173,26 +182,34 @@ pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
   }
 
   if open_or_purchased {
-    transfer(
-      CpiContext::new_with_signer(
-        if
-          accounts.collateral_mint
-            .to_account_info()
-            .owner.eq(&accounts.token_program.key())
-        {
-          accounts.token_program.to_account_info()
-        } else {
-          accounts.token_program_2022.to_account_info()
-        },
-        Transfer {
-          from: accounts.listing_collateral_mint_account.to_account_info(),
-          to: accounts.authority_collateral_mint_account.to_account_info(),
-          authority: accounts.listing.to_account_info(),
-        },
-        listing_seeds
-      ),
-      accounts.listing.collateral_amount
-    )?;
+    if accounts.collateral_mint.key() != wsol::ID {
+      transfer(
+        CpiContext::new_with_signer(
+          if
+            accounts.collateral_mint
+              .to_account_info()
+              .owner.eq(&accounts.token_program.key())
+          {
+            accounts.token_program.to_account_info()
+          } else {
+            accounts.token_program_2022.to_account_info()
+          },
+          Transfer {
+            from: accounts.listing_collateral_mint_account.to_account_info(),
+            to: accounts.authority_collateral_mint_account.to_account_info(),
+            authority: accounts.listing.to_account_info(),
+          },
+          listing_seeds
+        ),
+        accounts.listing.collateral_amount
+      )?;
+    } else {
+      transfer_lamports(
+        &accounts.listing.to_account_info(),
+        &accounts.authority.to_account_info(),
+        accounts.listing.collateral_amount
+      )?;
+    }
   }
 
   if accounts.listing.state == ListingState::Purchased {
@@ -208,54 +225,80 @@ pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
       .checked_sub(fee_amount)
       .unwrap();
 
-    transfer(
-      CpiContext::new_with_signer(
-        if
-          accounts.collateral_mint
-            .to_account_info()
-            .owner.eq(&accounts.token_program.key())
-        {
-          accounts.token_program.to_account_info()
-        } else {
-          accounts.token_program_2022.to_account_info()
-        },
-        Transfer {
-          from: accounts.listing_payment_mint_account.to_account_info(),
-          to: accounts.authority_payment_mint_account
-            .as_ref()
-            .unwrap()
-            .to_account_info(),
-          authority: accounts.listing.to_account_info(),
-        },
-        listing_seeds
-      ),
-      amount_to_transfer
-    )?;
+    if accounts.payment_mint.as_ref().unwrap().key() != wsol::ID {
+      transfer(
+        CpiContext::new_with_signer(
+          if
+            accounts.collateral_mint
+              .to_account_info()
+              .owner.eq(&accounts.token_program.key())
+          {
+            accounts.token_program.to_account_info()
+          } else {
+            accounts.token_program_2022.to_account_info()
+          },
+          Transfer {
+            from: accounts.listing_payment_mint_account
+              .as_ref()
+              .unwrap()
+              .to_account_info(),
+            to: accounts.authority_payment_mint_account
+              .as_ref()
+              .unwrap()
+              .to_account_info(),
+            authority: accounts.listing.to_account_info(),
+          },
+          listing_seeds
+        ),
+        amount_to_transfer
+      )?;
+    } else {
+      transfer_lamports(
+        &accounts.listing.to_account_info(),
+        &accounts.authority.to_account_info(),
+        amount_to_transfer
+      )?;
+    }
 
-    transfer(
-      CpiContext::new_with_signer(
-        if
-          accounts.collateral_mint
-            .to_account_info()
-            .owner.eq(&accounts.token_program.key())
-        {
-          accounts.token_program.to_account_info()
-        } else {
-          accounts.token_program_2022.to_account_info()
-        },
-        Transfer {
-          from: accounts.listing_payment_mint_account.to_account_info(),
-          to: accounts.treasury_payment_mint_account
-            .as_ref()
-            .unwrap()
-            .to_account_info(),
-          authority: accounts.listing.to_account_info(),
-        },
-        listing_seeds
-      ),
-      fee_amount
-    )?;
+    if accounts.payment_mint.as_ref().unwrap().key() != wsol::ID {
+      transfer(
+        CpiContext::new_with_signer(
+          if
+            accounts.collateral_mint
+              .to_account_info()
+              .owner.eq(&accounts.token_program.key())
+          {
+            accounts.token_program.to_account_info()
+          } else {
+            accounts.token_program_2022.to_account_info()
+          },
+          Transfer {
+            from: accounts.listing_payment_mint_account.to_account_info(),
+            to: accounts.treasury_payment_mint_account
+              .as_ref()
+              .unwrap()
+              .to_account_info(),
+            authority: accounts.listing.to_account_info(),
+          },
+          listing_seeds
+        ),
+        fee_amount
+      )?;
+    } else {
+      transfer_lamports(
+        &accounts.listing.to_account_info(),
+        &accounts.treasury.to_account_info(),
+        fee_amount
+      )?;
+    }
   }
+
+  emit!(ListingClosed {
+    id: bytes_to_uuid(id),
+    global_state: accounts.global_state.key(),
+    listing: accounts.listing.key(),
+    nft: accounts.nft_mint.key(),
+  });
 
   Ok(())
 }

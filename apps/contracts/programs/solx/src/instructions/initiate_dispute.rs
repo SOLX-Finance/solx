@@ -8,6 +8,7 @@ use anchor_spl::token::{
 };
 
 use crate::{
+  bytes_to_uuid,
   error::SolxError,
   get_timestamp,
   seeds,
@@ -104,6 +105,7 @@ pub fn handle(ctx: Context<InitiateDispute>, id: [u8; 16]) -> Result<()> {
   )?;
 
   emit!(ListingDisputed {
+    id: bytes_to_uuid(id),
     global_state: ctx.accounts.global_state.key(),
     listing: ctx.accounts.listing.key(),
     nft: ctx.accounts.nft_mint.key(),

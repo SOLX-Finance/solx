@@ -28,6 +28,7 @@ import { LiteSvmProgram } from '../common/LiteSvm';
 import { AddedAccount } from '../common/types';
 import { processTransaction } from '../common/utils';
 import {
+  FEE,
   FEED_IDS,
   METADATA_PROGRAM_ID,
   PYTH_PRICE_UPDATE,
@@ -170,8 +171,6 @@ export const initSvm = async () => {
   const operator = accounts[1];
   const treasury = accounts[2];
 
-  const fee = toBN(10000000);
-
   const globalState = Keypair.generate();
 
   const [vault] = PublicKey.findProgramAddressSync(
@@ -185,7 +184,7 @@ export const initSvm = async () => {
         authority.publicKey,
         operator.publicKey,
         treasury.publicKey,
-        fee,
+        FEE,
       )
       .accounts({
         signer: authority.publicKey,
@@ -202,7 +201,7 @@ export const initSvm = async () => {
     globalState.publicKey,
   );
 
-  expect(gState.fee.toString()).toBe(fee.toString());
+  expect(gState.fee.toString()).toBe(FEE.toString());
   expect(gState.authority.toString()).toBe(authority.publicKey.toString());
   expect(gState.operator.toString()).toBe(operator.publicKey.toString());
   expect(gState.treasury.toString()).toBe(treasury.publicKey.toString());

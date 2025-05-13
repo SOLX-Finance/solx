@@ -16,6 +16,7 @@ use anchor_spl::{
 };
 
 use crate::{
+  bytes_to_uuid,
   error::SolxError,
   reset_listing,
   seeds,
@@ -193,6 +194,8 @@ pub fn handle(
 
   let listing = &mut accounts.listing;
 
+  let id = bytes_to_uuid(id);
+
   match verdict {
     Verdict::BuyerFault => {
       transfer(
@@ -218,6 +221,7 @@ pub fn handle(
       reset_listing(listing);
 
       emit!(DisputeResolved {
+        id,
         global_state: accounts.global_state.key(),
         listing: listing.key(),
         nft: nft_mint.key(),
@@ -268,6 +272,7 @@ pub fn handle(
       listing.state = ListingState::Banned;
 
       emit!(DisputeResolved {
+        id,
         global_state: accounts.global_state.key(),
         listing: listing.key(),
         nft: nft_mint.key(),
@@ -311,6 +316,7 @@ pub fn handle(
       )?;
 
       emit!(DisputeResolved {
+        id,
         global_state: accounts.global_state.key(),
         listing: listing.key(),
         nft: nft_mint.key(),

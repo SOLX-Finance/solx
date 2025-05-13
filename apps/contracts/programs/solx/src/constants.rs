@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 
-pub const DISPUTE_PERIOD_SECS: u64 = 7 * 24 * 60 * 60;
+pub const DISPUTE_PERIOD_SECS: u64 = 60;
 
-pub const PRICE_MAX_AGE: u8 = 120;
+pub const PRICE_MAX_AGE: u8 = 255;
 
 pub const PERCENTAGE_SCALE: u64 = 1_000_000_000;
 

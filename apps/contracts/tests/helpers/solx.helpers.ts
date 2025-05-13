@@ -21,9 +21,13 @@ import {
   toBN,
   getVault,
   getPaymentMintState,
+  getBalance,
 } from '../common/common.helpers';
 import { processTransaction } from '../common/utils';
 import {
+  DISPUTE_PERIOD_SECS,
+  FEE,
+  FEE_DENOMINATOR,
   listingState,
   METADATA_PROGRAM_ID,
   PYTH_PRICE_UPDATE,
@@ -31,7 +35,7 @@ import {
 } from '../constants/constants';
 import { ContractFixture } from '../fixtures/contract.fixture';
 
-function uuidToBytes(uuid: string): Uint8Array {
+export function uuidToBytes(uuid: string): Uint8Array {
   const hexStr = uuid.replace(/-/g, '');
 
   if (hexStr.length !== 32) {
@@ -165,7 +169,7 @@ export const createListing = async (
   expect(listingAccount.collateralAmount.toString()).toBe(
     collateralAmount.toString(),
   );
-  expect(Object.keys(listingState)[0]).toBe(listingState.Opened);
+  expect(Object.keys(listingAccount.state)[0]).toBe(listingState.Opened);
 
   const nftMetadataAccount = fixture.svm.getAccount(nftMetadata);
 
@@ -252,7 +256,195 @@ export async function purchaseListing(
     return;
   }
 
+  const now = fixture.svm.getClock().unixTimestamp;
+
   await expectNotReverted(
     processTransaction(fixture.svm, purchaseListingTx, [from]),
+  );
+
+  const listingAccount = await fixture.program.account.listing.fetch(listing);
+
+  expect(BigInt(listingAccount.expiryTs.toNumber())).toBe(
+    now + DISPUTE_PERIOD_SECS,
+  );
+
+  expect(Object.keys(listingAccount.state)[0]).toBe(listingState.Purchased);
+}
+
+export async function closeListing(
+  fixture: ContractFixture,
+  testProps: {
+    uuid: string;
+    collateralMint: PublicKey;
+    paymentMint: PublicKey;
+  },
+  opt?: OptionalCommonParams,
+) {
+  const { uuid, collateralMint, paymentMint } = testProps;
+
+  const { program, globalState, authority, treasury } = fixture;
+
+  const from = opt?.from ?? authority;
+
+  const listingIdBytes = uuidToBytes(uuid);
+
+  const [nftMint] = getNftMint(globalState.publicKey, listingIdBytes);
+
+  const [listing] = getListing(globalState.publicKey, nftMint);
+
+  const listingCollateralMintAccount = await getOrCreateAta(
+    collateralMint,
+    fixture.svm,
+    listing,
+    from,
+  );
+
+  const listingPaymentMintAccount = await getOrCreateAta(
+    paymentMint,
+    fixture.svm,
+    listing,
+    from,
+  );
+
+  const authorityCollateralMintAccount = await getOrCreateAta(
+    collateralMint,
+    fixture.svm,
+    from.publicKey,
+    from,
+  );
+
+  const authorityPaymentMintAccount = await getOrCreateAta(
+    paymentMint,
+    fixture.svm,
+    from.publicKey,
+    from,
+  );
+
+  const treasuryPaymentMintAccount = await getOrCreateAta(
+    paymentMint,
+    fixture.svm,
+    treasury.publicKey,
+    from,
+  );
+
+  const [collateralWhitelistedState] = getWhitelistedState(
+    globalState.publicKey,
+    collateralMint,
+  );
+
+  const [paymentWhitelistedState] = getWhitelistedState(
+    globalState.publicKey,
+    paymentMint,
+  );
+
+  const listerNftTokenAccount = getAssociatedTokenAddressSync(
+    nftMint,
+    from.publicKey,
+    true,
+    TOKEN_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+  );
+
+  const closeListingTx = new Transaction().add(
+    await program.methods
+      .closeListing(Array.from(listingIdBytes))
+      .accounts({
+        authority: from.publicKey,
+        treasury: treasury.publicKey,
+        globalState: globalState.publicKey,
+        listing,
+        listingCollateralMintAccount: listingCollateralMintAccount.ata,
+        listingPaymentMintAccount: listingPaymentMintAccount.ata,
+        authorityCollateralMintAccount: authorityCollateralMintAccount.ata,
+        authorityPaymentMintAccount: authorityPaymentMintAccount.ata,
+        treasuryPaymentMintAccount: treasuryPaymentMintAccount.ata,
+        collateralMint: collateralMint,
+        paymentMint: paymentMint,
+        collateralWhitelistedState: collateralWhitelistedState,
+        paymentWhitelistedState: paymentWhitelistedState,
+        nftMint,
+        nftTokenAccount: listerNftTokenAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        tokenProgram2022: TOKEN_2022_PROGRAM_ID,
+      })
+      .transaction(),
+  );
+
+  if (opt?.revertedWith) {
+    await expectReverted(
+      processTransaction(fixture.svm, closeListingTx, [from]),
+      opt.revertedWith.message,
+    );
+  }
+  const listingAccount = await fixture.program.account.listing.fetch(listing);
+
+  const listingCollateralBalanceBefore = collateralMint.equals(SOL_MINT)
+    ? await fixture.svm.getBalance(listing)
+    : await getBalance(fixture.svm, collateralMint, listing);
+
+  const listingPaymentBalanceBefore = paymentMint.equals(SOL_MINT)
+    ? await fixture.svm.getBalance(listing)
+    : await getBalance(fixture.svm, paymentMint, listing);
+
+  const authorityCollateralBalanceBefore = collateralMint.equals(SOL_MINT)
+    ? await fixture.svm.getBalance(authority.publicKey)
+    : await getBalance(fixture.svm, collateralMint, authority.publicKey);
+
+  const authorityPaymentBalanceBefore = paymentMint.equals(SOL_MINT)
+    ? await fixture.svm.getBalance(authority.publicKey)
+    : await getBalance(fixture.svm, paymentMint, authority.publicKey);
+
+  const treasuryPaymentBalanceBefore = paymentMint.equals(SOL_MINT)
+    ? await fixture.svm.getBalance(treasury.publicKey)
+    : await getBalance(fixture.svm, paymentMint, treasury.publicKey);
+
+  await expectNotReverted(
+    processTransaction(fixture.svm, closeListingTx, [from]),
+  );
+
+  const listingCollateralBalanceAfter = collateralMint.equals(SOL_MINT)
+    ? await fixture.svm.getBalance(listing)
+    : await getBalance(fixture.svm, collateralMint, listing);
+
+  const authorityCollateralBalanceAfter = collateralMint.equals(SOL_MINT)
+    ? await fixture.svm.getBalance(authority.publicKey)
+    : await getBalance(fixture.svm, collateralMint, authority.publicKey);
+
+  const listingPaymentBalanceAfter = paymentMint.equals(SOL_MINT)
+    ? await fixture.svm.getBalance(listing)
+    : await getBalance(fixture.svm, paymentMint, listing);
+
+  const authorityPaymentBalanceAfter = paymentMint.equals(SOL_MINT)
+    ? await fixture.svm.getBalance(authority.publicKey)
+    : await getBalance(fixture.svm, paymentMint, authority.publicKey);
+
+  const treasuryPaymentBalanceAfter = paymentMint.equals(SOL_MINT)
+    ? await fixture.svm.getBalance(treasury.publicKey)
+    : await getBalance(fixture.svm, paymentMint, treasury.publicKey);
+
+  const feeAmount = listingAccount.paymentAmount.mul(FEE).div(FEE_DENOMINATOR);
+
+  expect(listingCollateralBalanceAfter).toBeLessThan(
+    listingCollateralBalanceBefore,
+  );
+
+  expect(listingPaymentBalanceAfter).toBeLessThan(listingPaymentBalanceBefore);
+
+  expect(Number(authorityCollateralBalanceAfter)).toBeCloseTo(
+    paymentMint.equals(collateralMint)
+      ? Number(authorityCollateralBalanceBefore) +
+          Number(listingAccount.collateralAmount.toNumber()) +
+          Number(listingAccount.paymentAmount.sub(feeAmount).toNumber())
+      : Number(authorityCollateralBalanceBefore) +
+          Number(listingAccount.collateralAmount.toNumber()),
+    -5,
+  );
+
+  expect(authorityPaymentBalanceAfter).toBeGreaterThan(
+    authorityPaymentBalanceBefore,
+  );
+
+  expect(Number(treasuryPaymentBalanceAfter)).toBe(
+    Number(treasuryPaymentBalanceBefore) + Number(feeAmount),
   );
 }

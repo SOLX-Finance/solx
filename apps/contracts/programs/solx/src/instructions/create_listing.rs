@@ -20,6 +20,7 @@ use mpl_token_metadata::types::DataV2;
 
 use crate::error::SolxError;
 use crate::{
+  bytes_to_uuid,
   seeds,
   send_sol,
   wsol,
@@ -176,6 +177,7 @@ pub fn handle_mint_nft(
 }
 
 #[derive(Accounts)]
+#[instruction(id: [u8; 16])]
 pub struct CreateListing<'info> {
   #[account(mut)]
   pub lister: Signer<'info>,
@@ -235,7 +237,10 @@ pub struct CreateListing<'info> {
   )]
   pub nft_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
-  #[account()]
+  #[account(
+    seeds = [seeds::MINT_SEED, global_state.key().as_ref(), id.as_ref()],
+    bump
+  )]
   pub nft_mint: Box<InterfaceAccount<'info, Mint>>,
 
   pub system_program: Program<'info, System>,
@@ -244,6 +249,7 @@ pub struct CreateListing<'info> {
 
 pub fn handle_create_listing(
   ctx: Context<CreateListing>,
+  id: [u8; 16],
   collateral_amount: u64,
   price_amount: u64
 ) -> Result<()> {
@@ -282,6 +288,7 @@ pub fn handle_create_listing(
   listing.state = ListingState::Opened;
 
   emit!(ListingCreated {
+    id: bytes_to_uuid(id),
     global_state: ctx.accounts.global_state.key(),
     listing: listing.key(),
     nft: ctx.accounts.nft_mint.key(),

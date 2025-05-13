@@ -1,12 +1,361 @@
-// Migrations are an early feature. Currently, they're nothing more than this
-// single deploy script that's invoked from the CLI, injecting a provider
-// configured from the workspace's Anchor.toml.
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-require-imports */
 
-import anchor from '@coral-xyz/anchor';
+import { AnchorProvider, BN, Program } from '@coral-xyz/anchor';
+import { createMint } from '@solana/spl-token';
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  sendAndConfirmTransaction,
+  SystemProgram,
+  Transaction,
+  LAMPORTS_PER_SOL,
+} from '@solana/web3.js';
 
-export default async function (provider) {
-  // Configure client to use the provider.
+import { randomUUID } from 'crypto';
+
+import { IDL } from '../target/types/solx';
+import { Solx } from '../target/types/solx';
+import {
+  getWhitelistedState,
+  getPaymentMintState,
+} from '../tests/common/common.helpers';
+import { FEED_IDS, seeds, FEE, SOL_MINT } from '../tests/constants/constants';
+import { SOLX_PROGRAM_ID } from '../tests/constants/contract.constants';
+import {
+  closeListing,
+  createListing,
+  purchaseListing,
+} from '../tests/helpers/ixs';
+import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+
+const connection = new Connection('https://api.devnet.solana.com');
+
+const anchor = require('@coral-xyz/anchor');
+
+const inited = true;
+
+export default async function main() {
+  const provider = AnchorProvider.env();
+
   anchor.setProvider(provider);
 
-  // Add your deploy script here.
+  const program = new Program<Solx>(IDL, SOLX_PROGRAM_ID, provider);
+
+  const authority = new Keypair((provider.wallet as any).payer._keypair);
+
+  const globalState = Keypair.generate();
+
+  const [vault] = PublicKey.findProgramAddressSync(
+    [seeds.VAULT_SEED, globalState.publicKey.toBuffer()],
+    SOLX_PROGRAM_ID,
+  );
+
+  if (!inited) {
+    const initProtocolTx = new Transaction().add(
+      await program.methods
+        .initialize(
+          authority.publicKey,
+          authority.publicKey,
+          authority.publicKey,
+          FEE,
+        )
+        .accounts({
+          signer: authority.publicKey,
+          globalState: globalState.publicKey,
+          vault,
+        })
+        .signers([authority, globalState])
+        .instruction(),
+    );
+
+    await provider.sendAndConfirm(initProtocolTx, [authority, globalState]);
+
+    console.log('Global state initialized', globalState.publicKey.toBase58());
+
+    const [whitelistedStateSol] = getWhitelistedState(
+      globalState.publicKey,
+      SOL_MINT,
+    );
+
+    const whitelistSolIx = new Transaction().add(
+      await program.methods
+        .whitelist(SOL_MINT, true)
+        .accounts({
+          authority: authority.publicKey,
+          globalState: globalState.publicKey,
+          whitelistedState: whitelistedStateSol,
+        })
+        .signers([authority])
+        .instruction(),
+    );
+
+    await provider.sendAndConfirm(whitelistSolIx, [authority]);
+
+    console.log('Whitelisted SOL');
+
+    const USDC_MINT = await createMint(
+      connection,
+      authority,
+      authority.publicKey,
+      null,
+      6,
+    );
+
+    console.log('Created USDC mint: ', USDC_MINT.toBase58());
+
+    const [whitelistedStateUsdc] = getWhitelistedState(
+      globalState.publicKey,
+      USDC_MINT,
+    );
+
+    const whitelistUsdcIx = new Transaction().add(
+      await program.methods
+        .whitelist(USDC_MINT, true)
+        .accounts({
+          authority: authority.publicKey,
+          globalState: globalState.publicKey,
+          whitelistedState: whitelistedStateUsdc,
+        })
+        .signers([authority])
+        .instruction(),
+    );
+
+    await provider.sendAndConfirm(whitelistUsdcIx, [authority]);
+
+    console.log('Whitelisted USDC');
+
+    const [solMintState] = getPaymentMintState(globalState.publicKey, SOL_MINT);
+    const [usdcMintState] = getPaymentMintState(
+      globalState.publicKey,
+      USDC_MINT,
+    );
+
+    const updateSolMintIx = new Transaction().add(
+      await program.methods
+        .updateMint(SOL_MINT, FEED_IDS.SOL)
+        .accounts({
+          authority: authority.publicKey,
+          globalState: globalState.publicKey,
+          paymentMintState: solMintState,
+        })
+        .signers([authority])
+        .instruction(),
+    );
+
+    const updateUsdcMintIx = new Transaction().add(
+      await program.methods
+        .updateMint(USDC_MINT, FEED_IDS.USDC)
+        .accounts({
+          authority: authority.publicKey,
+          globalState: globalState.publicKey,
+          paymentMintState: usdcMintState,
+        })
+        .signers([authority])
+        .instruction(),
+    );
+
+    await provider.sendAndConfirm(updateSolMintIx, [authority]);
+    await provider.sendAndConfirm(updateUsdcMintIx, [authority]);
+
+    console.log('Updated SOL and USDC feeds');
+  } else {
+    const buyer = Keypair.fromSecretKey(
+      Uint8Array.from([
+        15, 89, 252, 168, 128, 100, 135, 71, 39, 249, 128, 21, 63, 177, 70, 36,
+        238, 41, 176, 132, 199, 99, 251, 234, 195, 235, 112, 221, 155, 122, 69,
+        58, 170, 141, 63, 197, 6, 205, 243, 208, 123, 52, 53, 231, 131, 149, 56,
+        181, 229, 131, 255, 188, 137, 131, 221, 141, 122, 95, 55, 16, 36, 209,
+        141, 79,
+      ]),
+    );
+
+    //await sendSol(connection, authority, buyer.publicKey, 1);
+    try {
+      const globalState = new PublicKey(
+        '6r8DxfB89V3zPBDt6pW1DL3r946sjP1bKs58vXN3896c',
+      );
+
+      await simulateSaleFlows(
+        program,
+        authority,
+        buyer,
+        globalState,
+        authority.publicKey,
+      );
+
+      console.log('Buyer creds', buyer);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      //await sleep(10000);
+      //const balance = await connection.getBalance(buyer.publicKey, 'finalized');
+      // await sendSol(connection, buyer, authority.publicKey, balance);
+      //console.log('Sent SOL to authority');
+    }
+  }
+}
+
+main().catch(console.error);
+
+function sleep(ms: number) {
+  return new Promise((res) => setTimeout(res, ms));
+}
+
+function randAmount() {
+  return Number((Math.random() * 0.1).toFixed(4));
+}
+
+async function simulateSaleFlows(
+  solxProgram: Program<Solx>,
+  seller: Keypair,
+  buyer: Keypair,
+  globalState: PublicKey,
+  treasury: PublicKey,
+) {
+  const connection = new Connection(
+    'https://api.devnet.solana.com',
+    'confirmed',
+  );
+
+  const uuidA = randomUUID();
+  const priceA = parseInt(randAmount().toString());
+  console.log(`a) [${uuidA}] price=${priceA} SOL`);
+
+  await createListing({
+    connection,
+    payer: seller,
+    uuid: uuidA,
+    name: `NFT`,
+    symbol: `ASDASD`,
+    uri: `https://example.com/`,
+    collateralMint: SOL_MINT,
+    collateralAmount: parseInt(randAmount().toString()),
+    price: priceA,
+    globalStatePubkey: globalState,
+    globalStateAuthority: seller.publicKey,
+    program: solxProgram,
+  });
+
+  const uuidB = randomUUID();
+  const priceB = parseInt(randAmount().toString());
+  console.log(`b) [${uuidB}] price=${priceB} SOL`);
+  await createListing({
+    connection,
+    payer: seller,
+    uuid: uuidB,
+    name: `NFT`,
+    symbol: `ASDASD`,
+    uri: `https://example.com/`,
+    collateralMint: SOL_MINT,
+    collateralAmount: parseInt(randAmount().toString()),
+    price: priceB,
+    globalStatePubkey: globalState,
+    globalStateAuthority: seller.publicKey,
+    program: solxProgram,
+  });
+  await closeListing({
+    connection,
+    payer: seller,
+    uuid: uuidB,
+    globalState,
+    collateralMint: SOL_MINT,
+    paymentMint: SOL_MINT,
+    treasury,
+    program: solxProgram,
+  });
+  console.log(`b) [${uuidB}] closed`);
+
+  const uuidC = randomUUID();
+  const priceC = parseInt(randAmount().toString());
+  console.log(`c) [${uuidC}] price=${priceC} SOL`);
+  await createListing({
+    connection,
+    payer: seller,
+    uuid: uuidC,
+    name: `NFT`,
+    symbol: `ASDASD`,
+    uri: `https://example.com/`,
+    collateralMint: SOL_MINT,
+    collateralAmount: parseInt(randAmount().toString()),
+    price: priceC,
+    globalStatePubkey: globalState,
+    globalStateAuthority: seller.publicKey,
+    program: solxProgram,
+  });
+
+  await purchaseListing({
+    connection,
+    payer: buyer,
+    uuid: uuidC,
+    paymentMint: SOL_MINT,
+    globalStatePubkey: globalState,
+    program: solxProgram,
+  });
+  console.log(`c) [${uuidC}] purchased`);
+
+  const uuidD = randomUUID();
+  const priceD = parseInt(randAmount().toString());
+  console.log(`d) [${uuidD}] price=${priceD} SOL`);
+  await createListing({
+    connection,
+    payer: seller,
+    uuid: uuidD,
+    name: `NFT`,
+    symbol: `ASDASD`,
+    uri: `https://example.com/`,
+    collateralMint: SOL_MINT,
+    collateralAmount: parseInt(randAmount().toString()),
+    price: priceD,
+    globalStatePubkey: globalState,
+    globalStateAuthority: seller.publicKey,
+    program: solxProgram,
+  });
+  await purchaseListing({
+    connection,
+    payer: buyer,
+    uuid: uuidD,
+    paymentMint: SOL_MINT,
+    globalStatePubkey: globalState,
+    program: solxProgram,
+  });
+  console.log(`d) [${uuidD}] purchased, waiting`);
+  await sleep(70000);
+  await closeListing({
+    connection,
+    payer: seller,
+    uuid: uuidD,
+    globalState,
+    collateralMint: SOL_MINT,
+    paymentMint: SOL_MINT,
+    treasury,
+    program: solxProgram,
+  });
+  console.log(`d) [${uuidD}] closed`);
+}
+
+export async function sendSol(
+  connection: Connection,
+  sender: Keypair,
+  recipient: PublicKey,
+  amountSol: number,
+): Promise<string> {
+  const transferIx = SystemProgram.transfer({
+    fromPubkey: sender.publicKey,
+    toPubkey: recipient,
+    lamports: amountSol * LAMPORTS_PER_SOL,
+  });
+
+  const tx = new Transaction().add(transferIx);
+
+  const sig = await sendAndConfirmTransaction(connection, tx, [sender], {
+    commitment: 'confirmed',
+  });
+
+  console.log(
+    `Sent ${amountSol} SOL from ${sender.publicKey.toBase58()} to ${recipient.toBase58()}:`,
+    sig,
+  );
+  return sig;
 }

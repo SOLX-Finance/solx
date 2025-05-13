@@ -7,6 +7,7 @@ use anchor_spl::{
 use pyth_solana_receiver_sdk::price_update::PriceUpdateV2;
 
 use crate::{
+  bytes_to_uuid,
   error::SolxError,
   get_currency,
   get_timestamp,
@@ -119,8 +120,6 @@ pub fn handle(ctx: Context<PurchaseListing>, id: [u8; 16]) -> Result<()> {
     payment_mint_currency.1 as u8
   ).unwrap();
 
-  msg!("CURRENCY BASE9: {}", currency_base9);
-
   let listing_price = listing.price_usd;
 
   let to_pay_amount = u128
@@ -181,6 +180,7 @@ pub fn handle(ctx: Context<PurchaseListing>, id: [u8; 16]) -> Result<()> {
   listing.state = ListingState::Purchased;
 
   emit!(ListingPurchased {
+    id: bytes_to_uuid(id),
     global_state: accounts.global_state.key(),
     listing: listing.key(),
     nft: accounts.nft_mint.key(),

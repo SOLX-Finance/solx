@@ -12,7 +12,6 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 pub use utils::*;
-pub use decimal_correction::*;
 pub use event::*;
 pub use decimal_correction::*;
 
@@ -42,7 +41,12 @@ pub mod solx {
     collateral_amount: u64,
     price_amount: u64
   ) -> Result<()> {
-    create_listing::handle_create_listing(ctx, collateral_amount, price_amount)
+    create_listing::handle_create_listing(
+      ctx,
+      id,
+      collateral_amount,
+      price_amount
+    )
   }
 
   pub fn mint_nft(

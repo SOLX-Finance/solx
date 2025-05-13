@@ -67,26 +67,27 @@ export class IndexerProcessor extends WorkerHost {
   }
 
   async handleSaleCreated(data: SaleCreatedData, tx: Prisma.TransactionClient) {
-    const file = await tx.file.findUnique({
+    const sale = await tx.sale.findUnique({
       where: {
         id: data.id,
       },
     });
 
-    if (!file) {
-      throw new Error('File not found');
+    if (!sale) {
+      throw new Error('Sale not found');
     }
 
-    await tx.sale.create({
+    await tx.sale.update({
+      where: {
+        id: sale.id,
+      },
       data: {
-        listingId: data.id,
         listing: data.listing,
         nftMint: data.nft,
         buyer: data.buyer,
         collateralMint: data.collateralMint,
         collateralAmount: data.collateralAmount,
         priceUsd: data.priceUsd,
-        fileId: file.id,
       },
     });
   }
@@ -95,16 +96,6 @@ export class IndexerProcessor extends WorkerHost {
     data: SalePurchasedData,
     tx: Prisma.TransactionClient,
   ) {
-    const file = await tx.file.findUnique({
-      where: {
-        id: data.id,
-      },
-    });
-
-    if (!file) {
-      throw new Error('File not found');
-    }
-
     const user = await tx.user.findFirst({
       where: {
         walletAddress: data.buyer,
@@ -117,7 +108,7 @@ export class IndexerProcessor extends WorkerHost {
 
     const sale = await tx.sale.findFirst({
       where: {
-        listingId: data.id,
+        id: data.id,
       },
     });
 
@@ -125,21 +116,13 @@ export class IndexerProcessor extends WorkerHost {
       throw new Error('Sale not found');
     }
 
-    await tx.file.update({
-      where: {
-        id: file.id,
-      },
-      data: {
-        userId: user.id,
-      },
-    });
-
     await tx.sale.update({
       where: {
         id: sale.id,
       },
       data: {
         buyer: data.buyer,
+        userId: user.id,
       },
     });
   }

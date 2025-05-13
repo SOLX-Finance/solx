@@ -5,10 +5,16 @@ CREATE SCHEMA IF NOT EXISTS "api";
 CREATE SCHEMA IF NOT EXISTS "indexer";
 
 -- CreateEnum
-CREATE TYPE "api"."FileType" AS ENUM ('PROFILE_PICTURE', 'SALE_CONTENT', 'SALE_DEMO', 'SALE_PREVIEW');
+CREATE TYPE "api"."FileType" AS ENUM ('PROFILE_PICTURE', 'KYC_DOCUMENT', 'SALE_CONTENT', 'SALE_DEMO', 'SALE_PREVIEW');
+
+-- CreateEnum
+CREATE TYPE "api"."AiScanResult" AS ENUM ('NOT_SCANNED', 'SCANNING', 'CLEAN', 'SUSPICIOUS', 'MALICIOUS');
 
 -- CreateEnum
 CREATE TYPE "api"."Role" AS ENUM ('USER', 'ADMIN', 'SUPERADMIN');
+
+-- CreateEnum
+CREATE TYPE "api"."KycStatus" AS ENUM ('NOT_STARTED', 'IN_PROGRESS', 'VERIFIED', 'REJECTED');
 
 -- CreateTable
 CREATE TABLE "api"."file" (
@@ -16,11 +22,13 @@ CREATE TABLE "api"."file" (
     "type" "api"."FileType" NOT NULL,
     "remote_id" TEXT NOT NULL,
     "mime_type" TEXT NOT NULL,
-    "ai_reviewed" BOOLEAN NOT NULL DEFAULT false,
-    "ai_review_details" JSONB,
     "content_hash" TEXT,
+    "ai_reviewed" BOOLEAN NOT NULL DEFAULT false,
+    "ai_scan_result" "api"."AiScanResult" NOT NULL DEFAULT 'NOT_SCANNED',
+    "ai_review_details" JSONB,
     "deleted" BOOLEAN NOT NULL DEFAULT false,
     "deleted_at" TIMESTAMP(3),
+    "saleId" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "userId" TEXT NOT NULL,
@@ -61,15 +69,17 @@ CREATE TABLE "api"."sale_tag" (
 );
 
 -- CreateTable
-CREATE TABLE "indexer"."sale" (
+CREATE TABLE "api"."sale" (
     "id" TEXT NOT NULL,
-    "listingId" TEXT NOT NULL,
-    "nftMint" TEXT NOT NULL,
-    "buyer" TEXT NOT NULL,
-    "collateralMint" TEXT NOT NULL,
-    "collateralAmount" TEXT NOT NULL,
-    "priceUsd" TEXT NOT NULL,
-    "fileId" TEXT NOT NULL,
+    "listingId" TEXT,
+    "listing" TEXT,
+    "nftMint" TEXT,
+    "buyer" TEXT,
+    "collateralMint" TEXT,
+    "collateralAmount" TEXT,
+    "priceUsd" TEXT,
+    "description" TEXT,
+    "title" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -81,8 +91,11 @@ CREATE TABLE "api"."user" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "wallet_address" TEXT NOT NULL,
-    "roles" "api"."Role"[] DEFAULT ARRAY[]::"api"."Role"[],
+    "roles" "api"."Role"[] DEFAULT ARRAY['USER']::"api"."Role"[],
     "is_blocked" BOOLEAN NOT NULL DEFAULT false,
+    "kyc_status" "api"."KycStatus" NOT NULL DEFAULT 'NOT_STARTED',
+    "kyc_details" JSONB,
+    "kyc_verified_at" TIMESTAMP(3),
     "username" TEXT,
     "profile_picture_id" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -107,7 +120,7 @@ CREATE UNIQUE INDEX "user_wallet_address_key" ON "api"."user"("wallet_address");
 CREATE UNIQUE INDEX "user_username_key" ON "api"."user"("username");
 
 -- AddForeignKey
-ALTER TABLE "api"."file" ADD CONSTRAINT "file_userId_fkey" FOREIGN KEY ("userId") REFERENCES "api"."user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "api"."file" ADD CONSTRAINT "file_saleId_fkey" FOREIGN KEY ("saleId") REFERENCES "api"."sale"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "indexer"."sale" ADD CONSTRAINT "sale_fileId_fkey" FOREIGN KEY ("fileId") REFERENCES "api"."file"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "api"."file" ADD CONSTRAINT "file_userId_fkey" FOREIGN KEY ("userId") REFERENCES "api"."user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

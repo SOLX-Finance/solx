@@ -32,6 +32,9 @@ import { ProvidersModule } from './provider/providers.module';
         return {
           connection: {
             url: redisUrl,
+            tls: {
+              rejectUnauthorized: false,
+            },
           },
         };
       },

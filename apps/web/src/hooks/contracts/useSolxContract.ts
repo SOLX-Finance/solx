@@ -1,4 +1,5 @@
 import * as anchor from '@coral-xyz/anchor';
+import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet';
 
 import { addresses } from '@/config/addresses';
 import { solanaConnection } from '@/config/connection';
@@ -12,7 +13,7 @@ export const useSolxContract = () => {
     addresses.devnet.programs.solx,
     new anchor.AnchorProvider(
       solanaConnection,
-      new anchor.Wallet(anchor.web3.Keypair.generate()),
+      new NodeWallet(anchor.web3.Keypair.generate()),
       {
         commitment: 'finalized',
       },

@@ -1,10 +1,16 @@
+import { useSolanaWallets } from '@privy-io/react-auth';
+import { PublicKey } from '@solana/web3.js';
 import { useForm } from '@tanstack/react-form';
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
 import { createSale } from '../api/salesApi';
 
-import { FileType, useFileUpload } from '@/hooks/useFileUpload';
+import { useCreateSale } from '@/hooks/contracts/useCreateSale';
+import { FileType, useFileUploadQuery } from '@/hooks/useFileUploadQuery';
+import { SOL_MINT } from '@/utils/programs.utils';
 
 const FILE_TYPE_CONFIG = {
   [FileType.SALE_CONTENT]: {
@@ -29,8 +35,9 @@ const FILE_TYPE_CONFIG = {
 
 export const useCreateSaleForm = () => {
   const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { wallets, ready: walletsReady } = useSolanaWallets();
 
   const {
     isUploading,
@@ -38,58 +45,109 @@ export const useCreateSaleForm = () => {
     error: uploadError,
     uploadFiles,
     removeFile,
-  } = useFileUpload();
+  } = useFileUploadQuery();
+
+  const apiMutation = useMutation({
+    mutationFn: async ({
+      title,
+      description,
+      fileIds,
+    }: {
+      title: string;
+      description: string;
+      fileIds: string[];
+    }) => {
+      return createSale(title, description, fileIds);
+    },
+  });
+
+  const {
+    createSale: createSaleOnchain,
+    isPending: isCreatingOnchain,
+    error: onchainError,
+  } = useCreateSale();
 
   const form = useForm({
     defaultValues: {
       title: '',
       description: '',
+      price: 0,
+      collateralAmount: 0,
     },
     onSubmit: async ({ value }) => {
-      const filesByType = Object.entries(FILE_TYPE_CONFIG).map(
-        ([type, config]) => {
-          const files = uploadedFiles.filter((file) => file.type === type);
-          return { type, files, config };
-        },
-      );
-
-      // Check file constraints
-      for (const { type, files, config } of filesByType) {
-        // Check required files
-        if (config.required && files.length === 0) {
-          setSubmitError(
-            config.missingError || `You must upload a ${type} file`,
-          );
-          return;
-        }
-
-        // Check max count
-        if (files.length > config.maxCount) {
-          setSubmitError(
-            config.exceededError ||
-              `You can upload at most ${config.maxCount} ${type} file(s)`,
-          );
-          return;
-        }
-      }
-
-      setIsSubmitting(true);
-      setSubmitError(null);
+      setFormError(null);
+      setSuccessMessage(null);
 
       try {
-        const fileIds = uploadedFiles.map((file) => file.id);
-        const response = await createSale(
-          value.title,
-          value.description,
-          fileIds,
+        if (!walletsReady || !wallets || wallets.length === 0) {
+          setFormError('Please connect your wallet first');
+          return { error: 'Please connect your wallet first' };
+        }
+
+        const filesByType = Object.entries(FILE_TYPE_CONFIG).map(
+          ([type, config]) => {
+            const files = uploadedFiles.filter((file) => file.type === type);
+            return { type, files, config };
+          },
         );
 
-        navigate(`/sales/${response.id}`);
+        for (const { type, files, config } of filesByType) {
+          if (config.required && files.length === 0) {
+            setFormError(
+              config.missingError || `You must upload a ${type} file`,
+            );
+            return {
+              error: config.missingError || `You must upload a ${type} file`,
+            };
+          }
+
+          if (files.length > config.maxCount) {
+            setFormError(
+              config.exceededError ||
+                `You can upload at most ${config.maxCount} ${type} file(s)`,
+            );
+            return {
+              error:
+                config.exceededError ||
+                `You can upload at most ${config.maxCount} ${type} file(s)`,
+            };
+          }
+        }
+
+        const fileIds = uploadedFiles.map((file) => file.id);
+
+        // 1. Create the sale in the backend
+        const saleResponse = await apiMutation.mutateAsync({
+          title: value.title,
+          description: value.description,
+          fileIds,
+        });
+
+        // 2. Create the sale on the blockchain
+        const uuid = uuidv4();
+
+        // Convert SOL to lamports (1 SOL = 10^9 lamports)
+        const priceInLamports = BigInt(Math.floor(value.price * 1_000_000_000));
+        const collateralInLamports = BigInt(
+          Math.floor(value.collateralAmount * 1_000_000_000),
+        );
+
+        await createSaleOnchain({
+          uuid,
+          price: priceInLamports,
+          collateralAmount: collateralInLamports,
+          collateralMint: new PublicKey(SOL_MINT),
+        });
+
+        setSuccessMessage('Sale created successfully');
+        navigate(`/sales/${saleResponse.id}`);
+        return {};
       } catch (err) {
         console.error('Error creating sale:', err);
-        setSubmitError('Failed to create sale. Please try again.');
-      } finally {
-        setIsSubmitting(false);
+        setFormError('Failed to create sale. Please try again.');
+        return {
+          error: 'Failed to create sale. Please try again.',
+        };
       }
     },
   });
@@ -123,17 +181,57 @@ export const useCreateSaleForm = () => {
     return uploadedFiles.filter((file) => file.type === fileType);
   };
 
+  const validateTitle = (title: string) => {
+    if (!title.trim()) {
+      return 'Title is required';
+    }
+    if (title.length > 100) {
+      return 'Title cannot exceed 100 characters';
+    }
+    return undefined;
+  };
+
+  const validateDescription = (description: string) => {
+    if (!description.trim()) {
+      return 'Description is required';
+    }
+    if (description.length > 5000) {
+      return 'Description cannot exceed 5000 characters';
+    }
+    return undefined;
+  };
+
+  const validatePrice = (price: number) => {
+    if (price <= 0) {
+      return 'Price must be greater than 0';
+    }
+    return undefined;
+  };
+
+  const validateCollateralAmount = (collateralAmount: number) => {
+    if (collateralAmount <= 0) {
+      return 'Collateral amount must be greater than 0';
+    }
+    return undefined;
+  };
+
   return {
     form,
-    isSubmitting,
+    isSubmitting: apiMutation.isPending || isCreatingOnchain,
     isUploading,
     uploadedFiles,
-    submitError,
+    formError,
     uploadError,
+    onchainError: onchainError ? String(onchainError) : null,
+    successMessage,
     handleContentFileChange,
     handleDemoFileChange,
     handlePreviewFileChange,
     removeFile,
     getFilesByType,
+    validateTitle,
+    validateDescription,
+    validatePrice,
+    validateCollateralAmount,
   };
 };

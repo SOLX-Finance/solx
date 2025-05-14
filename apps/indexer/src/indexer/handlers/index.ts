@@ -11,11 +11,11 @@ export const eventHandlers: Record<
   IndexerEvent['name'],
   HandlerFunction<IndexerEvent> | undefined
 > = {
-  listingCreated: handleListingCreated,
-  listingClosed: handleListingClosed,
-  listingPurchased: handleListingPurchased,
-  listingDisputed: undefined,
-  disputeResolved: undefined,
+  ListingCreated: handleListingCreated,
+  ListingClosed: handleListingClosed,
+  ListingPurchased: handleListingPurchased,
+  ListingDisputed: undefined,
+  DisputeResolved: undefined,
 };
 
 export const getEventHandler = <TEv extends IndexerEvent>(

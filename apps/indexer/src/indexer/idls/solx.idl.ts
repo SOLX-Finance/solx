@@ -13,7 +13,7 @@ export type Solx = {
         {
           name: 'globalState';
           isMut: true;
-          isSigner: false;
+          isSigner: true;
         },
         {
           name: 'vault';
@@ -117,7 +117,9 @@ export type Solx = {
       args: [
         {
           name: 'id';
-          type: 'u64';
+          type: {
+            array: ['u8', 16];
+          };
         },
       ];
     },
@@ -126,11 +128,6 @@ export type Solx = {
       accounts: [
         {
           name: 'lister';
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: 'payer';
           isMut: true;
           isSigner: true;
         },
@@ -145,28 +142,91 @@ export type Solx = {
           isSigner: false;
         },
         {
-          name: 'globalStateAuthority';
-          isMut: false;
+          name: 'collateralMint';
+          isMut: true;
           isSigner: false;
         },
         {
           name: 'listingCollateralMintAccount';
           isMut: true;
           isSigner: false;
+          isOptional: true;
         },
         {
           name: 'listerCollateralMintAccount';
           isMut: true;
           isSigner: false;
-        },
-        {
-          name: 'collateralMint';
-          isMut: true;
-          isSigner: false;
+          isOptional: true;
         },
         {
           name: 'whitelistedState';
           isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'nftTokenAccount';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'nftMint';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'tokenProgram';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [
+        {
+          name: 'id';
+          type: {
+            array: ['u8', 16];
+          };
+        },
+        {
+          name: 'collateralAmount';
+          type: 'u64';
+        },
+        {
+          name: 'priceAmount';
+          type: 'u64';
+        },
+      ];
+    },
+    {
+      name: 'mintNft';
+      accounts: [
+        {
+          name: 'payer';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'lister';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'globalState';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'vault';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'globalStateAuthority';
+          isMut: false;
           isSigner: false;
         },
         {
@@ -218,7 +278,9 @@ export type Solx = {
       args: [
         {
           name: 'id';
-          type: 'u64';
+          type: {
+            array: ['u8', 16];
+          };
         },
         {
           name: 'name';
@@ -231,14 +293,6 @@ export type Solx = {
         {
           name: 'uri';
           type: 'string';
-        },
-        {
-          name: 'collateralAmount';
-          type: 'u64';
-        },
-        {
-          name: 'priceAmount';
-          type: 'u64';
         },
       ];
     },
@@ -289,7 +343,9 @@ export type Solx = {
       args: [
         {
           name: 'id';
-          type: 'u64';
+          type: {
+            array: ['u8', 16];
+          };
         },
       ];
     },
@@ -395,7 +451,9 @@ export type Solx = {
       args: [
         {
           name: 'id';
-          type: 'u64';
+          type: {
+            array: ['u8', 16];
+          };
         },
         {
           name: 'verdict';
@@ -511,14 +569,86 @@ export type Solx = {
       args: [
         {
           name: 'id';
-          type: 'u64';
+          type: {
+            array: ['u8', 16];
+          };
+        },
+      ];
+    },
+    {
+      name: 'whitelist';
+      accounts: [
+        {
+          name: 'authority';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'globalState';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'whitelistedState';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [
+        {
+          name: 'mint';
+          type: 'publicKey';
+        },
+        {
+          name: 'whitelisted';
+          type: 'bool';
+        },
+      ];
+    },
+    {
+      name: 'updateMint';
+      accounts: [
+        {
+          name: 'authority';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'globalState';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'paymentMintState';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [
+        {
+          name: 'paymentMint';
+          type: 'publicKey';
+        },
+        {
+          name: 'feed';
+          type: 'string';
         },
       ];
     },
   ];
   accounts: [
     {
-      name: 'Dispute';
+      name: 'dispute';
       type: {
         kind: 'struct';
         fields: [
@@ -534,7 +664,7 @@ export type Solx = {
       };
     },
     {
-      name: 'GlobalState';
+      name: 'globalState';
       type: {
         kind: 'struct';
         fields: [
@@ -558,7 +688,7 @@ export type Solx = {
       };
     },
     {
-      name: 'Listing';
+      name: 'listing';
       type: {
         kind: 'struct';
         fields: [
@@ -604,7 +734,7 @@ export type Solx = {
       };
     },
     {
-      name: 'PaymentMintState';
+      name: 'paymentMintState';
       type: {
         kind: 'struct';
         fields: [
@@ -616,7 +746,7 @@ export type Solx = {
       };
     },
     {
-      name: 'WhitelistedState';
+      name: 'whitelistedState';
       type: {
         kind: 'struct';
         fields: [
@@ -702,6 +832,11 @@ export type Solx = {
       name: 'ListingCreated';
       fields: [
         {
+          name: 'id';
+          type: 'string';
+          index: false;
+        },
+        {
           name: 'globalState';
           type: 'publicKey';
           index: false;
@@ -727,11 +862,6 @@ export type Solx = {
           index: false;
         },
         {
-          name: 'id';
-          type: 'u64';
-          index: false;
-        },
-        {
           name: 'collateralAmount';
           type: 'u64';
           index: false;
@@ -748,7 +878,7 @@ export type Solx = {
       fields: [
         {
           name: 'id';
-          type: 'u64';
+          type: 'string';
           index: false;
         },
         {
@@ -792,6 +922,11 @@ export type Solx = {
       name: 'ListingClosed';
       fields: [
         {
+          name: 'id';
+          type: 'string';
+          index: false;
+        },
+        {
           name: 'globalState';
           type: 'publicKey';
           index: false;
@@ -806,16 +941,16 @@ export type Solx = {
           type: 'publicKey';
           index: false;
         },
-        {
-          name: 'id';
-          type: 'u64';
-          index: false;
-        },
       ];
     },
     {
       name: 'ListingDisputed';
       fields: [
+        {
+          name: 'id';
+          type: 'string';
+          index: false;
+        },
         {
           name: 'globalState';
           type: 'publicKey';
@@ -836,16 +971,16 @@ export type Solx = {
           type: 'publicKey';
           index: false;
         },
-        {
-          name: 'id';
-          type: 'u64';
-          index: false;
-        },
       ];
     },
     {
       name: 'DisputeResolved';
       fields: [
+        {
+          name: 'id';
+          type: 'string';
+          index: false;
+        },
         {
           name: 'globalState';
           type: 'publicKey';
@@ -859,11 +994,6 @@ export type Solx = {
         {
           name: 'nft';
           type: 'publicKey';
-          index: false;
-        },
-        {
-          name: 'id';
-          type: 'u64';
           index: false;
         },
         {
@@ -932,6 +1062,21 @@ export type Solx = {
       name: 'InvalidCollateralMint';
       msg: 'Invalid collateral mint';
     },
+    {
+      code: 6011;
+      name: 'InvalidNftMint';
+      msg: 'Invalid nft mint';
+    },
+    {
+      code: 6012;
+      name: 'DisputePeriodNotExpired';
+      msg: 'Dispute period has not expired';
+    },
+    {
+      code: 6013;
+      name: 'InsufficientBalance';
+      msg: 'Insufficient balance';
+    },
   ];
 };
 
@@ -950,7 +1095,7 @@ export const SolxIDL = {
         {
           name: 'globalState',
           isMut: true,
-          isSigner: false,
+          isSigner: true,
         },
         {
           name: 'vault',
@@ -1054,7 +1199,9 @@ export const SolxIDL = {
       args: [
         {
           name: 'id',
-          type: 'u64',
+          type: {
+            array: ['u8', 16],
+          },
         },
       ],
     },
@@ -1063,11 +1210,6 @@ export const SolxIDL = {
       accounts: [
         {
           name: 'lister',
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: 'payer',
           isMut: true,
           isSigner: true,
         },
@@ -1082,28 +1224,91 @@ export const SolxIDL = {
           isSigner: false,
         },
         {
-          name: 'globalStateAuthority',
-          isMut: false,
+          name: 'collateralMint',
+          isMut: true,
           isSigner: false,
         },
         {
           name: 'listingCollateralMintAccount',
           isMut: true,
           isSigner: false,
+          isOptional: true,
         },
         {
           name: 'listerCollateralMintAccount',
           isMut: true,
           isSigner: false,
-        },
-        {
-          name: 'collateralMint',
-          isMut: true,
-          isSigner: false,
+          isOptional: true,
         },
         {
           name: 'whitelistedState',
           isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'nftTokenAccount',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'nftMint',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'tokenProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'id',
+          type: {
+            array: ['u8', 16],
+          },
+        },
+        {
+          name: 'collateralAmount',
+          type: 'u64',
+        },
+        {
+          name: 'priceAmount',
+          type: 'u64',
+        },
+      ],
+    },
+    {
+      name: 'mintNft',
+      accounts: [
+        {
+          name: 'payer',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'lister',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'globalState',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'vault',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'globalStateAuthority',
+          isMut: false,
           isSigner: false,
         },
         {
@@ -1155,7 +1360,9 @@ export const SolxIDL = {
       args: [
         {
           name: 'id',
-          type: 'u64',
+          type: {
+            array: ['u8', 16],
+          },
         },
         {
           name: 'name',
@@ -1168,14 +1375,6 @@ export const SolxIDL = {
         {
           name: 'uri',
           type: 'string',
-        },
-        {
-          name: 'collateralAmount',
-          type: 'u64',
-        },
-        {
-          name: 'priceAmount',
-          type: 'u64',
         },
       ],
     },
@@ -1226,7 +1425,9 @@ export const SolxIDL = {
       args: [
         {
           name: 'id',
-          type: 'u64',
+          type: {
+            array: ['u8', 16],
+          },
         },
       ],
     },
@@ -1332,7 +1533,9 @@ export const SolxIDL = {
       args: [
         {
           name: 'id',
-          type: 'u64',
+          type: {
+            array: ['u8', 16],
+          },
         },
         {
           name: 'verdict',
@@ -1448,14 +1651,86 @@ export const SolxIDL = {
       args: [
         {
           name: 'id',
-          type: 'u64',
+          type: {
+            array: ['u8', 16],
+          },
+        },
+      ],
+    },
+    {
+      name: 'whitelist',
+      accounts: [
+        {
+          name: 'authority',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'globalState',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'whitelistedState',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'mint',
+          type: 'publicKey',
+        },
+        {
+          name: 'whitelisted',
+          type: 'bool',
+        },
+      ],
+    },
+    {
+      name: 'updateMint',
+      accounts: [
+        {
+          name: 'authority',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'globalState',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'paymentMintState',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'paymentMint',
+          type: 'publicKey',
+        },
+        {
+          name: 'feed',
+          type: 'string',
         },
       ],
     },
   ],
   accounts: [
     {
-      name: 'Dispute',
+      name: 'dispute',
       type: {
         kind: 'struct',
         fields: [
@@ -1471,7 +1746,7 @@ export const SolxIDL = {
       },
     },
     {
-      name: 'GlobalState',
+      name: 'globalState',
       type: {
         kind: 'struct',
         fields: [
@@ -1495,7 +1770,7 @@ export const SolxIDL = {
       },
     },
     {
-      name: 'Listing',
+      name: 'listing',
       type: {
         kind: 'struct',
         fields: [
@@ -1541,7 +1816,7 @@ export const SolxIDL = {
       },
     },
     {
-      name: 'PaymentMintState',
+      name: 'paymentMintState',
       type: {
         kind: 'struct',
         fields: [
@@ -1553,7 +1828,7 @@ export const SolxIDL = {
       },
     },
     {
-      name: 'WhitelistedState',
+      name: 'whitelistedState',
       type: {
         kind: 'struct',
         fields: [
@@ -1639,6 +1914,11 @@ export const SolxIDL = {
       name: 'ListingCreated',
       fields: [
         {
+          name: 'id',
+          type: 'string',
+          index: false,
+        },
+        {
           name: 'globalState',
           type: 'publicKey',
           index: false,
@@ -1664,11 +1944,6 @@ export const SolxIDL = {
           index: false,
         },
         {
-          name: 'id',
-          type: 'u64',
-          index: false,
-        },
-        {
           name: 'collateralAmount',
           type: 'u64',
           index: false,
@@ -1685,7 +1960,7 @@ export const SolxIDL = {
       fields: [
         {
           name: 'id',
-          type: 'u64',
+          type: 'string',
           index: false,
         },
         {
@@ -1729,6 +2004,11 @@ export const SolxIDL = {
       name: 'ListingClosed',
       fields: [
         {
+          name: 'id',
+          type: 'string',
+          index: false,
+        },
+        {
           name: 'globalState',
           type: 'publicKey',
           index: false,
@@ -1743,16 +2023,16 @@ export const SolxIDL = {
           type: 'publicKey',
           index: false,
         },
-        {
-          name: 'id',
-          type: 'u64',
-          index: false,
-        },
       ],
     },
     {
       name: 'ListingDisputed',
       fields: [
+        {
+          name: 'id',
+          type: 'string',
+          index: false,
+        },
         {
           name: 'globalState',
           type: 'publicKey',
@@ -1773,16 +2053,16 @@ export const SolxIDL = {
           type: 'publicKey',
           index: false,
         },
-        {
-          name: 'id',
-          type: 'u64',
-          index: false,
-        },
       ],
     },
     {
       name: 'DisputeResolved',
       fields: [
+        {
+          name: 'id',
+          type: 'string',
+          index: false,
+        },
         {
           name: 'globalState',
           type: 'publicKey',
@@ -1796,11 +2076,6 @@ export const SolxIDL = {
         {
           name: 'nft',
           type: 'publicKey',
-          index: false,
-        },
-        {
-          name: 'id',
-          type: 'u64',
           index: false,
         },
         {
@@ -1868,6 +2143,21 @@ export const SolxIDL = {
       code: 6010,
       name: 'InvalidCollateralMint',
       msg: 'Invalid collateral mint',
+    },
+    {
+      code: 6011,
+      name: 'InvalidNftMint',
+      msg: 'Invalid nft mint',
+    },
+    {
+      code: 6012,
+      name: 'DisputePeriodNotExpired',
+      msg: 'Dispute period has not expired',
+    },
+    {
+      code: 6013,
+      name: 'InsufficientBalance',
+      msg: 'Insufficient balance',
     },
   ],
 } as const;

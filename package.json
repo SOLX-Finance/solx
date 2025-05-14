@@ -30,6 +30,7 @@
     "@aws-sdk/s3-request-presigner": "^3.798.0",
     "@coral-xyz/anchor": "^0.29.0",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@nestjs/swagger": "^11.1.5",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/bullmq": "^11.0.1",
     "@nestjs/common": "^10.0.2",
@@ -72,10 +73,8 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
-    "@coral-xyz/anchor": "^0.29.0",
     "@eslint/js": "^9.25.1",
     "@nestjs/schematics": "^10.0.1",
-    "@nestjs/swagger": "^11.1.5",
     "@nestjs/testing": "^10.0.2",
     "@nx/eslint": "20.8.0",
     "@nx/eslint-plugin": "^20.8.0",

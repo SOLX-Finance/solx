@@ -4,6 +4,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "heroku-postbuild": "sh ./heroku-build.sh",
     "serve:api": "nx serve api",
     "serve:contracts": "nx serve contracts",
     "serve:indexer": "nx serve indexer",

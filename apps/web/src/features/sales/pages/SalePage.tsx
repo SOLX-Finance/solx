@@ -1,37 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 
-import { getSaleById, Sale } from '../api/salesApi';
+import { useSale } from '../hooks/useSale';
 
 const SalePage = () => {
   const { saleId } = useParams<{ saleId: string }>();
-  const [sale, setSale] = useState<Sale | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { sale, isLoading, error, previewFile, contentFile, demoFile } =
+    useSale(saleId);
 
-  useEffect(() => {
-    const fetchSale = async () => {
-      if (!saleId) {
-        setError('Sale ID is missing');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const saleData = await getSaleById(saleId);
-        setSale(saleData);
-      } catch (err) {
-        console.error('Error fetching sale:', err);
-        setError('Failed to load sale information. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSale();
-  }, [saleId]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container mx-auto p-4 flex justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
@@ -59,14 +36,7 @@ const SalePage = () => {
     );
   }
 
-  // Find preview file if it exists
-  const previewFile = sale.files.find((file) => file.type === 'SALE_PREVIEW');
-
-  // Find content file
-  const contentFile = sale.files.find((file) => file.type === 'SALE_CONTENT');
-
-  // Find demo file if it exists
-  const demoFile = sale.files.find((file) => file.type === 'SALE_DEMO');
+  // File types are now provided by the useSale hook
 
   return (
     <div className="container mx-auto p-4">

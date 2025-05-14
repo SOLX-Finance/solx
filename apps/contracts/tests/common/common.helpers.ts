@@ -264,6 +264,13 @@ export const getOrCreateAta = async (
       const ataAccount = svm.getAccount(ata);
       const parsed = AccountLayout.decode(ataAccount.data);
 
+      const actualOwner = new PublicKey(parsed.owner);
+      if (!actualOwner.equals(owner)) {
+        throw new Error(
+          `ATA exists but has wrong owner: expected ${owner.toBase58()}, got ${actualOwner.toBase58()}`,
+        );
+      }
+
       return {
         ataAccount: parsed,
         ata,

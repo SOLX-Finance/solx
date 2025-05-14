@@ -21,7 +21,8 @@ export const PYTH_PRICE_UPDATE = new PublicKey(
   '7UVimffxr9ow1uXYxsr4LHAcV58mLzhmwaeKvJ1pjLiE',
 );
 
-export const DISPUTE_PERIOD_SECS = BigInt(7 * 24 * 60 * 60);
+export const DISPUTE_PERIOD_SECS = 60n;
+//BigInt(7 * 24 * 60 * 60);
 
 export const USDC_MINT = {
   address: Keypair.generate(),

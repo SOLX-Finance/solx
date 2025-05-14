@@ -47,10 +47,6 @@ pub struct MintNft<'info> {
   /// CHECK:
   pub vault: AccountInfo<'info>,
 
-  #[account(address = global_state.authority)]
-  /// CHECK:
-  pub global_state_authority: AccountInfo<'info>,
-
   #[account(
     init,
     payer = payer,
@@ -134,7 +130,7 @@ pub fn handle_mint_nft(
         mint: ctx.accounts.nft_mint.to_account_info(),
         metadata: ctx.accounts.nft_metadata.to_account_info(),
         mint_authority: ctx.accounts.vault.to_account_info(),
-        update_authority: ctx.accounts.global_state_authority.to_account_info(),
+        update_authority: ctx.accounts.vault.to_account_info(),
         system_program: ctx.accounts.system_program.to_account_info(),
         rent: ctx.accounts.rent.to_account_info(),
       },
@@ -163,7 +159,7 @@ pub fn handle_mint_nft(
         mint: ctx.accounts.nft_mint.to_account_info(),
         metadata: ctx.accounts.nft_metadata.to_account_info(),
         mint_authority: ctx.accounts.vault.to_account_info(),
-        update_authority: ctx.accounts.global_state_authority.to_account_info(),
+        update_authority: ctx.accounts.vault.to_account_info(),
         system_program: ctx.accounts.system_program.to_account_info(),
         token_program: ctx.accounts.token_program.to_account_info(),
         rent: ctx.accounts.rent.to_account_info(),

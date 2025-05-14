@@ -225,7 +225,10 @@ pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
       .checked_sub(fee_amount)
       .unwrap();
 
-    if accounts.payment_mint.as_ref().unwrap().key() != wsol::ID {
+    let is_solx_payment_mint =
+      accounts.payment_mint.as_ref().unwrap().key() == wsol::ID;
+
+    if !is_solx_payment_mint {
       transfer(
         CpiContext::new_with_signer(
           if
@@ -260,7 +263,7 @@ pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
       )?;
     }
 
-    if accounts.payment_mint.as_ref().unwrap().key() != wsol::ID {
+    if !is_solx_payment_mint {
       transfer(
         CpiContext::new_with_signer(
           if
@@ -273,7 +276,10 @@ pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
             accounts.token_program_2022.to_account_info()
           },
           Transfer {
-            from: accounts.listing_payment_mint_account.to_account_info(),
+            from: accounts.listing_payment_mint_account
+              .as_ref()
+              .unwrap()
+              .to_account_info(),
             to: accounts.treasury_payment_mint_account
               .as_ref()
               .unwrap()

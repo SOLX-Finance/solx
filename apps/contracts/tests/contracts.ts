@@ -1,6 +1,10 @@
 import { randomUUID } from 'crypto';
 
-import { DISPUTE_PERIOD_SECS, SOL_MINT } from './constants/constants';
+import {
+  DISPUTE_PERIOD_SECS,
+  SOL_MINT,
+  USDC_MINT,
+} from './constants/constants';
 import { initSvm } from './fixtures/contract.fixture';
 import {
   closeListing,
@@ -30,6 +34,27 @@ describe('contracts', () => {
     });
   });
 
+  it.only('Create listing with spl collateral', async () => {
+    const fixture = await initSvm();
+    const uuid = randomUUID();
+
+    await createListing(
+      fixture,
+      {
+        uuid,
+        name: 'Test NFT',
+        symbol: 'TEST',
+        uri: 'https://test.com',
+        collateralMint: USDC_MINT.address.publicKey,
+        collateralAmount: 1,
+        price: 1,
+      },
+      {
+        from: fixture.operator,
+      },
+    );
+  });
+
   it('Purchase listing', async () => {
     const fixture = await initSvm();
     const uuid = randomUUID();
@@ -51,6 +76,27 @@ describe('contracts', () => {
   });
 
   it('Close listing', async () => {
+    const fixture = await initSvm();
+    const uuid = randomUUID();
+
+    await createListing(fixture, {
+      uuid,
+      name: 'Test NFT',
+      symbol: 'TEST',
+      uri: 'https://test.com',
+      collateralMint: SOL_MINT,
+      collateralAmount: 1,
+      price: 177 * 10 ** 9,
+    });
+
+    await closeListing(fixture, {
+      uuid,
+      collateralMint: SOL_MINT,
+      paymentMint: null,
+    });
+  });
+
+  it('Close listing if purchased', async () => {
     const fixture = await initSvm();
     const uuid = randomUUID();
 

@@ -18,7 +18,7 @@ import {
   GetFileReadUrlRequestDto,
   GetFileReadUrlResponseDto,
 } from './dtos/get-file-read-url.dto';
-import { GetPublicFileRequestDto } from './dtos/get-public-file.dto copy';
+import { GetPublicFileRequestDto } from './dtos/get-public-file.dto';
 import { StorageService } from './storage.service';
 
 import { Public } from '../auth/decorators/is-public.decorator';

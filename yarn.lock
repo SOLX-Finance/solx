@@ -7536,6 +7536,7 @@ __metadata:
     "@swc/helpers": "npm:~0.5.11"
     "@swc/jest": "npm:~0.2.36"
     "@tanstack/eslint-plugin-query": "npm:^5.73.3"
+    "@tanstack/react-form": "npm:^1.11.1"
     "@types/bn.js": "npm:^5.1.0"
     "@types/chai": "npm:^5.2.1"
     "@types/compression": "npm:^1.7.5"
@@ -8014,6 +8015,49 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/form-core@npm:1.11.1":
+  version: 1.11.1
+  resolution: "@tanstack/form-core@npm:1.11.1"
+  dependencies:
+    "@tanstack/store": "npm:^0.7.0"
+  checksum: 10c0/7a6cfcc486876004388c80c4a1f21a6bfd07f7c728d451845effcc362026f2473d58c419a20c7c46a4871843ffcbda6775c4c3951350307210101ff6b5a267c9
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-form@npm:^1.11.1":
+  version: 1.11.1
+  resolution: "@tanstack/react-form@npm:1.11.1"
+  dependencies:
+    "@tanstack/form-core": "npm:1.11.1"
+    "@tanstack/react-store": "npm:^0.7.0"
+    decode-formdata: "npm:^0.9.0"
+    devalue: "npm:^5.1.1"
+  peerDependencies:
+    "@tanstack/react-start": ^1.112.0
+    react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    vinxi: ^0.5.0
+  peerDependenciesMeta:
+    "@tanstack/react-start":
+      optional: true
+    vinxi:
+      optional: true
+  checksum: 10c0/8e082af75f8ed47d984b251d7a5eab8309c965f1207d902a89f84983227715f66c70da6358bb40b6f4e17803527dda1dd7c39c010df1d73aae4d369e7f430ee6
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-store@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@tanstack/react-store@npm:0.7.0"
+  dependencies:
+    "@tanstack/store": "npm:0.7.0"
+    use-sync-external-store: "npm:^1.4.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/7e971ae3c547d0d803133f07737e7cc7cf381e959b4fab3f55755b28c194688392f5b921d3d43b8c9c81bdc721ea8878c680d4ca28a1ccd59e8a64ab7bcfd0f8
+  languageName: node
+  linkType: hard
+
 "@tanstack/react-virtual@npm:^3.13.6":
   version: 3.13.8
   resolution: "@tanstack/react-virtual@npm:3.13.8"
@@ -8023,6 +8067,13 @@ __metadata:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
   checksum: 10c0/1604227dad2f1c8d3b8246f8afe9bc37998da8f97ed7ef1b5d703fe3417c8a54541592a9091e7c8e63521002672268292d347c5c17fe1e1e82b9d0b297ddd1b4
+  languageName: node
+  linkType: hard
+
+"@tanstack/store@npm:0.7.0, @tanstack/store@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@tanstack/store@npm:0.7.0"
+  checksum: 10c0/17003f1eba25bb6e9e2557ffb5d9c63cac09aa46f57d670a917727665ccc0b72d8d421ea1c07451257554aa5d14dbfff46875e7ed6a81f133b0738065f3162df
   languageName: node
   linkType: hard
 
@@ -12043,6 +12094,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"decode-formdata@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "decode-formdata@npm:0.9.0"
+  checksum: 10c0/8db0a57a14d4d98d4951fbdb7def91c5a5342f75b5274523e7ac56f6d9b39bb4e8f5ec616eb4fc0b501ef717084a86e63e450722a3a865313558977716c074a0
+  languageName: node
+  linkType: hard
+
 "decode-uri-component@npm:^0.2.2":
   version: 0.2.2
   resolution: "decode-uri-component@npm:0.2.2"
@@ -12301,6 +12359,13 @@ __metadata:
     detect: bin/detect-port.js
     detect-port: bin/detect-port.js
   checksum: 10c0/4ea9eb46a637cb21220dd0a62b6074792894fc77b2cacbc9de533d1908b2eedafa7bfd7547baaa2ac1e9c7ba7c289b34b17db896dca6da142f4fc6e2060eee17
+  languageName: node
+  linkType: hard
+
+"devalue@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "devalue@npm:5.1.1"
+  checksum: 10c0/f6717a856fd54216959abd341cb189e47a9b37d72d8419e055ae77567ff4ed0fb683b1ffb6a71067f645adae5991bffabe6468a3e2385937bff49273e71c1f51
   languageName: node
   linkType: hard
 

@@ -43,14 +43,14 @@ const Navbar = () => {
                 Market
               </Link>
               <Link
-                to="/projects/create"
+                to="/sales/create"
                 className={`inline-flex items-center px-1 pt-1 border-b-2 ${
-                  location.pathname === '/projects/create'
+                  location.pathname === '/sales/create'
                     ? 'border-indigo-500'
                     : 'border-transparent'
-                } ${isActive('/projects/create')}`}
+                } ${isActive('/sales/create')}`}
               >
-                Create Project
+                Create Sale
               </Link>
             </div>
           </div>

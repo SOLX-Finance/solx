@@ -1,4 +1,4 @@
-import { User } from '@privy-io/react-auth';
+import { usePrivy, User } from '@privy-io/react-auth';
 import React, {
   createContext,
   useContext,
@@ -7,7 +7,6 @@ import React, {
   ReactNode,
 } from 'react';
 
-import usePrivy from '@/hooks/usePrivy';
 import { httpClient } from '@/services/httpClient';
 
 interface AuthProviderProps {

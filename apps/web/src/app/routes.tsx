@@ -6,9 +6,9 @@ import MainLayout from '../components/layouts/MainLayout';
 
 const LandingPage = lazy(() => import('../features/landing/pages/LandingPage'));
 const MarketPage = lazy(() => import('../features/market/pages/MarketPage'));
-const ProjectPage = lazy(() => import('../features/project/pages/ProjectPage'));
-const CreateProjectPage = lazy(
-  () => import('../features/project/pages/CreateProjectPage'),
+const SalePage = lazy(() => import('../features/sales/pages/SalePage'));
+const CreateSalePage = lazy(
+  () => import('../features/sales/pages/CreateSalePage'),
 );
 const ProfilePage = lazy(() => import('../features/profile/pages/ProfilePage'));
 
@@ -29,8 +29,8 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           <Route path="/market" element={<MarketPage />} />
 
-          <Route path="/projects/create" element={<CreateProjectPage />} />
-          <Route path="/projects/:projectId" element={<ProjectPage />} />
+          <Route path="/sales/create" element={<CreateSalePage />} />
+          <Route path="/sales/:saleId" element={<SalePage />} />
 
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />

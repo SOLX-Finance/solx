@@ -4,13 +4,13 @@ export const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production'] as const)
     .default('development'),
-  DATABASE: z
+  DATABASE_URL: z
     .string()
     .default('postgresql://postgres:1234@localhost:5432/solx'),
   RPC_URL: z.string(),
   INDEXER_LOOP_CYCLE_DELAY: z.coerce.number().default(5000),
   PORT: z.coerce.number().default(3004),
-  REDIS_QUEUE: z.string().default('redis://localhost:6379'),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
   REDIS_USE_CLUSTER: z.coerce.boolean().default(false),
   INDEX_ENV: z.enum(['devnet', 'mainnet'] as const).default('devnet'),
   PINO_LOG_LEVEL: z

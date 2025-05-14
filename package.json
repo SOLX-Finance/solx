@@ -12,6 +12,8 @@
     "build:contracts": "nx build contracts",
     "build:indexer": "nx build indexer",
     "build:web": "nx build web",
+    "db:generate": "prisma generate --schema ./libs/data-access/prisma/schema",
+    "db:migrate:deploy": "prisma migrate deploy --schema ./libs/data-access/prisma/schema",
     "lint:api": "nx lint api",
     "lint:api:fix": "nx lint api --fix",
     "lint:contracts": "nx lint contracts",

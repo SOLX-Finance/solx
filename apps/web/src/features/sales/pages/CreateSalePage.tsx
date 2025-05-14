@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { useCreateSaleForm } from '../hooks/useCreateSaleForm';
+import { useCreateSaleFormQuery } from '../hooks/useCreateSaleFormQuery';
 
-import { FileType } from '@/hooks/useFileUpload';
+import { FileType } from '@/hooks/useFileUploadQuery';
 
 const CreateSalePage: React.FC = () => {
   const {
@@ -16,7 +16,7 @@ const CreateSalePage: React.FC = () => {
     handleDemoFileChange,
     handlePreviewFileChange,
     removeFile,
-  } = useCreateSaleForm();
+  } = useCreateSaleFormQuery();
 
   return (
     <div className="container mx-auto p-4">

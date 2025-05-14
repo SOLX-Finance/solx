@@ -18,6 +18,11 @@ export const env = (() => {
       api: {
         url: validatedEnv.API_URL,
       },
+
+      // RPC
+      rpc: {
+        url: validatedEnv.RPC_URL,
+      },
     };
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
@@ -34,6 +39,9 @@ export const env = (() => {
       },
       api: {
         url: 'http://localhost:3000', // Default API URL
+      },
+      rpc: {
+        url: 'https://api.devnet.solana.com', // Default RPC URL
       },
     };
   }

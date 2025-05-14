@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { getActiveSales, Sale } from '../../sales/api/salesApi';
+import { Sale } from '../../sales/api/salesApi';
+import { useMarket } from '../hooks/useMarket';
 
 const LoadingState = () => (
   <div className="flex justify-center items-center h-64">
@@ -56,28 +57,10 @@ const SalesList = ({ sales }: { sales: Sale[] }) => (
 );
 
 const MarketPage = () => {
-  const [sales, setSales] = useState<Sale[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchSales = async () => {
-      try {
-        const salesData = await getActiveSales();
-        setSales(salesData);
-      } catch (err) {
-        console.error('Error fetching sales:', err);
-        setError('Failed to load sales. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSales();
-  }, []);
+  const { sales, isLoading, error } = useMarket();
 
   const renderContent = () => {
-    if (loading) {
+    if (isLoading) {
       return <LoadingState />;
     }
 

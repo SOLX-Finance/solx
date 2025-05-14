@@ -15,12 +15,12 @@ export default registerAs('app', () => {
 
     // Database configuration
     database: {
-      url: env.DATABASE,
+      url: env.DATABASE_URL,
     },
 
     // Redis configuration
     redis: {
-      url: env.REDIS_QUEUE,
+      url: env.REDIS_URL,
       useCluster: env.REDIS_USE_CLUSTER,
     },
 

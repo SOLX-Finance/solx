@@ -18,7 +18,7 @@ import { BN } from 'bn.js';
 import { Buffer } from 'buffer';
 
 export const SOLX_PROGRAM_ID = new PublicKey(
-  '8jbXs1fR9Bm5dh7N6Dr4ySsZWEeHeKTgsTYFjL386bcN',
+  '72GoG8mDsCuBMBSQZe3TmXtgQgNxuAzCh4ipgyRJqGCi',
 );
 
 export const METADATA_PROGRAM_ID = new PublicKey(
@@ -118,6 +118,7 @@ export function getPaymentMintState(globalState: PublicKey, mint: PublicKey) {
 export async function getCreateAssociatedTokenAccountInstruction(
   connection: Connection,
   mint: PublicKey,
+  payer: PublicKey,
   owner: PublicKey,
   allowOwnerOffCurve = false,
   commitment?: Commitment,
@@ -149,7 +150,7 @@ export async function getCreateAssociatedTokenAccountInstruction(
     ) {
       return {
         createInx: createAssociatedTokenAccountInstruction(
-          owner,
+          payer,
           associatedToken,
           owner,
           mint,

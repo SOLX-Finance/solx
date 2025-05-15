@@ -53,6 +53,7 @@ export class SaleController {
     };
   }
 
+  @Public()
   @Get('/active')
   @ApiOperation({ summary: 'Get all sales' })
   @ApiResponse({

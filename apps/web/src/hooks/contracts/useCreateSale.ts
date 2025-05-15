@@ -5,7 +5,12 @@ import {
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
-import { PublicKey, SYSVAR_RENT_PUBKEY, Transaction } from '@solana/web3.js';
+import {
+  PublicKey,
+  SystemProgram,
+  SYSVAR_RENT_PUBKEY,
+  Transaction,
+} from '@solana/web3.js';
 import { useMutation } from '@tanstack/react-query';
 
 import { useSolxContract } from './useSolxContract';
@@ -56,7 +61,7 @@ export const useCreateSale = () => {
 
       const payer = new PublicKey(wallet.address);
       const globalStatePubkey = addresses.devnet.globalState;
-      const globalStateAuthority = addresses.devnet.authority;
+      // const globalStateAuthority = addresses.devnet.authority;
 
       const connection = solanaConnection;
 
@@ -88,12 +93,14 @@ export const useCreateSale = () => {
           connection,
           collateralMint,
           payer,
+          payer,
           true,
         );
 
         listingCollateralAta = await getCreateAssociatedTokenAccountInstruction(
           connection,
           collateralMint,
+          payer,
           listingPda,
           true,
         );
@@ -105,7 +112,6 @@ export const useCreateSale = () => {
           payer,
           lister: payer,
           globalState: globalStatePubkey,
-          globalStateAuthority,
           vault,
           nftMint,
           nftTokenAccount: payerNftAta,
@@ -115,6 +121,7 @@ export const useCreateSale = () => {
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           tokenProgram: TOKEN_PROGRAM_ID,
           rent: SYSVAR_RENT_PUBKEY,
+          systemProgram: SystemProgram.programId,
         })
         .instruction();
 
@@ -138,8 +145,8 @@ export const useCreateSale = () => {
       } else {
         // For SOL, use payer and listing PDA as the accounts
         Object.assign(listingAccounts, {
-          listingCollateralMintAccount: listingPda,
-          listerCollateralMintAccount: payer,
+          listingCollateralMintAccount: null,
+          listerCollateralMintAccount: null,
         });
       }
 

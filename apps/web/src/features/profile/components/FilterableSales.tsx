@@ -1,13 +1,9 @@
-import { SalesFilter } from '../hooks/useUserSales';
-
 import { Pagination } from '@/components/common/Pagination';
 import { SalesGrid } from '@/components/common/SalesGrid';
 import { Spinner } from '@/components/ui/spinner';
 import { Sale } from '@/features/sales/api/salesApi';
 
 interface FilterableSalesProps {
-  walletAddress: string;
-  activeTab: SalesFilter;
   sales: Sale[];
   currentPage: number;
   totalPages: number;
@@ -21,8 +17,6 @@ interface FilterableSalesProps {
 }
 
 export const FilterableSales = ({
-  walletAddress,
-  activeTab,
   sales,
   currentPage,
   totalPages,

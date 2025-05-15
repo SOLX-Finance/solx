@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import FilterableSales from '../components/FilterableSales';
@@ -59,16 +59,14 @@ const ProfilePage: React.FC = () => {
     changeLimit,
     handleSearchChange,
     handleSortChange,
-    refetch: refetchSales,
-  } = useUserSales(user?.walletAddress || '', activeTab);
+  } = useUserSales({
+    walletAddress: user?.walletAddress || '',
+    initialFilter: activeTab,
+    initialLimit: 6,
+    initialPage: 1,
+  });
 
   const { uploadFiles } = useFileUploadQuery();
-
-  useEffect(() => {
-    if (user?.walletAddress) {
-      refetchSales();
-    }
-  }, [activeTab, user?.walletAddress, refetchSales]);
 
   const handleUsernameEdit = async (newUsername: string) => {
     if (!isOwnProfile || !currentUser) return;
@@ -163,8 +161,6 @@ const ProfilePage: React.FC = () => {
         <div className="w-full">
           {/* FilterableSales component */}
           <FilterableSales
-            walletAddress={user?.walletAddress || ''}
-            activeTab={activeTab}
             sales={sales || []}
             currentPage={currentPage}
             totalPages={totalPages}

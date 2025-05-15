@@ -10,6 +10,7 @@ import {
   SearchAndFilter,
   SortOption,
 } from '@/components/common/SearchAndFilter';
+import { Spinner } from '@/components/ui/spinner';
 
 const MarketPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +23,7 @@ const MarketPage = () => {
     currentPage,
     totalPages,
     limit,
+    isLoading,
     handleSearch,
     handleSort,
     handleFilter,
@@ -68,22 +70,30 @@ const MarketPage = () => {
         />
       </div>
 
-      <SalesGrid sales={sales} columns={4} />
+      {isLoading ? (
+        <div className="flex justify-center py-10">
+          <Spinner />
+        </div>
+      ) : (
+        <>
+          <SalesGrid sales={sales} columns={4} />
 
-      <Pagination
-        isHidden={sales.length === 0}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onNextPage={() => handlePageChange(currentPage + 1)}
-        onPrevPage={() => handlePageChange(currentPage - 1)}
-        onPageChange={handlePageChange}
-        totalItems={total}
-        itemsShown={sales.length}
-        pageSizeOptions={[8, 16, 24, 32]}
-        showItemsPerPage={true}
-        itemsPerPage={limit}
-        onItemsPerPageChange={handleLimitChange}
-      />
+          <Pagination
+            isHidden={sales.length === 0}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onNextPage={() => handlePageChange(currentPage + 1)}
+            onPrevPage={() => handlePageChange(currentPage - 1)}
+            onPageChange={handlePageChange}
+            totalItems={total}
+            itemsShown={sales.length}
+            pageSizeOptions={[8, 16, 24, 32]}
+            showItemsPerPage={true}
+            itemsPerPage={limit}
+            onItemsPerPageChange={handleLimitChange}
+          />
+        </>
+      )}
     </div>
   );
 };

@@ -162,7 +162,10 @@ export const ProfileHeader = ({
         )}
       </div>
       {isOwnProfile && (
-        <div className="bg-black flex-1 h-[180px] rounded-[40px] relative flex justify-center items-center">
+        <div
+          style={{ backgroundImage: "url('/create-sale-bg.webp')" }}
+          className="bg-black flex-1 h-[180px] rounded-[40px] relative flex justify-center items-center bg-cover bg-center"
+        >
           <Button
             onClick={() => navigate('/sales/create')}
             className="relative min-w-[254px] min-h-[60px] hover:bg-white bg-[#BA8FFF] rounded-[30px] text-black text-[24px] leading-[30px] font-medium duration-300"

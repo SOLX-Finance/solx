@@ -1,34 +1,52 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { salesApi, UserSalesFilters } from '@/features/sales/api/salesApi';
 
 export type SalesFilter = 'created' | 'bought';
 
-export const useUserSales = (
-  walletAddress: string,
-  initialFilter: SalesFilter = 'created',
+export const useUserSales = ({
+  walletAddress,
+  initialFilter = 'created',
   initialPage = 1,
   initialLimit = 9,
-) => {
-  const [activeFilter, setActiveFilter] = useState<SalesFilter>(initialFilter);
+}: {
+  walletAddress: string;
+  initialFilter: SalesFilter;
+  initialPage?: number;
+  initialLimit?: number;
+}) => {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [limit, setLimit] = useState(initialLimit);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<string>('newest');
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [initialFilter]);
 
   const filters: UserSalesFilters = {
     page: currentPage,
     limit,
     search: searchQuery || undefined,
     sortBy,
-    filter: activeFilter,
+    filter: initialFilter, // Use initialFilter directly from props
   };
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['userSales', walletAddress, filters],
+  const { data, isLoading, error } = useQuery({
+    queryKey: [
+      'userSales',
+      walletAddress,
+      initialFilter,
+      currentPage,
+      limit,
+      searchQuery,
+      sortBy,
+      filters,
+    ],
     queryFn: () => salesApi.getSalesByUser(walletAddress, filters),
     enabled: !!walletAddress,
+    refetchOnWindowFocus: false,
   });
 
   const handleNextPage = () => {
@@ -66,8 +84,7 @@ export const useUserSales = (
     sales: data?.sales || [],
     isLoading,
     error,
-    activeFilter,
-    setActiveFilter,
+    activeFilter: initialFilter,
     currentPage,
     totalPages: data?.totalPages || 1,
     total: data?.total || 0,
@@ -80,6 +97,5 @@ export const useUserSales = (
     changeLimit,
     handleSearchChange,
     handleSortChange,
-    refetch,
   };
 };

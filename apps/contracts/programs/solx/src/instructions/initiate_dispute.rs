@@ -8,6 +8,7 @@ use anchor_spl::token::{
 };
 
 use crate::{
+  bytes_to_uuid,
   error::SolxError,
   get_timestamp,
   seeds,
@@ -19,7 +20,7 @@ use crate::{
 };
 
 #[derive(Accounts)]
-#[instruction(id: u64)]
+#[instruction(id: [u8; 16])]
 pub struct InitiateDispute<'info> {
   #[account(
     mut,
@@ -42,11 +43,7 @@ pub struct InitiateDispute<'info> {
   pub listing: Account<'info, Listing>,
 
   #[account(
-    seeds = [
-      seeds::MINT_SEED,
-      global_state.key().as_ref(),
-      id.to_le_bytes().as_ref(),
-    ],
+    seeds = [seeds::MINT_SEED, global_state.key().as_ref(), id.as_ref()],
     bump
   )]
   pub nft_mint: Account<'info, Mint>,
@@ -71,7 +68,7 @@ pub struct InitiateDispute<'info> {
   pub token_program: Program<'info, Token>,
 }
 
-pub fn handle(ctx: Context<InitiateDispute>, id: u64) -> Result<()> {
+pub fn handle(ctx: Context<InitiateDispute>, id: [u8; 16]) -> Result<()> {
   let listing = &ctx.accounts.listing;
   require!(listing.state == ListingState::Purchased, SolxError::InvalidState);
 
@@ -108,7 +105,7 @@ pub fn handle(ctx: Context<InitiateDispute>, id: u64) -> Result<()> {
   )?;
 
   emit!(ListingDisputed {
-    id,
+    id: bytes_to_uuid(id),
     global_state: ctx.accounts.global_state.key(),
     listing: ctx.accounts.listing.key(),
     nft: ctx.accounts.nft_mint.key(),

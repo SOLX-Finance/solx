@@ -30,6 +30,8 @@
     "@aws-sdk/s3-request-presigner": "^3.798.0",
     "@coral-xyz/anchor": "^0.29.0",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
+    "@metaplex-foundation/umi": "^1.2.0",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/bullmq": "^11.0.1",
     "@nestjs/common": "^10.0.2",

@@ -51,11 +51,13 @@ export const createSale = async (
   title: string,
   description: string,
   fileIds: string[],
+  categories: string[],
 ): Promise<CreateSaleResponse> => {
   const response = await httpClient.post<CreateSaleResponse>(`/sales`, {
     title,
     description,
     files: fileIds,
+    categories,
   });
   return response.data;
 };

@@ -34,4 +34,13 @@ pub enum SolxError {
 
   #[msg("Invalid collateral mint")]
   InvalidCollateralMint,
+
+  #[msg("Invalid nft mint")]
+  InvalidNftMint,
+
+  #[msg("Dispute period has not expired")]
+  DisputePeriodNotExpired,
+
+  #[msg("Insufficient balance")]
+  InsufficientBalance,
 }

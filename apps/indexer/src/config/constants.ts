@@ -10,10 +10,10 @@ export const networkAddresses: Partial<
 > = {
   devnet: {
     programs: {
-      solx: new PublicKey('8jbXs1fR9Bm5dh7N6Dr4ySsZWEeHeKTgsTYFjL386bcN'),
+      solx: new PublicKey('72GoG8mDsCuBMBSQZe3TmXtgQgNxuAzCh4ipgyRJqGCi'),
     },
     globalStates: {
-      default: new PublicKey('6r8DxfB89V3zPBDt6pW1DL3r946sjP1bKs58vXN3896c'),
+      default: new PublicKey('H5ZkAYbKVAnm8n5p8taHhrNWvBWQyY2PabXoD6QLXCDH'),
     },
   },
 } as const;

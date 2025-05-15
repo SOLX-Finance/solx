@@ -43,12 +43,14 @@ export const useCreateSaleFormQuery = () => {
       title,
       description,
       fileIds,
+      categories,
     }: {
       title: string;
       description: string;
       fileIds: string[];
+      categories: string[];
     }) => {
-      return createSale(title, description, fileIds);
+      return createSale(title, description, fileIds, categories);
     },
     onSuccess: (response) => {
       navigate(`/sales/${response.id}`);
@@ -93,6 +95,8 @@ export const useCreateSaleFormQuery = () => {
         title: value.title,
         description: value.description,
         fileIds,
+        // TODO: pass categories here
+        categories: [],
       });
 
       return {};

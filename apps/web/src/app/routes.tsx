@@ -10,6 +10,9 @@ const ProjectPage = lazy(() => import('../features/project/pages/ProjectPage'));
 const CreateProjectPage = lazy(
   () => import('../features/project/pages/CreateProjectPage'),
 );
+const MyProfilePage = lazy(
+  () => import('../features/profile/pages/MyProfilePage'),
+);
 const ProfilePage = lazy(() => import('../features/profile/pages/ProfilePage'));
 
 const LoadingFallback = () => (
@@ -32,7 +35,7 @@ const AppRoutes = () => {
           <Route path="/projects/create" element={<CreateProjectPage />} />
           <Route path="/projects/:projectId" element={<ProjectPage />} />
 
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile" element={<MyProfilePage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
         </Route>
 

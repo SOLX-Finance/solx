@@ -1,93 +1,56 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-
-import { Sale } from '../../sales/api/salesApi';
+import { Input } from '../../../components/ui/input';
+import { Banner } from '../components/banner';
+import { Categories } from '../components/categories';
 import { useMarket } from '../hooks/useMarket';
 
-const LoadingState = () => (
-  <div className="flex justify-center items-center h-64">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-  </div>
-);
-
-const ErrorState = ({ message }: { message: string }) => (
-  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-    {message}
-  </div>
-);
-
-const EmptyState = () => (
-  <div className="text-center py-10">
-    <p className="text-gray-500">No sales available at the moment.</p>
-  </div>
-);
-
-const SalesList = ({ sales }: { sales: Sale[] }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {sales.map((sale) => (
-      <div
-        key={sale.id}
-        className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
-      >
-        <h2 className="text-xl font-semibold mb-2">{sale.title}</h2>
-        <p
-          className="text-gray-600 mb-4 overflow-hidden"
-          style={{
-            display: '-webkit-box',
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: 'vertical',
-          }}
-        >
-          {sale.description}
-        </p>
-        <div className="flex justify-between items-center">
-          <Link
-            to={`/sales/${sale.id}`}
-            className="text-indigo-600 hover:text-indigo-800"
-          >
-            View Details
-          </Link>
-          <span className="text-sm text-gray-500">
-            {new Date(sale.createdAt).toLocaleDateString()}
-          </span>
-        </div>
-      </div>
-    ))}
-  </div>
-);
+import { ProjectCard } from '@/components/common/ProjectCard';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const MarketPage = () => {
   const { sales, isLoading, error } = useMarket();
 
-  const renderContent = () => {
-    if (isLoading) {
-      return <LoadingState />;
-    }
-
-    if (error) {
-      return <ErrorState message={error} />;
-    }
-
-    if (sales.length === 0) {
-      return <EmptyState />;
-    }
-
-    return <SalesList sales={sales} />;
-  };
-
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 flex flex-col gap-[20px]">
+      <Banner />
+      <Categories />
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Market</h1>
-        <Link
-          to="/sales/create"
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-        >
-          Create Sale
-        </Link>
+        <h1 className="text-3xl font-bold">Discover</h1>
+        <div className="flex items-center gap-[10px]">
+          <Input className="rounded-[30px]" placeholder="Search" />
+          <Select defaultValue="newest">
+            <SelectTrigger className="w-[260px] rounded-[30px]">
+              <SelectValue placeholder="Newest" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest</SelectItem>
+              <SelectItem value="price-low">Price: Low to High</SelectItem>
+              <SelectItem value="price-high">Price: High to Low</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select>
+            <SelectTrigger className="w-[180px] rounded-[30px]">
+              <SelectValue placeholder="Filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="light">Light</SelectItem>
+              <SelectItem value="dark">Dark</SelectItem>
+              <SelectItem value="system">System</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {renderContent()}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[20px] mb-[100px]">
+        {sales.map((s) => (
+          <ProjectCard key={s.id} {...s} />
+        ))}
+      </div>
     </div>
   );
 };

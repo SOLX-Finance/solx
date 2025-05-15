@@ -17,10 +17,14 @@ export default {
       center: true,
       padding: '2rem',
       screens: {
-        '2xl': '1400px',
+        '2xl': '1600px',
       },
     },
     extend: {
+      fontFamily: {
+        brand: ['"Press Start 2P"', 'sans-serif'],
+        sans: ['Montserrat', 'sans-serif'],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

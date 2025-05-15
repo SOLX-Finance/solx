@@ -116,9 +116,8 @@ class SalesApi {
   async createSale(saleData: {
     title: string;
     description: string;
-    priceUsd: string;
     files: string[];
-    categories: string[];
+    categories?: string[];
   }): Promise<{ id: string }> {
     const { data } = await httpClient.post(`${this.baseUrl}`, saleData);
     return data;

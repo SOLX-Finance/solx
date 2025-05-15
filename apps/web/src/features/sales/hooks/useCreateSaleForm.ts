@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
-import { createSale } from '../api/salesApi';
+import { salesApi } from '../api/salesApi';
 
 import { useCreateSale } from '@/hooks/contracts/useCreateSale';
 import { FileType, useFileUploadQuery } from '@/hooks/useFileUploadQuery';
@@ -16,20 +16,20 @@ const FILE_TYPE_CONFIG = {
   [FileType.SALE_CONTENT]: {
     required: true,
     maxCount: 1,
-    missingError: 'You must upload a content file',
-    exceededError: 'You can upload only one content file',
+    missingError: 'You must upload a content ZIP file',
+    exceededError: 'You can upload only one content ZIP file',
   },
   [FileType.SALE_DEMO]: {
     required: false,
-    maxCount: 1,
+    maxCount: 5,
     missingError: 'Demo file is missing',
-    exceededError: 'You can upload only one demo file',
+    exceededError: 'You can upload at most 5 demo files',
   },
   [FileType.SALE_PREVIEW]: {
     required: false,
-    maxCount: 1,
+    maxCount: 5,
     missingError: 'Preview file is missing',
-    exceededError: 'You can upload only one preview file',
+    exceededError: 'You can upload at most 5 preview images',
   },
 };
 
@@ -52,12 +52,19 @@ export const useCreateSaleForm = () => {
       title,
       description,
       fileIds,
+      categories,
     }: {
       title: string;
       description: string;
       fileIds: string[];
+      categories: string[];
     }) => {
-      return createSale(title, description, fileIds);
+      return salesApi.createSale({
+        title,
+        description,
+        files: fileIds,
+        categories,
+      });
     },
   });
 
@@ -73,6 +80,7 @@ export const useCreateSaleForm = () => {
       description: '',
       price: 0,
       collateralAmount: 0,
+      categories: [] as string[],
     },
     onSubmit: async ({ value }) => {
       setFormError(null);
@@ -112,6 +120,17 @@ export const useCreateSaleForm = () => {
                 `You can upload at most ${config.maxCount} ${type} file(s)`,
             };
           }
+
+          // Validate that SALE_CONTENT is a ZIP file
+          if (type === FileType.SALE_CONTENT && files.length > 0) {
+            const contentFile = files[0];
+            if (!contentFile.name.toLowerCase().endsWith('.zip')) {
+              setFormError('Content file must be a ZIP archive');
+              return {
+                error: 'Content file must be a ZIP archive',
+              };
+            }
+          }
         }
 
         const fileIds = uploadedFiles.map((file) => file.id);
@@ -121,6 +140,7 @@ export const useCreateSaleForm = () => {
           title: value.title,
           description: value.description,
           fileIds,
+          categories: value.categories,
         });
 
         // 2. Create the sale on the blockchain
@@ -155,16 +175,22 @@ export const useCreateSaleForm = () => {
   const createFileChangeHandler =
     (fileType: FileType) => async (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
-        // Remove any existing files of this type
-        const existingFiles = uploadedFiles.filter(
-          (file) => file.type === fileType,
-        );
-        for (const file of existingFiles) {
-          removeFile(file.id);
-        }
+        // Convert FileList to array
+        const filesArray = Array.from(e.target.files);
 
-        // Upload the new file
-        await uploadFiles([e.target.files[0]], fileType);
+        // For SALE_CONTENT, ensure only one ZIP file is uploaded
+        if (fileType === FileType.SALE_CONTENT) {
+          const file = filesArray[0];
+          if (file.type !== 'application/zip' && !file.name.endsWith('.zip')) {
+            setFormError('Content file must be a ZIP archive');
+            return;
+          }
+          // Only upload the first file
+          await uploadFiles([file], fileType);
+        } else {
+          // Upload all selected files for other types
+          await uploadFiles(filesArray, fileType);
+        }
       }
     };
 
@@ -221,6 +247,7 @@ export const useCreateSaleForm = () => {
     isUploading,
     uploadedFiles,
     formError,
+    setFormError,
     uploadError,
     onchainError: onchainError ? String(onchainError) : null,
     successMessage,

@@ -4,9 +4,9 @@ use pyth_solana_receiver_sdk::price_update::{
   Price,
   PriceUpdateV2,
 };
-use solana_program::{ program::{ invoke_signed }, system_instruction };
+use solana_program::{ program::{ invoke, invoke_signed }, system_instruction };
 
-use crate::{ Listing, ListingState, PRICE_MAX_AGE };
+use crate::{ Listing, ListingState, MAX_PRICE, PRICE_MAX_AGE };
 
 pub fn get_currency<'info>(
   price_update: &Account<'info, PriceUpdateV2>,
@@ -16,7 +16,7 @@ pub fn get_currency<'info>(
 
   let price: Price = price_update.get_price_no_older_than(
     &Clock::get()?,
-    PRICE_MAX_AGE as u64,
+    MAX_PRICE,
     &feed_id
   )?;
 
@@ -43,15 +43,11 @@ pub fn send_sol<'a>(
   system_program: &AccountInfo<'a>,
   from: &AccountInfo<'a>,
   to: &AccountInfo<'a>,
-  lamports: u64,
-  signer_seeds: Option<&[&[&[u8]]]>
+  lamports: u64
 ) -> Result<()> {
-  let signer_seeds = signer_seeds.unwrap_or(&[&[]]);
-
-  invoke_signed(
+  invoke(
     &system_instruction::transfer(&from.key(), &to.key(), lamports),
-    &[from.clone(), to.clone(), system_program.clone()],
-    signer_seeds
+    &[from.clone(), to.clone(), system_program.clone()]
   )?;
 
   Ok(())

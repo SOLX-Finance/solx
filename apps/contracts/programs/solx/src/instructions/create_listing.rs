@@ -192,7 +192,7 @@ pub struct CreateListing<'info> {
     ],
     bump
   )]
-  pub listing: Account<'info, Listing>,
+  pub listing: Box<Account<'info, Listing>>,
 
   #[account(mut)]
   pub collateral_mint: Box<InterfaceAccount<'info, Mint>>,
@@ -270,8 +270,7 @@ pub fn handle_create_listing(
       &ctx.accounts.system_program.to_account_info(),
       &ctx.accounts.lister.to_account_info(),
       &ctx.accounts.listing.to_account_info(),
-      collateral_amount,
-      None
+      collateral_amount
     )?;
   }
 

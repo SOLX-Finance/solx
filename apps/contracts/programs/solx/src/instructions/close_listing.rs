@@ -181,39 +181,36 @@ pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
     );
   }
 
-  if open_or_purchased {
-    if accounts.collateral_mint.key() != wsol::ID {
-      transfer(
-        CpiContext::new_with_signer(
-          if
-            accounts.collateral_mint
-              .to_account_info()
-              .owner.eq(&accounts.token_program.key())
-          {
-            accounts.token_program.to_account_info()
-          } else {
-            accounts.token_program_2022.to_account_info()
-          },
-          Transfer {
-            from: accounts.listing_collateral_mint_account.to_account_info(),
-            to: accounts.authority_collateral_mint_account.to_account_info(),
-            authority: accounts.listing.to_account_info(),
-          },
-          listing_seeds
-        ),
-        accounts.listing.collateral_amount
-      )?;
-    } else {
-      transfer_lamports(
-        &accounts.listing.to_account_info(),
-        &accounts.authority.to_account_info(),
-        accounts.listing.collateral_amount
-      )?;
-    }
+  let is_sol_collateral_mint = accounts.collateral_mint.key() == wsol::ID;
+
+  if !is_sol_collateral_mint {
+    transfer(
+      CpiContext::new_with_signer(
+        if
+          accounts.collateral_mint
+            .to_account_info()
+            .owner.eq(&accounts.token_program.key())
+        {
+          accounts.token_program.to_account_info()
+        } else {
+          accounts.token_program_2022.to_account_info()
+        },
+        Transfer {
+          from: accounts.listing_collateral_mint_account.to_account_info(),
+          to: accounts.authority_collateral_mint_account.to_account_info(),
+          authority: accounts.listing.to_account_info(),
+        },
+        listing_seeds
+      ),
+      accounts.listing.collateral_amount
+    )?;
   }
 
   if accounts.listing.state == ListingState::Purchased {
     let fee = accounts.global_state.fee;
+
+    let is_sol_payment_mint =
+      accounts.payment_mint.as_ref().unwrap().key() == wsol::ID;
 
     let fee_amount = accounts.listing.payment_amount
       .checked_mul(fee)
@@ -225,10 +222,7 @@ pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
       .checked_sub(fee_amount)
       .unwrap();
 
-    let is_solx_payment_mint =
-      accounts.payment_mint.as_ref().unwrap().key() == wsol::ID;
-
-    if !is_solx_payment_mint {
+    if !is_sol_payment_mint {
       transfer(
         CpiContext::new_with_signer(
           if
@@ -255,15 +249,7 @@ pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
         ),
         amount_to_transfer
       )?;
-    } else {
-      transfer_lamports(
-        &accounts.listing.to_account_info(),
-        &accounts.authority.to_account_info(),
-        amount_to_transfer
-      )?;
-    }
 
-    if !is_solx_payment_mint {
       transfer(
         CpiContext::new_with_signer(
           if
@@ -293,10 +279,24 @@ pub fn handle(ctx: Context<CloseListing>, id: [u8; 16]) -> Result<()> {
     } else {
       transfer_lamports(
         &accounts.listing.to_account_info(),
+        &accounts.authority.to_account_info(),
+        amount_to_transfer
+      )?;
+
+      transfer_lamports(
+        &accounts.listing.to_account_info(),
         &accounts.treasury.to_account_info(),
         fee_amount
       )?;
     }
+  }
+
+  if is_sol_collateral_mint {
+    transfer_lamports(
+      &accounts.listing.to_account_info(),
+      &accounts.authority.to_account_info(),
+      accounts.listing.collateral_amount
+    )?;
   }
 
   emit!(ListingClosed {

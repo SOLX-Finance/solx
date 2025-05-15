@@ -5,7 +5,7 @@ import {
   TOKEN_2022_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
 } from '@solana/spl-token';
-import { PublicKey, Transaction } from '@solana/web3.js';
+import { ComputeBudgetProgram, PublicKey, Transaction } from '@solana/web3.js';
 import { expect } from 'expect';
 
 import {
@@ -30,7 +30,8 @@ import {
   FEE_DENOMINATOR,
   listingState,
   METADATA_PROGRAM_ID,
-  PYTH_PRICE_UPDATE,
+  PYTH_PRICE_UPDATE_SOL,
+  PYTH_PRICE_UPDATE_USDC,
   SOL_MINT,
 } from '../constants/constants';
 import { ContractFixture } from '../fixtures/contract.fixture';
@@ -93,14 +94,6 @@ export const createListing = async (
   const listerCollateralMintAccount = !collateralMint.equals(SOL_MINT)
     ? await getOrCreateAta(collateralMint, fixture.svm, from.publicKey, from)
     : null;
-  // console.log(
-  //   collateralMint.toBase58(),
-  //   from.publicKey.toBase58(),
-  //   from.publicKey.toBase58(),
-  //   ' ARGS',
-  // );
-  // console.log(from.publicKey, ' FROM');
-  // console.log(listerCollateralMintAccount?.ataAccount, ' LISTEER ACC');
 
   const [whitelistedState] = getWhitelistedState(
     globalState.publicKey,
@@ -110,63 +103,62 @@ export const createListing = async (
   const [nftMetadata] = getNftMetadata(nftMint);
 
   const [vault] = getVault(globalState.publicKey);
-  console.log({
-    payer: from.publicKey,
-    lister: from.publicKey,
-    globalState: globalState.publicKey,
-    globalStateAuthority: authority.publicKey,
-    vault,
-    nftMint,
-    nftTokenAccount: listerNftTokenAccount,
-    masterEditionAccount: masterEdition,
-    nftMetadata,
-    metadataProgram: METADATA_PROGRAM_ID,
-    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-    tokenProgram: TOKEN_PROGRAM_ID,
-  });
-  const createNftIx = new Transaction().add(
-    await program.methods
-      .mintNft(Array.from(listingIdBytes), name, symbol, uri)
-      .accounts({
-        payer: from.publicKey,
-        lister: from.publicKey,
-        globalState: globalState.publicKey,
-        globalStateAuthority: authority.publicKey,
-        vault,
-        nftMint,
-        nftTokenAccount: listerNftTokenAccount,
-        masterEditionAccount: masterEdition,
-        nftMetadata,
-        metadataProgram: METADATA_PROGRAM_ID,
-        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      })
-      .transaction(),
-  );
+
+  const createNftIx = new Transaction()
+    .add(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units: 1400000,
+      }),
+    )
+    .add(
+      await program.methods
+        .mintNft(Array.from(listingIdBytes), name, symbol, uri)
+        .accounts({
+          payer: from.publicKey,
+          lister: from.publicKey,
+          globalState: globalState.publicKey,
+          vault,
+          nftMint,
+          nftTokenAccount: listerNftTokenAccount,
+          masterEditionAccount: masterEdition,
+          nftMetadata,
+          metadataProgram: METADATA_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .transaction(),
+    );
 
   await expectNotReverted(processTransaction(fixture.svm, createNftIx, [from]));
 
-  const createListingTx = new Transaction().add(
-    await program.methods
-      .createListing(
-        Array.from(listingIdBytes),
-        toBN(collateralAmount),
-        toBN(price),
-      )
-      .accounts({
-        lister: from.publicKey,
-        globalState: globalState.publicKey,
-        collateralMint,
-        listing,
-        listingCollateralMintAccount: listingCollateralMintAccount?.ata ?? null,
-        listerCollateralMintAccount: listerCollateralMintAccount?.ata ?? null,
-        whitelistedState,
-        nftTokenAccount: listerNftTokenAccount,
-        nftMint,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      })
-      .transaction(),
-  );
+  const createListingTx = new Transaction()
+    .add(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units: 1400000,
+      }),
+    )
+    .add(
+      await program.methods
+        .createListing(
+          Array.from(listingIdBytes),
+          toBN(collateralAmount),
+          toBN(price),
+        )
+        .accounts({
+          lister: from.publicKey,
+          globalState: globalState.publicKey,
+          collateralMint,
+          listing,
+          listingCollateralMintAccount:
+            listingCollateralMintAccount?.ata ?? null,
+          listerCollateralMintAccount: listerCollateralMintAccount?.ata ?? null,
+          whitelistedState,
+          nftTokenAccount: listerNftTokenAccount,
+          nftMint,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .transaction(),
+    );
 
   if (opt?.revertedWith) {
     await expectReverted(
@@ -249,25 +241,33 @@ export async function purchaseListing(
     paymentMint,
   );
 
-  const purchaseListingTx = new Transaction().add(
-    await program.methods
-      .purchase(Array.from(listingIdBytes))
-      .accounts({
-        buyer: from.publicKey,
-        globalState: globalState.publicKey,
-        listing,
-        nftMint,
-        listingPaymentMintAccount: listingPaymentMintAccount.ata,
-        buyerPaymentMintAccount: buyerPaymentMintAccount.ata,
-        whitelistedState,
-        paymentMintState,
-        priceUpdate: PYTH_PRICE_UPDATE,
-        paymentMint,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        tokenProgram2022: TOKEN_2022_PROGRAM_ID,
-      })
-      .transaction(),
-  );
+  const purchaseListingTx = new Transaction()
+    .add(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units: 1400000,
+      }),
+    )
+    .add(
+      await program.methods
+        .purchase(Array.from(listingIdBytes))
+        .accounts({
+          buyer: from.publicKey,
+          globalState: globalState.publicKey,
+          listing,
+          nftMint,
+          listingPaymentMintAccount: listingPaymentMintAccount.ata,
+          buyerPaymentMintAccount: buyerPaymentMintAccount.ata,
+          whitelistedState,
+          paymentMintState,
+          priceUpdate: paymentMint.equals(SOL_MINT)
+            ? PYTH_PRICE_UPDATE_SOL
+            : PYTH_PRICE_UPDATE_USDC,
+          paymentMint,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          tokenProgram2022: TOKEN_2022_PROGRAM_ID,
+        })
+        .transaction(),
+    );
 
   if (opt?.revertedWith) {
     await expectReverted(
@@ -356,30 +356,36 @@ export async function closeListing(
     ASSOCIATED_TOKEN_PROGRAM_ID,
   );
 
-  const closeListingTx = new Transaction().add(
-    await program.methods
-      .closeListing(Array.from(listingIdBytes))
-      .accounts({
-        authority: from.publicKey,
-        treasury: treasury.publicKey,
-        globalState: globalState.publicKey,
-        listing,
-        listingCollateralMintAccount: listingCollateralMintAccount.ata,
-        listingPaymentMintAccount: listingPaymentMintAccount?.ata ?? null,
-        authorityCollateralMintAccount: authorityCollateralMintAccount.ata,
-        authorityPaymentMintAccount: authorityPaymentMintAccount?.ata ?? null,
-        treasuryPaymentMintAccount: treasuryPaymentMintAccount?.ata ?? null,
-        collateralMint: collateralMint,
-        paymentMint: paymentMint,
-        collateralWhitelistedState: collateralWhitelistedState,
-        paymentWhitelistedState: paymentWhitelistedState?.[0] ?? null,
-        nftMint,
-        nftTokenAccount: listerNftTokenAccount,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        tokenProgram2022: TOKEN_2022_PROGRAM_ID,
-      })
-      .transaction(),
-  );
+  const closeListingTx = new Transaction()
+    .add(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units: 1400000,
+      }),
+    )
+    .add(
+      await program.methods
+        .closeListing(Array.from(listingIdBytes))
+        .accounts({
+          authority: from.publicKey,
+          treasury: treasury.publicKey,
+          globalState: globalState.publicKey,
+          listing,
+          listingCollateralMintAccount: listingCollateralMintAccount.ata,
+          listingPaymentMintAccount: listingPaymentMintAccount?.ata ?? null,
+          authorityCollateralMintAccount: authorityCollateralMintAccount.ata,
+          authorityPaymentMintAccount: authorityPaymentMintAccount?.ata ?? null,
+          treasuryPaymentMintAccount: treasuryPaymentMintAccount?.ata ?? null,
+          collateralMint: collateralMint,
+          paymentMint: paymentMint,
+          collateralWhitelistedState: collateralWhitelistedState,
+          paymentWhitelistedState: paymentWhitelistedState?.[0] ?? null,
+          nftMint,
+          nftTokenAccount: listerNftTokenAccount,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          tokenProgram2022: TOKEN_2022_PROGRAM_ID,
+        })
+        .transaction(),
+    );
 
   if (opt?.revertedWith) {
     await expectReverted(

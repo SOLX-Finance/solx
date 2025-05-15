@@ -22,7 +22,6 @@ import {
   createMint,
   getPaymentMintState,
   getWhitelistedState,
-  toBN,
 } from '../common/common.helpers';
 import { LiteSvmProgram } from '../common/LiteSvm';
 import { AddedAccount } from '../common/types';
@@ -31,7 +30,8 @@ import {
   FEE,
   FEED_IDS,
   METADATA_PROGRAM_ID,
-  PYTH_PRICE_UPDATE,
+  PYTH_PRICE_UPDATE_SOL,
+  PYTH_PRICE_UPDATE_USDC,
   seeds,
   SOL_MINT,
   USDC_MINT,
@@ -41,7 +41,9 @@ import { SOLX_PROGRAM_ID } from '../constants/contract.constants';
 export const connection = new Connection('https://solana-rpc.publicnode.com');
 
 let WSOL_DATA: any = undefined;
-let PYTH_PRICE_UPDATE_DATA: any = undefined;
+let PYTH_PRICE_UPDATE_SOL_DATA: any = undefined;
+let PYTH_PRICE_UPDATE_USDC_DATA: any = undefined;
+
 export const initSvm = async () => {
   const svm = new LiteSVM();
 
@@ -56,12 +58,26 @@ export const initSvm = async () => {
     }
   }
 
-  if (!PYTH_PRICE_UPDATE_DATA) {
-    const pythPriceUpdateData =
-      await connection.getAccountInfo(PYTH_PRICE_UPDATE);
+  if (!PYTH_PRICE_UPDATE_SOL_DATA) {
+    const pythPriceUpdateData = await connection.getAccountInfo(
+      PYTH_PRICE_UPDATE_SOL,
+    );
 
     if (pythPriceUpdateData) {
-      PYTH_PRICE_UPDATE_DATA = {
+      PYTH_PRICE_UPDATE_SOL_DATA = {
+        ...pythPriceUpdateData,
+        rentEpoch: 123,
+      };
+    }
+  }
+
+  if (!PYTH_PRICE_UPDATE_USDC_DATA) {
+    const pythPriceUpdateData = await connection.getAccountInfo(
+      PYTH_PRICE_UPDATE_USDC,
+    );
+
+    if (pythPriceUpdateData) {
+      PYTH_PRICE_UPDATE_USDC_DATA = {
         ...pythPriceUpdateData,
         rentEpoch: 123,
       };
@@ -69,13 +85,12 @@ export const initSvm = async () => {
   }
 
   svm.setAccount(SOL_MINT, WSOL_DATA);
-  svm.setAccount(PYTH_PRICE_UPDATE, PYTH_PRICE_UPDATE_DATA);
+  svm.setAccount(PYTH_PRICE_UPDATE_SOL, PYTH_PRICE_UPDATE_SOL_DATA);
+  svm.setAccount(PYTH_PRICE_UPDATE_USDC, PYTH_PRICE_UPDATE_USDC_DATA);
 
   const accounts: Keypair[] = [];
   const accountsToInject: AddedAccount[] = [];
   const usdcToOwn = 1_000_000_000_000n;
-
-  const usdcTokenAccData = Buffer.alloc(ACCOUNT_SIZE);
 
   let usdcMint: PublicKey | undefined;
 
@@ -115,6 +130,8 @@ export const initSvm = async () => {
       true,
     );
 
+    const tokenAccData = Buffer.alloc(ACCOUNT_SIZE);
+
     AccountLayout.encode(
       {
         mint: usdcMint,
@@ -129,7 +146,7 @@ export const initSvm = async () => {
         closeAuthorityOption: 0,
         closeAuthority: PublicKey.default,
       },
-      usdcTokenAccData,
+      tokenAccData,
     );
 
     accounts.push(keypair);
@@ -148,7 +165,7 @@ export const initSvm = async () => {
         address: ata,
         info: {
           lamports: 1_000_000_000,
-          data: usdcTokenAccData,
+          data: tokenAccData,
           owner: TOKEN_PROGRAM_ID,
           executable: false,
         },

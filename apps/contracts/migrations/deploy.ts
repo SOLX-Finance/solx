@@ -2,7 +2,11 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
 import { AnchorProvider, BN, Program } from '@coral-xyz/anchor';
-import { createMint } from '@solana/spl-token';
+import {
+  createMint,
+  getOrCreateAssociatedTokenAccount,
+  mintTo,
+} from '@solana/spl-token';
 import {
   Connection,
   Keypair,
@@ -28,13 +32,15 @@ import {
   createListing,
   purchaseListing,
 } from '../tests/helpers/ixs';
-import { bs58 } from '@coral-xyz/anchor/dist/cjs/utils/bytes';
+
+const USDC_MINT = new PublicKey('DBmcHvg83bzdVEG68xsbQZmXHDqWYKioKJwGGu7rPRXX');
 
 const connection = new Connection('https://api.devnet.solana.com');
 
 const anchor = require('@coral-xyz/anchor');
 
 const inited = true;
+const needMint = false;
 
 export default async function main() {
   const provider = AnchorProvider.env();
@@ -94,14 +100,6 @@ export default async function main() {
     await provider.sendAndConfirm(whitelistSolIx, [authority]);
 
     console.log('Whitelisted SOL');
-
-    const USDC_MINT = await createMint(
-      connection,
-      authority,
-      authority.publicKey,
-      null,
-      6,
-    );
 
     console.log('Created USDC mint: ', USDC_MINT.toBase58());
 
@@ -171,10 +169,48 @@ export default async function main() {
       ]),
     );
 
-    //await sendSol(connection, authority, buyer.publicKey, 1);
+    if (needMint) {
+      const buyerAta = await getOrCreateAssociatedTokenAccount(
+        connection,
+        authority,
+        USDC_MINT,
+        buyer.publicKey,
+      );
+
+      const authorityAta = await getOrCreateAssociatedTokenAccount(
+        connection,
+        authority,
+        USDC_MINT,
+        authority.publicKey,
+      );
+
+      await mintTo(
+        connection,
+        authority,
+        USDC_MINT,
+        buyerAta.address,
+        authority.publicKey,
+        1_000_000_000 * 10 ** 6,
+      );
+
+      await mintTo(
+        connection,
+        authority,
+        USDC_MINT,
+        authorityAta.address,
+        authority.publicKey,
+        1_000_000_000 * 10 ** 6,
+      );
+
+      await sleep(3000);
+
+      console.log('Minted USDC to buyer and authority');
+    }
+
+    await sendSol(connection, authority, buyer.publicKey, 1);
     try {
       const globalState = new PublicKey(
-        '6r8DxfB89V3zPBDt6pW1DL3r946sjP1bKs58vXN3896c',
+        'H5ZkAYbKVAnm8n5p8taHhrNWvBWQyY2PabXoD6QLXCDH',
       );
 
       await simulateSaleFlows(
@@ -184,8 +220,6 @@ export default async function main() {
         globalState,
         authority.publicKey,
       );
-
-      console.log('Buyer creds', buyer);
     } catch (e) {
       console.error(e);
     } finally {
@@ -220,7 +254,7 @@ async function simulateSaleFlows(
   );
 
   const uuidA = randomUUID();
-  const priceA = parseInt(randAmount().toString());
+  const priceA = Math.floor(randAmount() * 10 ** 6);
   console.log(`a) [${uuidA}] price=${priceA} SOL`);
 
   await createListing({
@@ -231,7 +265,7 @@ async function simulateSaleFlows(
     symbol: `ASDASD`,
     uri: `https://example.com/`,
     collateralMint: SOL_MINT,
-    collateralAmount: parseInt(randAmount().toString()),
+    collateralAmount: Math.floor(randAmount() * 10 ** 8),
     price: priceA,
     globalStatePubkey: globalState,
     globalStateAuthority: seller.publicKey,
@@ -239,7 +273,7 @@ async function simulateSaleFlows(
   });
 
   const uuidB = randomUUID();
-  const priceB = parseInt(randAmount().toString());
+  const priceB = Math.floor(randAmount() * 10 ** 6);
   console.log(`b) [${uuidB}] price=${priceB} SOL`);
   await createListing({
     connection,
@@ -249,7 +283,7 @@ async function simulateSaleFlows(
     symbol: `ASDASD`,
     uri: `https://example.com/`,
     collateralMint: SOL_MINT,
-    collateralAmount: parseInt(randAmount().toString()),
+    collateralAmount: Math.floor(randAmount() * 10 ** 8),
     price: priceB,
     globalStatePubkey: globalState,
     globalStateAuthority: seller.publicKey,
@@ -261,14 +295,14 @@ async function simulateSaleFlows(
     uuid: uuidB,
     globalState,
     collateralMint: SOL_MINT,
-    paymentMint: SOL_MINT,
+    paymentMint: null,
     treasury,
     program: solxProgram,
   });
   console.log(`b) [${uuidB}] closed`);
 
   const uuidC = randomUUID();
-  const priceC = parseInt(randAmount().toString());
+  const priceC = Math.floor(randAmount() * 10 ** 6);
   console.log(`c) [${uuidC}] price=${priceC} SOL`);
   await createListing({
     connection,
@@ -278,7 +312,7 @@ async function simulateSaleFlows(
     symbol: `ASDASD`,
     uri: `https://example.com/`,
     collateralMint: SOL_MINT,
-    collateralAmount: parseInt(randAmount().toString()),
+    collateralAmount: Math.floor(randAmount() * 10 ** 8),
     price: priceC,
     globalStatePubkey: globalState,
     globalStateAuthority: seller.publicKey,
@@ -295,8 +329,86 @@ async function simulateSaleFlows(
   });
   console.log(`c) [${uuidC}] purchased`);
 
+  const uuidDa = randomUUID();
+  const priceDa = Math.floor(randAmount() * 10 ** 6);
+  console.log(`da) [${uuidDa}] price=${priceDa} USDC`);
+  await createListing({
+    connection,
+    payer: seller,
+    uuid: uuidDa,
+    name: `NFT`,
+    symbol: `ASDASD`,
+    uri: `https://example.com/`,
+    collateralMint: USDC_MINT,
+    collateralAmount: 1000 * 10 ** 6,
+    price: priceDa,
+    globalStatePubkey: globalState,
+    globalStateAuthority: seller.publicKey,
+    program: solxProgram,
+  });
+  await purchaseListing({
+    connection,
+    payer: buyer,
+    uuid: uuidDa,
+    paymentMint: USDC_MINT,
+    globalStatePubkey: globalState,
+    program: solxProgram,
+  });
+
+  const uuidDb = randomUUID();
+  const priceDb = Math.floor(randAmount() * 10 ** 6);
+  console.log(`db) [${uuidDb}] price=${priceDb} USDC`);
+  await createListing({
+    connection,
+    payer: seller,
+    uuid: uuidDb,
+    name: `NFT`,
+    symbol: `ASDASD`,
+    uri: `https://example.com/`,
+    collateralMint: USDC_MINT,
+    collateralAmount: Math.floor(randAmount() * 10 ** 6),
+    price: priceDb,
+    globalStatePubkey: globalState,
+    globalStateAuthority: seller.publicKey,
+    program: solxProgram,
+  });
+  await purchaseListing({
+    connection,
+    payer: buyer,
+    uuid: uuidDb,
+    paymentMint: SOL_MINT,
+    globalStatePubkey: globalState,
+    program: solxProgram,
+  });
+
+  const uuidDc = randomUUID();
+  const priceDc = Math.floor(randAmount() * 10 ** 6);
+  console.log(`dc) [${uuidDc}] price=${priceDc} USDC`);
+  await createListing({
+    connection,
+    payer: seller,
+    uuid: uuidDc,
+    name: `NFT`,
+    symbol: `ASDASD`,
+    uri: `https://example.com/`,
+    collateralMint: USDC_MINT,
+    collateralAmount: Math.floor(randAmount() * 10 ** 6),
+    price: priceDc,
+    globalStatePubkey: globalState,
+    globalStateAuthority: seller.publicKey,
+    program: solxProgram,
+  });
+  await purchaseListing({
+    connection,
+    payer: buyer,
+    uuid: uuidDc,
+    paymentMint: SOL_MINT,
+    globalStatePubkey: globalState,
+    program: solxProgram,
+  });
+
   const uuidD = randomUUID();
-  const priceD = parseInt(randAmount().toString());
+  const priceD = Math.floor(randAmount() * 10 ** 6);
   console.log(`d) [${uuidD}] price=${priceD} SOL`);
   await createListing({
     connection,
@@ -306,7 +418,7 @@ async function simulateSaleFlows(
     symbol: `ASDASD`,
     uri: `https://example.com/`,
     collateralMint: SOL_MINT,
-    collateralAmount: parseInt(randAmount().toString()),
+    collateralAmount: Math.floor(randAmount() * 10 ** 8),
     price: priceD,
     globalStatePubkey: globalState,
     globalStateAuthority: seller.publicKey,
@@ -320,6 +432,7 @@ async function simulateSaleFlows(
     globalStatePubkey: globalState,
     program: solxProgram,
   });
+
   console.log(`d) [${uuidD}] purchased, waiting`);
   await sleep(70000);
   await closeListing({

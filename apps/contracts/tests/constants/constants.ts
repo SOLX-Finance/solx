@@ -17,8 +17,12 @@ export const METADATA_PROGRAM_ID = new PublicKey(
   'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s',
 );
 
-export const PYTH_PRICE_UPDATE = new PublicKey(
+export const PYTH_PRICE_UPDATE_SOL = new PublicKey(
   '7UVimffxr9ow1uXYxsr4LHAcV58mLzhmwaeKvJ1pjLiE',
+);
+
+export const PYTH_PRICE_UPDATE_USDC = new PublicKey(
+  'Dpw1EAVrSB1ibxiDQyTAW6Zip3J4Btk2x4SgApQCeFbX',
 );
 
 export const DISPUTE_PERIOD_SECS = 60n;

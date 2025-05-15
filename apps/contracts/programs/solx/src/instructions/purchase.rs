@@ -166,8 +166,7 @@ pub fn handle(ctx: Context<PurchaseListing>, id: [u8; 16]) -> Result<()> {
       &accounts.system_program,
       &accounts.buyer,
       &listing.to_account_info(),
-      to_pay_amount_in_mint_dec,
-      None
+      to_pay_amount_in_mint_dec
     )?;
   }
 

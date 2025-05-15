@@ -239,6 +239,7 @@ export const getOrCreateAta = async (
     programId,
     ASSOCIATED_TOKEN_PROGRAM_ID,
   );
+
   try {
     const ataAccount = svm.getAccount(ata);
     if (!ataAccount || ataAccount.data.length === 0)

@@ -1,4 +1,5 @@
 import { Program } from '@coral-xyz/anchor';
+import { MPL_TOKEN_METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import {
   TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -13,6 +14,7 @@ import {
   Transaction,
   sendAndConfirmTransaction,
   SYSVAR_RENT_PUBKEY,
+  SystemProgram,
 } from '@solana/web3.js';
 
 import { uuidToBytes } from './solx.helpers';
@@ -25,8 +27,8 @@ import { getMasterEditionAccount } from '../common/common.helpers';
 import { getListing } from '../common/common.helpers';
 import { getNftMint } from '../common/common.helpers';
 import {
-  METADATA_PROGRAM_ID,
-  PYTH_PRICE_UPDATE,
+  PYTH_PRICE_UPDATE_SOL,
+  PYTH_PRICE_UPDATE_USDC,
   SOL_MINT,
 } from '../constants/constants';
 
@@ -71,7 +73,6 @@ export const createListing = async (opts: CreateListingProps) => {
     collateralAmount,
     price,
     globalStatePubkey,
-    globalStateAuthority,
     program,
   } = opts;
 
@@ -90,8 +91,6 @@ export const createListing = async (opts: CreateListingProps) => {
     nftMint,
     payer.publicKey,
     true,
-    TOKEN_PROGRAM_ID,
-    ASSOCIATED_TOKEN_PROGRAM_ID,
   );
 
   const payerCollateralAta = collateralMint.equals(SOL_MINT)
@@ -120,20 +119,20 @@ export const createListing = async (opts: CreateListingProps) => {
 
   const mintIx = await program.methods
     .mintNft(Array.from(listingIdBytes), name, symbol, uri)
-    .accounts({
+    .accountsStrict({
       payer: payer.publicKey,
       lister: payer.publicKey,
       globalState: globalStatePubkey,
-      globalStateAuthority,
       vault,
       nftMint,
       nftTokenAccount: payerNftAta,
       masterEditionAccount: masterEdition,
       nftMetadata,
-      metadataProgram: METADATA_PROGRAM_ID,
+      metadataProgram: MPL_TOKEN_METADATA_PROGRAM_ID,
       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       tokenProgram: TOKEN_PROGRAM_ID,
       rent: SYSVAR_RENT_PUBKEY,
+      systemProgram: SystemProgram.programId,
     })
     .transaction();
 
@@ -223,7 +222,9 @@ export const purchaseListing = async (opts: PurchaseListingProps) => {
       buyerPaymentMintAccount: buyerPaymentAta,
       whitelistedState,
       paymentMintState,
-      priceUpdate: PYTH_PRICE_UPDATE,
+      priceUpdate: paymentMint.equals(SOL_MINT)
+        ? PYTH_PRICE_UPDATE_SOL
+        : PYTH_PRICE_UPDATE_USDC,
       paymentMint,
       tokenProgram: TOKEN_PROGRAM_ID,
       tokenProgram2022: TOKEN_2022_PROGRAM_ID,
@@ -276,25 +277,29 @@ export async function closeListing(opts: CloseListingProps) {
     )
   ).address;
 
-  const payerPaymentAta = (
-    await getOrCreateAssociatedTokenAccount(
-      connection,
-      payer,
-      paymentMint,
-      payer.publicKey,
-      true,
-    )
-  ).address;
+  const payerPaymentAta = paymentMint
+    ? (
+        await getOrCreateAssociatedTokenAccount(
+          connection,
+          payer,
+          paymentMint,
+          payer.publicKey,
+          true,
+        )
+      ).address
+    : null;
 
-  const treasuryPaymentAta = (
-    await getOrCreateAssociatedTokenAccount(
-      connection,
-      payer,
-      paymentMint,
-      treasury,
-      true,
-    )
-  ).address;
+  const treasuryPaymentAta = paymentMint
+    ? (
+        await getOrCreateAssociatedTokenAccount(
+          connection,
+          payer,
+          paymentMint,
+          treasury,
+          true,
+        )
+      ).address
+    : null;
 
   const listingCollateralAta = (
     await getOrCreateAssociatedTokenAccount(
@@ -306,15 +311,17 @@ export async function closeListing(opts: CloseListingProps) {
     )
   ).address;
 
-  const listingPaymentAta = (
-    await getOrCreateAssociatedTokenAccount(
-      connection,
-      payer,
-      paymentMint,
-      listing,
-      true,
-    )
-  ).address;
+  const listingPaymentAta = paymentMint
+    ? (
+        await getOrCreateAssociatedTokenAccount(
+          connection,
+          payer,
+          paymentMint,
+          listing,
+          true,
+        )
+      ).address
+    : null;
 
   const nftTokenAccount = (
     await getOrCreateAssociatedTokenAccount(
@@ -330,10 +337,9 @@ export async function closeListing(opts: CloseListingProps) {
     globalState,
     collateralMint,
   );
-  const [paymentWhitelistedState] = getWhitelistedState(
-    globalState,
-    paymentMint,
-  );
+  const paymentWhitelistedState = paymentMint
+    ? getWhitelistedState(globalState, paymentMint)[0]
+    : null;
 
   const closeListingIx = await program.methods
     .closeListing(Array.from(listingIdBytes))

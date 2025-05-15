@@ -26,3 +26,5 @@ pub enum Verdict {
   SellerFault,
   Refund,
 }
+
+pub const MAX_PRICE: u64 = 1_000_000;

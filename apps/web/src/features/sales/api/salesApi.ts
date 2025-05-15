@@ -41,6 +41,10 @@ export interface GetSalesResponse {
 
 export interface GetSalesByUserResponse {
   sales: Sale[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export const createSale = async (
@@ -68,11 +72,13 @@ export const getActiveSales = async (): Promise<Sale[]> => {
   return response.data.sales;
 };
 
-export const getSalesByUserAddress = async (
-  userAddress: string,
-): Promise<Sale[]> => {
-  const response = await httpClient.get<GetSalesByUserResponse>(
-    `/sales/user/${userAddress}`,
-  );
-  return response.data.sales;
+export const getUserSales = async (
+  walletAddress: string,
+  page = 1,
+  limit = 9,
+): Promise<GetSalesByUserResponse> => {
+  const response = await httpClient.get(`/sales/user/${walletAddress}`, {
+    params: { page, limit },
+  });
+  return response.data;
 };

@@ -60,6 +60,7 @@ export default registerAs('app', () => {
     ai: {
       apiKey: env.AI_API_KEY,
       modelId: env.AI_MODEL_ID,
+      enableAIAnalyze: env.ENABLE_AI_ANALYZE,
     },
 
     // Database configuration
@@ -70,6 +71,7 @@ export default registerAs('app', () => {
     // Redis configuration
     redis: {
       url: env.REDIS_URL,
+      rejectUnauthorized: env.REDIS_REJECT_UNAUTHORIZED,
     },
   };
 });

@@ -31,7 +31,8 @@ The input promt is a file content in base64 format.
 The confidence should be 0-100 value where 100 is you totally confident in the type of the file.
 The overallScore is 0-100 value, where 100 is the file is clean and 0 is the file is malicious.
 The shouldRemove should be true if the file is unsafe to store on the server and its should be removed,
-but only if type is not 'virus' or 'backdoor'.`,
+but only if type is not 'virus' or 'backdoor'
+In case if you didnt find anything - just leave findings empty array and overallScore 100, shouldRemove false`,
         },
         {
           role: 'user',

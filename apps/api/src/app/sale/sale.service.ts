@@ -6,9 +6,14 @@ import { PrismaService } from '@solx/data-access';
 import { SortOption } from './dtos/get-active-sales.dto';
 import { SalesFilter } from './dtos/get-sales-by-user.dto';
 
+import { StorageService } from '../storage/storage.service';
+
 @Injectable()
 export class SaleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storageService: StorageService,
+  ) {}
 
   async createSale({
     user,
@@ -62,6 +67,8 @@ export class SaleService {
       },
     });
 
+    await this.storageService.onFilesUploaded(fileEntities);
+
     return sale;
   }
 
@@ -82,20 +89,16 @@ export class SaleService {
   }) {
     const skip = (page - 1) * limit;
 
-    // Build the where clause for filtering
     let where: Prisma.SaleWhereInput = {};
 
-    // Apply user filter (created/bought)
     if (filter === SalesFilter.CREATED) {
       where.creator = userAddress;
     } else if (filter === SalesFilter.BOUGHT) {
       where.buyer = userAddress;
     } else {
-      // Default: show both created and bought
       where.OR = [{ creator: userAddress }, { buyer: userAddress }];
     }
 
-    // Add search filter if provided
     if (search) {
       const searchCondition = {
         OR: [
@@ -109,7 +112,6 @@ export class SaleService {
         ],
       };
 
-      // Combine search with existing filters
       if (where.OR) {
         // If we already have OR conditions, we need to restructure
         where = {
@@ -124,10 +126,8 @@ export class SaleService {
       }
     }
 
-    // Get total count for pagination metadata
     const totalCount = await this.prisma.sale.count({ where });
 
-    // Determine the sort order
     let orderBy: Prisma.SaleOrderByWithRelationInput = {};
     switch (sortBy) {
       case SortOption.NEWEST:
@@ -143,7 +143,6 @@ export class SaleService {
         orderBy = { createdAt: 'desc' };
     }
 
-    // Get paginated and filtered sales
     const sales = await this.prisma.sale.findMany({
       where,
       include: {

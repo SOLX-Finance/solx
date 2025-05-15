@@ -22,6 +22,7 @@ export default registerAs('app', () => {
     redis: {
       url: env.REDIS_URL,
       useCluster: env.REDIS_USE_CLUSTER,
+      rejectUnauthorized: env.REDIS_REJECT_UNAUTHORIZED,
     },
 
     // Indexer configuration

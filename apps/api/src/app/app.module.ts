@@ -43,13 +43,17 @@ import { UsersModule } from './users/users.module';
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
         const redisUrl = config.getOrThrow('app.redis.url');
-
+        const rejectUnauthorized = config.getOrThrow(
+          'app.redis.rejectUnauthorized',
+        );
         return {
           connection: {
             url: redisUrl,
-            tls: {
-              rejectUnauthorized: false,
-            },
+            tls: rejectUnauthorized
+              ? undefined
+              : {
+                  rejectUnauthorized,
+                },
           },
         };
       },

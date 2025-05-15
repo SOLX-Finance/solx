@@ -31,27 +31,37 @@ export const Categories = () => {
       {
         name: 'DeFi',
         icon: <img src={defi} alt="defi" />,
-        onClick: () => {},
+        onClick: () => {
+          // no-op
+        },
       },
       {
         name: 'AI',
         icon: <img src={ai} alt="ai" />,
-        onClick: () => {},
+        onClick: () => {
+          // no-op
+        },
       },
       {
         name: 'DePIN',
         icon: <img src={depin} alt="depin" />,
-        onClick: () => {},
+        onClick: () => {
+          // no-op
+        },
       },
       {
         name: 'Games',
         icon: <img src={games} alt="games" />,
-        onClick: () => {},
+        onClick: () => {
+          // no-op
+        },
       },
       {
         name: 'Others',
         icon: <img src={others} alt="others" />,
-        onClick: () => {},
+        onClick: () => {
+          // no-op
+        },
       },
     ];
   }, []);

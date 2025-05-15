@@ -10,7 +10,6 @@ import {
   SearchAndFilter,
   SortOption,
 } from '@/components/common/SearchAndFilter';
-import { Spinner } from '@/components/ui/spinner';
 
 const MarketPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,8 +22,6 @@ const MarketPage = () => {
     currentPage,
     totalPages,
     limit,
-    isLoading,
-    error,
     handleSearch,
     handleSort,
     handleFilter,

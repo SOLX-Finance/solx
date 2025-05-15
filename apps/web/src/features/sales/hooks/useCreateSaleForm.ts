@@ -4,7 +4,6 @@ import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
 
 import { salesApi } from '../api/salesApi';
 
@@ -143,9 +142,6 @@ export const useCreateSaleForm = () => {
           categories: value.categories,
         });
 
-        // 2. Create the sale on the blockchain
-        const uuid = uuidv4();
-
         // Convert SOL to lamports (1 SOL = 10^9 lamports)
         const priceInLamports = BigInt(Math.floor(value.price * 1_000_000_000));
         const collateralInLamports = BigInt(
@@ -153,7 +149,7 @@ export const useCreateSaleForm = () => {
         );
 
         await createSaleOnchain({
-          uuid,
+          uuid: saleResponse.id,
           price: priceInLamports,
           collateralAmount: collateralInLamports,
           collateralMint: new PublicKey(SOL_MINT),

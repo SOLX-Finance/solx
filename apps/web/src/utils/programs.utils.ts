@@ -1,5 +1,4 @@
 import {
-  Account,
   ASSOCIATED_TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   getAccount,
@@ -15,6 +14,8 @@ import {
   TransactionInstruction,
 } from '@solana/web3.js';
 import { BN } from 'bn.js';
+
+import { Buffer } from 'buffer';
 
 export const SOLX_PROGRAM_ID = new PublicKey(
   '8jbXs1fR9Bm5dh7N6Dr4ySsZWEeHeKTgsTYFjL386bcN',

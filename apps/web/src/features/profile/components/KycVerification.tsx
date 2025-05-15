@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useKycVerificationForm } from '../hooks/useKycVerificationForm';
 
 interface KycVerificationProps {

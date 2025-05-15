@@ -4,7 +4,6 @@ import { useState, useMemo } from 'react';
 import { SalesFilter } from '../hooks/useUserSales';
 
 import { ProjectCard } from '@/components/common/ProjectCard';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -15,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { env } from '@/config/env';
 import { Sale } from '@/features/sales/api/salesApi';
+import { cn } from '@/utils/cn';
 
 interface FilterableSalesProps {
   walletAddress: string;
@@ -130,6 +130,20 @@ export const FilterableSales = ({
     return pages;
   }, [currentPage, totalPages]);
 
+  const calculateMinHeight = useMemo(() => {
+    const CARD_HEIGHT = 450;
+    const GAP = 24;
+    const COLUMNS = 3;
+
+    if (filteredSales.length === 0) return 'auto';
+
+    const rows = Math.ceil(filteredSales.length / COLUMNS);
+
+    const totalHeight = rows * CARD_HEIGHT + (rows - 1) * GAP;
+
+    return `${totalHeight}px`;
+  }, [filteredSales.length]);
+
   const emptyStateMessage =
     activeTab === 'created'
       ? 'Create your first sale!'
@@ -138,21 +152,28 @@ export const FilterableSales = ({
   const renderPaginationItem = (page: number | string, index: number) => {
     if (page === '...') {
       return (
-        <span key={`ellipsis-${index}`} className="px-3 py-2">
+        <div
+          key={`ellipsis-${index}`}
+          className="flex items-center justify-center w-[50px] h-[50px] rounded-full border border-[#C7C7C7] text-black font-normal text-[18px]"
+        >
           ...
-        </span>
+        </div>
       );
     }
 
     return (
-      <Button
+      <button
         key={`page-${page}`}
-        variant={currentPage === page ? 'default' : 'outline'}
-        className="rounded-none border-x-0"
+        className={cn(
+          'w-[50px] h-[50px] rounded-full flex items-center justify-center text-[18px] font-normal',
+          currentPage === page
+            ? 'border border-black'
+            : 'border border-[#C7C7C7]',
+        )}
         onClick={() => typeof page === 'number' && onPageChange(page)}
       >
         {page}
-      </Button>
+      </button>
     );
   };
 
@@ -200,7 +221,10 @@ export const FilterableSales = ({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-6">
+          <div
+            className="grid grid-cols-3 gap-6"
+            style={{ minHeight: calculateMinHeight }}
+          >
             {filteredSales.map((sale) => {
               const previewFile = sale.files?.find(
                 (file) => file.type === 'SALE_PREVIEW',
@@ -242,36 +266,39 @@ export const FilterableSales = ({
                   <SelectValue placeholder="Per page" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="6">6 per page</SelectItem>
                   <SelectItem value="9">9 per page</SelectItem>
+                  <SelectItem value="12">12 per page</SelectItem>
                   <SelectItem value="18">18 per page</SelectItem>
-                  <SelectItem value="27">27 per page</SelectItem>
-                  <SelectItem value="36">36 per page</SelectItem>
                 </SelectContent>
               </Select>
 
               {/* Page navigation */}
-              <div className="flex items-center">
-                <Button
-                  variant="outline"
-                  size="icon"
+              <div className="flex items-center gap-[10px]">
+                <button
+                  className="w-[50px] h-[50px] rounded-full border border-[#C7C7C7] flex items-center justify-center"
                   onClick={onPrevPage}
                   disabled={currentPage === 1}
-                  className="rounded-l-full"
                 >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
+                  <ChevronLeft className="h-5 w-5 text-[#C7C7C7]" />
+                </button>
 
                 {paginationNumbers.map(renderPaginationItem)}
 
-                <Button
-                  variant="outline"
-                  size="icon"
+                <button
+                  className="w-[50px] h-[50px] rounded-full border border-[#C7C7C7] flex items-center justify-center"
                   onClick={onNextPage}
                   disabled={currentPage === totalPages}
-                  className="rounded-r-full"
                 >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+                  <ChevronRight
+                    className={cn(
+                      'h-5 w-5',
+                      currentPage === totalPages
+                        ? 'text-[#C7C7C7]'
+                        : 'text-black',
+                    )}
+                  />
+                </button>
               </div>
             </div>
           </div>

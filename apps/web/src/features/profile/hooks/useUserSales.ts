@@ -13,7 +13,7 @@ export const useUserSales = (
   filter: SalesFilter = 'created',
 ) => {
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(9);
+  const [limit, setLimit] = useState(6);
 
   const { data, isLoading, error, refetch } = useQuery<GetSalesByUserResponse>({
     queryKey: ['userSales', walletAddress, filter, page, limit],

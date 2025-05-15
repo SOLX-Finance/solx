@@ -7,6 +7,7 @@ import {
   PrismaHealthIndicator,
 } from '@nestjs/terminus';
 import { PrismaService } from '@solx/data-access';
+
 import { Public } from '../auth/decorators/is-public.decorator';
 
 @Controller('health')

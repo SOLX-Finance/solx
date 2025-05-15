@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrivyClient } from '@privy-io/server-auth';
-import { PrivyAuthGuard } from './guards/privy-auth.guard';
 import { DataAccessModule } from '@solx/data-access';
-import { AuthService } from './auth.service';
+
 import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { PrivyAuthGuard } from './guards/privy-auth.guard';
 
 export class AuthModule {
   static forRoot() {

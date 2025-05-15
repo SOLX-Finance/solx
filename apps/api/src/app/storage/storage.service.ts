@@ -1,19 +1,25 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import {
   BadRequestException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { File, FileType, Prisma } from '@prisma/client';
+import { PrismaService } from '@solx/data-access';
+import { ANALYZE_FILE_QUEUE, AnalyzeFilePayload } from '@solx/queues';
+import { Queue } from 'bullmq';
+
+import { randomUUID } from 'crypto';
 
 import { StorjService } from './storj/storj.service';
-import { PrismaService } from '@solx/data-access';
-import { FileType } from '@prisma/client';
-import { randomUUID } from 'crypto';
 
 @Injectable()
 export class StorageService {
   constructor(
     private readonly storjService: StorjService,
     private readonly prisma: PrismaService,
+    @InjectQueue(ANALYZE_FILE_QUEUE.name)
+    private indexedTxQueue: Queue<AnalyzeFilePayload>,
   ) {}
 
   async getUploadUrl({
@@ -79,23 +85,19 @@ export class StorageService {
     return { url };
   }
 
-  async deleteFile({ fileId }: { fileId: string }): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
-      // TODO: use repository
-      const file = await tx.file.findUnique({
-        where: { id: fileId },
-      });
-
-      if (!file) {
-        throw new Error('File not found');
-      }
-
-      await tx.file.delete({
-        where: { id: fileId },
-      });
-
-      await this.storjService.deleteFile(file.remoteId);
+  async softDeleteFile(
+    file: File,
+    prisma: Prisma.TransactionClient = this.prisma,
+  ): Promise<void> {
+    await prisma.file.update({
+      where: { id: file.id },
+      data: {
+        deleted: true,
+        deletedAt: new Date(),
+      },
     });
+
+    await this.storjService.deleteFile(file.remoteId);
   }
 
   async getFileContent({
@@ -121,6 +123,16 @@ export class StorageService {
       throw new BadRequestException('File is not accessible');
     }
 
+    return this.getFileContentFromFile({ file });
+  }
+
+  async onFileUploaded(file: File) {
+    await this.indexedTxQueue.add(ANALYZE_FILE_QUEUE.name, {
+      fileId: file.id,
+    });
+  }
+
+  async getFileContentFromFile({ file }: { file: File }) {
     return {
       content: await this.storjService.getFileContent(file.remoteId),
       type: file.mimeType,

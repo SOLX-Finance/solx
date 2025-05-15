@@ -1,22 +1,51 @@
 enum FileType {
+  // User files
   PROFILE_PICTURE
+  KYC_DOCUMENT
+
+  // Project files
   SALE_CONTENT
   SALE_DEMO
   SALE_PREVIEW
+
+  @@schema("api")
+}
+
+enum AiScanResult {
+  NOT_SCANNED
+  SCANNING
+  CLEAN
+  SUSPICIOUS
+  MALICIOUS
+
+  @@schema("api")
 }
 
 model File {
-  id              String   @id @default(uuid())
-  type            FileType
-  remoteId        String   @unique @default(uuid()) @map("remote_id")
-  mimeType        String   @map("mime_type")
-  aiReviewed      Boolean  @default(false) @map("ai_reviewed")
-  aiReviewDetails Json?    @map("ai_review_details")
+  id          String   @id @default(uuid())
+  type        FileType
+  remoteId    String   @unique @default(uuid()) @map("remote_id")
+  mimeType    String   @map("mime_type")
+  contentHash String?  @map("content_hash")
+
+  // AI Security Scanning
+  aiReviewed      Boolean      @default(false) @map("ai_reviewed")
+  aiScanResult    AiScanResult @default(NOT_SCANNED) @map("ai_scan_result")
+  aiReviewDetails Json?        @map("ai_review_details")
+
+  deleted   Boolean   @default(false)
+  deletedAt DateTime? @map("deleted_at")
+
+  Sale   Sale?   @relation(fields: [saleId], references: [id])
+  saleId String?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  User      User     @relation(fields: [userId], references: [id])
-  userId    String
+
+  // Relations
+  User   User   @relation(fields: [userId], references: [id])
+  userId String
 
   @@map("file")
+  @@schema("api")
 }

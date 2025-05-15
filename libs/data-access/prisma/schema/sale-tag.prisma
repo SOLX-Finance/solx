@@ -8,4 +8,5 @@ model SaleTag {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("sale_tag")
+  @@schema("api")
 }

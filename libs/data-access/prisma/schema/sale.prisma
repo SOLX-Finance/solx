@@ -1,0 +1,25 @@
+model Sale {
+  id String @id @default(uuid())
+
+  listing          String?
+  nftMint          String?
+  buyer            String?
+  collateralMint   String?
+  collateralAmount String?
+  priceUsd         String?
+
+  creator String?
+
+  description String?
+  title       String?
+  files       File[]
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sale")
+  @@schema("api")
+}

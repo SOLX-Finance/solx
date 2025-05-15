@@ -1,13 +1,13 @@
+import { S3Client } from '@aws-sdk/client-s3';
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
 import {
   STORJ_BUCKET,
   STORJ_READ_URL_EXPIRATION,
   STORJ_UPLOAD_URL_EXPIRATION,
   StorjService,
 } from './storj.service';
-import { DataAccessModule } from '@solx/data-access';
-import { ConfigService } from '@nestjs/config';
-import { S3Client } from '@aws-sdk/client-s3';
 
 @Module({
   imports: [],

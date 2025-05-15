@@ -5,12 +5,13 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { PrivyClient } from '@privy-io/server-auth';
-import { isAllowedNoDbUser } from '../decorators/allow-no-db-user.decorator';
 import { Reflector } from '@nestjs/core';
-import { isPublic } from '../decorators/is-public.decorator';
+import { PrivyClient } from '@privy-io/server-auth';
 import { PrismaService } from '@solx/data-access';
+import { Request } from 'express';
+
+import { isAllowedNoDbUser } from '../decorators/allow-no-db-user.decorator';
+import { isPublic } from '../decorators/is-public.decorator';
 
 export const UsePrivyAuthGuard = () => UseGuards(PrivyAuthGuard);
 
@@ -26,14 +27,15 @@ export class PrivyAuthGuard implements CanActivate {
     if (isPublic(context, this.reflector)) return true;
 
     const request = context.switchToHttp().getRequest<Request>();
-    const idToken = request.cookies?.['privy-id-token'];
+    const idToken = request.cookies?.['privy-token'];
 
     if (!idToken) {
-      throw new UnauthorizedException('`privy-id-token` cookie is required');
+      throw new UnauthorizedException('`privy-token` cookie is required');
     }
 
     try {
-      const user = await this.privyClient.getUser({ idToken });
+      const verifiedClaims = await this.privyClient.verifyAuthToken(idToken);
+      const user = await this.privyClient.getUserById(verifiedClaims.userId);
 
       const dbUser = await this.prisma.user.findUnique({
         where: {
@@ -41,22 +43,25 @@ export class PrivyAuthGuard implements CanActivate {
         },
       });
 
-      if (!user.email || !user.wallet) {
-        throw new UnauthorizedException('Missing email or wallet');
+      if (!user.email && !user.wallet) {
+        throw new UnauthorizedException(
+          'User must have either email or wallet authentication',
+        );
       }
 
       if (!dbUser && !isAllowedNoDbUser(context, this.reflector)) {
-        throw new UnauthorizedException('User not found');
+        throw new UnauthorizedException('User not found in database');
       }
 
       // Attach the user to the request object for use in controllers
       request['user'] = {
-        privyUser: user,
+        externalUser: user,
         dbUser,
       };
+
       return true;
-    } catch (error) {
-      throw new UnauthorizedException('Invalid JWT token');
+    } catch {
+      throw new UnauthorizedException('Authentication error');
     }
   }
 }

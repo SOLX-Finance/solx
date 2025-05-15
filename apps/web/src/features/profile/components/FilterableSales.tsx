@@ -49,6 +49,8 @@ export const FilterableSales = ({
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [filterBy, setFilterBy] = useState<string>('all');
 
+  console.log('sales ==>', sales);
+
   const filteredSales = useMemo(() => {
     // Step 1: Filter by tab (created/bought)
     let result = [...sales];
@@ -77,9 +79,9 @@ export const FilterableSales = ({
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
         case 'price-low':
-          return a.price - b.price;
+          return parseFloat(a.priceUsd || '0') - parseFloat(b.priceUsd || '0');
         case 'price-high':
-          return b.price - a.price;
+          return parseFloat(b.priceUsd || '0') - parseFloat(a.priceUsd || '0');
         default:
           return 0;
       }
@@ -199,22 +201,29 @@ export const FilterableSales = ({
       ) : (
         <>
           <div className="grid grid-cols-3 gap-6">
-            {filteredSales.map((sale) => (
-              <ProjectCard
-                key={sale.id}
-                id={sale.id}
-                title={sale.title}
-                description={sale.description}
-                price={`${sale.price}`}
-                image={
-                  sale.files && sale.files.length > 0
-                    ? `${env.api.url}/storage/${sale.files[0].id}`
-                    : ''
-                }
-                tags={[]}
-                isAudited={false}
-              />
-            ))}
+            {filteredSales.map((sale) => {
+              const previewFile = sale.files?.find(
+                (file) => file.type === 'SALE_PREVIEW',
+              );
+              const firstFile = sale.files?.[0];
+              const imageUrl =
+                sale.files && sale.files.length > 0
+                  ? `${env.api.url}/storage/${previewFile?.id || firstFile?.id || ''}`
+                  : '';
+
+              return (
+                <ProjectCard
+                  key={sale.id}
+                  id={sale.id}
+                  title={sale.title || ''}
+                  description={sale.description || ''}
+                  price={`${sale.priceUsd}`}
+                  image={imageUrl}
+                  tags={[]}
+                  isAudited={false}
+                />
+              );
+            })}
           </div>
 
           {/* Pagination */}

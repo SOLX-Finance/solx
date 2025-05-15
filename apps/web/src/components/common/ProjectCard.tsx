@@ -1,4 +1,5 @@
 import { ImageIcon, SquareCheckBig, Star } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Badge } from '../ui/badge';
@@ -29,8 +30,12 @@ export const ProjectCard = ({
   const normalizedTitle = title || 'Untitled';
   const normalizedDescription = description || 'No description';
   const normalizedTags = Array.isArray(tags) ? tags : [];
+  const [imageError, setImageError] = useState(false);
   const hasValidImage = Boolean(
-    image && image.trim() !== '' && !image.includes('placeholder.jpg'),
+    image &&
+      image.trim() !== '' &&
+      !image.includes('placeholder.jpg') &&
+      !imageError,
   );
 
   const renderCardHeader = () => {
@@ -40,6 +45,8 @@ export const ProjectCard = ({
           src={image}
           alt={normalizedTitle}
           className="max-h-[200px] w-full object-cover h-full rounded-t-[40px]"
+          crossOrigin="anonymous"
+          onError={() => setImageError(true)}
         />
       );
     }
@@ -52,7 +59,7 @@ export const ProjectCard = ({
   };
 
   return (
-    <div className="flex flex-col relative">
+    <div className="flex flex-col relative border border-[#C7C7C7] rounded-[40px]">
       {renderCardHeader()}
 
       {isAudited && (
@@ -62,7 +69,7 @@ export const ProjectCard = ({
         </div>
       )}
 
-      <div className="flex flex-col gap-[20px] px-[30px] py-[20px] border border-[#C7C7C7] rounded-b-[40px]">
+      <div className="flex flex-col gap-[20px] px-[30px] py-[20px] border-t border-[#C7C7C7]">
         <div className="flex items-center justify-between">
           <div className="font-semibold text-[28px]">{normalizedTitle}</div>
           <Button variant="ghost" size="icon">

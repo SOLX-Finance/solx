@@ -76,7 +76,7 @@ const MyProfilePage = () => {
       // Get the width of the username element immediately before editing
       if (usernameRef.current) {
         const width = usernameRef.current.getBoundingClientRect().width;
-        setInputWidth(Math.max(width, 200)); // Set a minimum width
+        setInputWidth(Math.max(width, 200));
       }
     }
   };
@@ -149,24 +149,8 @@ const MyProfilePage = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto p-4">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="container mx-auto p-4">
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-          User not found
-        </div>
-      </div>
-    );
+  if (error || !user) {
+    return navigate('/market');
   }
 
   return (

@@ -2,12 +2,17 @@ import { httpClient } from '@/services/httpClient';
 
 export interface Sale {
   id: string;
-  title: string;
-  description: string;
-  creator: string;
   buyer: string | null;
-  price: number;
-  collateralAmount: number;
+  collateralAmount: string | null;
+  collateralMint: string | null;
+  creator: string | null;
+  description: string | null;
+  listing: string | null;
+  nftMint: string | null;
+  priceUsd: string | null;
+  title: string | null;
+  categories: string[];
+  userId: string;
   files: {
     id: string;
     type: string;

@@ -1,11 +1,14 @@
 import { usePrivy } from '@privy-io/react-auth';
-import { Star, Mail } from 'lucide-react';
-import { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Star, Mail, ChevronDown } from 'lucide-react';
+import { ReactNode, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import LoginButton from './LoginButton';
 
 import logo from '../../assets/logo/logo.svg';
+import { env } from '../../config/env';
+import { useProfile } from '../../features/profile/hooks/useProfile';
+import { cn } from '../../utils/cn';
 import { Button } from '../ui/button';
 
 interface CircleButtonProps {
@@ -26,59 +29,99 @@ const CircleButton = ({ icon, onClick }: CircleButtonProps) => {
 };
 
 const Navbar = () => {
-  const { ready, authenticated, logout } = usePrivy();
-  const location = useLocation();
+  const navigate = useNavigate();
+  const { ready, authenticated, logout, user: privyUser } = usePrivy();
+  const { user } = useProfile();
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const walletAddress = user?.walletAddress || privyUser?.wallet?.address || '';
+  const shortenedAddress = walletAddress
+    ? `${walletAddress.substring(0, 6)}...${walletAddress.substring(walletAddress.length - 4)}`
+    : '';
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
 
   return (
-    <div className="container mx-auto mt-[30px] text-white">
-      <nav className="bg-white shadow-sm">
-        <div className="flex items-end gap-[20px]">
-          <img src={logo} alt="logo" />
-          <h1 className="font-brand text-[30px] leading-[30px]">SOLX</h1>
+    <nav className="bg-black flex w-full justify-between max-w-[calc(100%-40px)] md:max-w-[calc(100%-64px)] mx-auto px-[25px] py-[29px] mt-[20px] md:mt-[30px] text-white rounded-[40px]">
+      <button
+        onClick={() => navigate('/market')}
+        className="flex items-end gap-[20px]"
+      >
+        <img src={logo} alt="logo" />
+        <h1 className="font-brand text-[30px] leading-[30px]">SOLX</h1>
+      </button>
+      <div className="gap-[40px] flex items-center">
+        <div>About Project</div>
+        <div className="gap-[20px] flex items-center">
+          <CircleButton
+            icon={<Star />}
+            onClick={() => {
+              // No-op
+            }}
+          />
+          <CircleButton
+            icon={<Mail />}
+            onClick={() => {
+              // No-op
+            }}
+          />
         </div>
-        <div className="gap-[40px] flex items-center">
-          <div>About Project</div>
-          <div className="gap-[20px] flex items-center">
-            <CircleButton
-              icon={<Star />}
-              onClick={() => {
-                // No-op
-              }}
-            />
-            <CircleButton
-              icon={<Mail />}
-              onClick={() => {
-                // No-op
-              }}
-            />
-          </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
-            {ready && authenticated ? (
-              <>
-                <Link
-                  to="/profile"
-                  className={`inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md ${
-                    location.pathname.startsWith('/profile')
-                      ? 'bg-indigo-100 text-indigo-700'
-                      : 'text-gray-500 bg-white hover:text-gray-700'
-                  }`}
-                >
-                  Profile
-                </Link>
+        <div className="relative">
+          {ready && authenticated ? (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full overflow-hidden mr-2">
+                  {user?.profilePictureId ? (
+                    <button onClick={() => navigate('/profile')}>
+                      <img
+                        src={`${env.api.url}/storage/${user.profilePictureId}`}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                        crossOrigin="anonymous"
+                      />
+                    </button>
+                  ) : (
+                    <div className="w-full h-full bg-lime-300 flex items-center justify-center text-black font-medium">
+                      {(user?.username || 'U').charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
                 <button
-                  onClick={logout}
-                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  onClick={toggleDropdown}
+                  className="flex items-center bg-lime-300 text-black font-medium py-2 px-4 rounded-full"
                 >
-                  Logout
+                  <span>{shortenedAddress}</span>
+                  <ChevronDown
+                    className={cn(
+                      'ml-1 h-4 w-4 transition-transform duration-300',
+                      showDropdown && 'rotate-180',
+                    )}
+                  />
                 </button>
-              </>
-            ) : (
-              <LoginButton />
-            )}
-          </div>
+              </div>
+
+              {showDropdown && (
+                <div className="absolute top-full right-0 mt-2 bg-lime-300 rounded-3xl py-3 px-6 z-10">
+                  <button
+                    onClick={() => {
+                      logout();
+                      setShowDropdown(false);
+                    }}
+                    className="text-black font-medium whitespace-nowrap"
+                  >
+                    Log Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <LoginButton />
+          )}
         </div>
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 };
 

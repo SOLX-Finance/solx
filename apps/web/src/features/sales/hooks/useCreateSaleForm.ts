@@ -57,7 +57,7 @@ export const useCreateSaleForm = () => {
       description: string;
       fileIds: string[];
     }) => {
-      return createSale(title, description, fileIds);
+      return createSale(title, description, fileIds, []);
     },
   });
 
@@ -123,9 +123,6 @@ export const useCreateSaleForm = () => {
           fileIds,
         });
 
-        // 2. Create the sale on the blockchain
-        const uuid = uuidv4();
-
         // Convert SOL to lamports (1 SOL = 10^9 lamports)
         const priceInLamports = BigInt(Math.floor(value.price * 1_000_000_000));
         const collateralInLamports = BigInt(
@@ -133,7 +130,7 @@ export const useCreateSaleForm = () => {
         );
 
         await createSaleOnchain({
-          uuid,
+          uuid: saleResponse.id,
           price: priceInLamports,
           collateralAmount: collateralInLamports,
           collateralMint: new PublicKey(SOL_MINT),

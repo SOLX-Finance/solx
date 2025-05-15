@@ -16,7 +16,7 @@ export const Footer = () => {
           </div>
           <div className="flex items-center gap-[40px]">
             <div className="flex items-center gap-[20px]">
-              <div className="w-[50px] h-[50px] rounded-full border border-white flex items-center justify-center">
+              <div className="min-w-[50px] min-h-[50px] rounded-full border border-white flex items-center justify-center">
                 <Figma />
               </div>
               <Link
@@ -28,7 +28,7 @@ export const Footer = () => {
               </Link>
             </div>
             <div className="flex items-center gap-[20px]">
-              <div className="w-[50px] h-[50px] rounded-full border border-white flex items-center justify-center">
+              <div className="min-w-[50px] min-h-[50px] rounded-full border border-white flex items-center justify-center">
                 <Github />
               </div>
               <Link
@@ -40,7 +40,7 @@ export const Footer = () => {
               </Link>
             </div>
             <div className="flex items-center gap-[20px]">
-              <div className="w-[50px] h-[50px] rounded-full border border-white flex items-center justify-center">
+              <div className="min-w-[50px] min-h-[50px] rounded-full border border-white flex items-center justify-center">
                 <img src={telegram} alt="telegram" />
               </div>
               <Link

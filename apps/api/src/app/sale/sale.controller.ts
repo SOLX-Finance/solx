@@ -5,6 +5,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Sale } from '@prisma/client';
@@ -16,6 +17,7 @@ import {
 import { GetSaleByIdRequestDto } from './dtos/get-sale-by-id.dto';
 import {
   GetSalesByUserRequestDto,
+  GetSalesByUserParamDto,
   GetSalesByUserResponseDto,
 } from './dtos/get-sales-by-user.dto';
 import { GetSalesResponseDto } from './dtos/get-sales.dto';
@@ -72,11 +74,14 @@ export class SaleController {
     description: 'Returns all sales by user address',
   })
   async getSalesByUserAddress(
-    @Param() { userAddress }: GetSalesByUserRequestDto,
+    @Param() { userAddress }: GetSalesByUserParamDto,
+    @Query() { page, limit }: GetSalesByUserRequestDto,
   ): Promise<GetSalesByUserResponseDto> {
-    return {
-      sales: await this.saleService.getAllSalesByUserAddress({ userAddress }),
-    };
+    return await this.saleService.getAllSalesByUserAddress({
+      userAddress,
+      page,
+      limit,
+    });
   }
 
   @Public()

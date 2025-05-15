@@ -1,4 +1,4 @@
-import { SquareCheckBig, Star } from 'lucide-react';
+import { ImageIcon, SquareCheckBig, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { Badge } from '../ui/badge';
@@ -24,31 +24,54 @@ export const ProjectCard = ({
   description,
   tags,
   price,
-  isAudited,
+  isAudited = false,
 }: ProjectCardProps) => {
+  const normalizedTitle = title || 'Untitled';
+  const normalizedDescription = description || 'No description';
+  const normalizedTags = Array.isArray(tags) ? tags : [];
+  const hasValidImage = Boolean(
+    image && image.trim() !== '' && !image.includes('placeholder.jpg'),
+  );
+
+  const renderCardHeader = () => {
+    if (hasValidImage) {
+      return (
+        <img
+          src={image}
+          alt={normalizedTitle}
+          className="max-h-[200px] w-full object-cover h-full rounded-t-[40px]"
+        />
+      );
+    }
+
+    return (
+      <div className="max-h-[200px] w-full h-[200px] rounded-t-[40px] bg-gray-200 flex items-center justify-center">
+        <ImageIcon className="h-12 w-12 text-gray-400" />
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col relative">
-      <img
-        src={image}
-        alt={title}
-        className="max-h-[200px] w-full object-cover h-full rounded-t-[40px]"
-      />
+      {renderCardHeader()}
+
       {isAudited && (
         <div className="absolute top-[20px] right-[20px] bg-white/60 flex items-center gap-[10px] px-[20px] py-[10px] rounded-[20px]">
           <SquareCheckBig className="text-[#2001EB]" />
           <span>Pass audit</span>
         </div>
       )}
+
       <div className="flex flex-col gap-[20px] px-[30px] py-[20px] border border-[#C7C7C7] rounded-b-[40px]">
         <div className="flex items-center justify-between">
-          <div className="font-semibold text-[28px]">Project name</div>
+          <div className="font-semibold text-[28px]">{normalizedTitle}</div>
           <Button variant="ghost" size="icon">
             <Star />
           </Button>
         </div>
-        <div className="text-[18px] truncate">{description}</div>
+        <div className="text-[18px] truncate">{normalizedDescription}</div>
         <div className="flex items-center gap-[10px] flex-wrap">
-          {tags.map((tag) => (
+          {normalizedTags.map((tag) => (
             <Badge key={tag} variant="outline" className="font-normal">
               {tag}
             </Badge>

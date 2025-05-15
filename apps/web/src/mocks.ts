@@ -14,6 +14,21 @@ export const owners = [
   },
 ];
 
+export const stats = [
+  {
+    label: 'Earn Balance',
+    value: '$10k',
+  },
+  {
+    label: 'Spent Balance',
+    value: '$10k',
+  },
+  {
+    label: 'Collateral Amount',
+    value: '$10k',
+  },
+];
+
 export const projects = [
   {
     id: '1',

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 
 import { useUserSales } from '../hooks/useUserSales';
 
+import { ProjectCard } from '@/components/common/ProjectCard';
+
 interface UserSalesProps {
   walletAddress: string;
 }
@@ -54,40 +56,7 @@ const UserSales: React.FC<UserSalesProps> = ({ walletAddress }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sales.map((sale) => (
-          <div
-            key={sale.id}
-            className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
-          >
-            <h3 className="text-xl font-semibold mb-2">{sale.title}</h3>
-            <p
-              className="text-gray-600 mb-4 overflow-hidden"
-              style={{
-                display: '-webkit-box',
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: 'vertical',
-              }}
-            >
-              {sale.description}
-            </p>
-            <div className="flex justify-between items-center">
-              <Link
-                to={`/sales/${sale.id}`}
-                className="text-indigo-600 hover:text-indigo-800"
-              >
-                View Details
-              </Link>
-              <span className="text-sm text-gray-500">
-                {new Date(sale.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-            <div className="mt-2">
-              <span
-                className={`px-2 py-1 rounded-full text-xs ${sale.buyer ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
-              >
-                {sale.buyer ? 'Sold' : 'Available'}
-              </span>
-            </div>
-          </div>
+          <ProjectCard key={sale.id} {...sale} />
         ))}
       </div>
     </div>

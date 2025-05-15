@@ -58,8 +58,34 @@ export class SaleService {
     return sale;
   }
 
-  async getAllSalesByUserAddress({ userAddress }: { userAddress: string }) {
-    return await this.prisma.sale.findMany({
+  async getAllSalesByUserAddress({
+    userAddress,
+    page = 1,
+    limit = 9,
+  }: {
+    userAddress: string;
+    page?: number;
+    limit?: number;
+  }) {
+    // Calculate pagination values
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination metadata
+    const totalCount = await this.prisma.sale.count({
+      where: {
+        OR: [
+          {
+            buyer: userAddress,
+          },
+          {
+            creator: userAddress,
+          },
+        ],
+      },
+    });
+
+    // Get paginated sales
+    const sales = await this.prisma.sale.findMany({
       where: {
         OR: [
           {
@@ -74,7 +100,20 @@ export class SaleService {
         files: true,
         user: true,
       },
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
+
+    return {
+      sales,
+      total: totalCount,
+      page,
+      limit,
+      totalPages: Math.ceil(totalCount / limit),
+    };
   }
 
   async getAllActiveSales() {

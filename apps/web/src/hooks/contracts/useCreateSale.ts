@@ -169,13 +169,10 @@ export const useCreateSale = () => {
         await connection.getLatestBlockhash('finalized')
       ).blockhash;
 
-      const receipt = await sendTransaction({
-        connection: connection,
-        transaction: tx,
-        address: payer.toBase58(),
-      });
-
-      await connection.confirmTransaction(receipt.signature, 'finalized');
+      const receipt = await wallet.signTransaction(tx);
+      console.log('receipt ==>', receipt);
+      const data = await connection.sendRawTransaction(receipt.serialize());
+      console.log('data ==>', data);
     },
   });
 

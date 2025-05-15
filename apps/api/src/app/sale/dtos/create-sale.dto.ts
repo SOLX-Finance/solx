@@ -14,6 +14,10 @@ export class CreateSaleRequestDto {
   @IsArray()
   @IsString({ each: true })
   files: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  categories: string[];
 }
 
 export class CreateSaleResponseDto {

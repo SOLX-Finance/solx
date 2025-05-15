@@ -11,11 +11,13 @@ export class SaleService {
     title,
     description,
     files,
+    categories,
   }: {
     user: User;
     files: string[];
     title: string;
     description: string;
+    categories: string[];
   }) {
     const fileEntities = await this.prisma.file.findMany({
       where: {
@@ -52,6 +54,7 @@ export class SaleService {
         description,
         userId: user.id,
         creator: user.walletAddress,
+        categories,
       },
     });
 

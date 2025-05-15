@@ -17,6 +17,13 @@ export const getCurrentUser = async (): Promise<User> => {
   return response.data;
 };
 
+export const getUserByWalletAddress = async (
+  walletAddress: string,
+): Promise<User> => {
+  const response = await httpClient.get(`/users/wallet/${walletAddress}`);
+  return response.data;
+};
+
 export const updateProfile = async (
   username?: string,
   profilePictureId?: string,

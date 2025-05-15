@@ -49,6 +49,27 @@ export class UsersController {
     return this.usersService.findById(user.dbUser.id);
   }
 
+  @Get('wallet/:walletAddress')
+  @ApiOperation({ summary: 'Get user by wallet address' })
+  @ApiParam({
+    name: 'walletAddress',
+    description: 'The wallet address of the user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The user profile has been successfully retrieved',
+    type: UserResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  async getUserByWalletAddress(
+    @Param('walletAddress') walletAddress: string,
+  ): Promise<UserResponseDto> {
+    return this.usersService.findByWalletAddress(walletAddress);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiParam({ name: 'id', description: 'User ID' })

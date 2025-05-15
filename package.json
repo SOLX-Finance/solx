@@ -8,6 +8,7 @@
     "serve:api": "nx serve api",
     "serve:contracts": "nx serve contracts",
     "serve:indexer": "nx serve indexer",
+    "serve:indexer:debug": "nx serve indexer --inspect-port=9230",
     "serve:web": "nx serve web",
     "build:api": "nx build api",
     "build:contracts": "nx build contracts",

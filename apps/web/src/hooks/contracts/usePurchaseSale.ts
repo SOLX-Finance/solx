@@ -1,12 +1,6 @@
 import { useSolanaWallets } from '@privy-io/react-auth';
 import { useSendTransaction } from '@privy-io/react-auth/solana';
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  getAssociatedTokenAddressSync,
-  getOrCreateAssociatedTokenAccount,
-  TOKEN_2022_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-} from '@solana/spl-token';
+import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { PublicKey, SYSVAR_RENT_PUBKEY, Transaction } from '@solana/web3.js';
 import { useMutation } from '@tanstack/react-query';
 

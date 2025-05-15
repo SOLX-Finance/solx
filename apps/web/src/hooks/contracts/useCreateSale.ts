@@ -1,5 +1,4 @@
 import { useSolanaWallets } from '@privy-io/react-auth';
-import { useSendTransaction } from '@privy-io/react-auth/solana';
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddressSync,
@@ -35,7 +34,6 @@ export const useCreateSale = () => {
   const { wallets, ready } = useSolanaWallets();
 
   const { solxProgram } = useSolxContract();
-  const { sendTransaction } = useSendTransaction();
 
   const {
     mutateAsync: createSale,
@@ -177,9 +175,9 @@ export const useCreateSale = () => {
       ).blockhash;
 
       const receipt = await wallet.signTransaction(tx);
-      console.log('receipt ==>', receipt);
       const data = await connection.sendRawTransaction(receipt.serialize());
-      console.log('data ==>', data);
+
+      return data;
     },
   });
 

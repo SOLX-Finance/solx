@@ -1,6 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '@solx/data-access';
+
+import { SortOption } from './dtos/get-active-sales.dto';
+import { SalesFilter } from './dtos/get-sales-by-user.dto';
 
 import { StorageService } from '../storage/storage.service';
 
@@ -68,53 +72,86 @@ export class SaleService {
     return sale;
   }
 
-  async getAllSalesByUserAddress({
+  async getSalesByUserAddress({
     userAddress,
     page = 1,
     limit = 9,
+    search,
+    sortBy = SortOption.NEWEST,
+    filter,
   }: {
     userAddress: string;
     page?: number;
     limit?: number;
+    search?: string;
+    sortBy?: SortOption;
+    filter?: SalesFilter;
   }) {
-    // Calculate pagination values
     const skip = (page - 1) * limit;
 
-    // Get total count for pagination metadata
-    const totalCount = await this.prisma.sale.count({
-      where: {
-        OR: [
-          {
-            buyer: userAddress,
-          },
-          {
-            creator: userAddress,
-          },
-        ],
-      },
-    });
+    let where: Prisma.SaleWhereInput = {};
 
-    // Get paginated sales
-    const sales = await this.prisma.sale.findMany({
-      where: {
+    if (filter === SalesFilter.CREATED) {
+      where.creator = userAddress;
+    } else if (filter === SalesFilter.BOUGHT) {
+      where.buyer = userAddress;
+    } else {
+      where.OR = [{ creator: userAddress }, { buyer: userAddress }];
+    }
+
+    if (search) {
+      const searchCondition = {
         OR: [
+          { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
           {
-            buyer: userAddress,
-          },
-          {
-            creator: userAddress,
+            description: {
+              contains: search,
+              mode: Prisma.QueryMode.insensitive,
+            },
           },
         ],
-      },
+      };
+
+      if (where.OR) {
+        // If we already have OR conditions, we need to restructure
+        where = {
+          AND: [{ OR: where.OR }, searchCondition],
+        };
+      } else {
+        // Otherwise, just add the search conditions
+        where = {
+          ...where,
+          ...searchCondition,
+        };
+      }
+    }
+
+    const totalCount = await this.prisma.sale.count({ where });
+
+    let orderBy: Prisma.SaleOrderByWithRelationInput = {};
+    switch (sortBy) {
+      case SortOption.NEWEST:
+        orderBy = { createdAt: 'desc' };
+        break;
+      case SortOption.PRICE_LOW:
+        orderBy = { priceUsd: 'asc' };
+        break;
+      case SortOption.PRICE_HIGH:
+        orderBy = { priceUsd: 'desc' };
+        break;
+      default:
+        orderBy = { createdAt: 'desc' };
+    }
+
+    const sales = await this.prisma.sale.findMany({
+      where,
       include: {
         files: true,
         user: true,
       },
       skip,
       take: limit,
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy,
     });
 
     return {
@@ -126,16 +163,75 @@ export class SaleService {
     };
   }
 
-  async getAllActiveSales() {
-    return await this.prisma.sale.findMany({
-      where: {
-        buyer: null,
-      },
+  async getActiveSales({
+    page = 1,
+    limit = 8,
+    search,
+    sortBy = SortOption.NEWEST,
+    category,
+  }: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: SortOption;
+    category?: string;
+  }) {
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.SaleWhereInput = {
+      buyer: null, // Only active (unsold) sales
+    };
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        {
+          description: { contains: search, mode: Prisma.QueryMode.insensitive },
+        },
+      ];
+    }
+
+    if (category && category !== 'all') {
+      where.categories = {
+        has: category,
+      };
+    }
+
+    const totalCount = await this.prisma.sale.count({ where });
+
+    let orderBy: Prisma.SaleOrderByWithRelationInput = {};
+    switch (sortBy) {
+      case SortOption.NEWEST:
+        orderBy = { createdAt: 'desc' };
+        break;
+      case SortOption.PRICE_LOW:
+        orderBy = { priceUsd: 'asc' };
+        break;
+      case SortOption.PRICE_HIGH:
+        orderBy = { priceUsd: 'desc' };
+        break;
+      default:
+        orderBy = { createdAt: 'desc' };
+    }
+
+    const sales = await this.prisma.sale.findMany({
+      where,
       include: {
         files: true,
         user: true,
       },
+      skip,
+      take: limit,
+      orderBy,
     });
+
+    return {
+      sales,
+      total: totalCount,
+      page,
+      limit,
+      totalPages: Math.ceil(totalCount / limit),
+    };
   }
 
   async getSaleById({ id }: { id: string }) {

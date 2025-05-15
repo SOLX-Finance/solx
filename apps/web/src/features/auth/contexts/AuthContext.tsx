@@ -7,7 +7,7 @@ import React, {
   ReactNode,
 } from 'react';
 
-import { httpClient } from '../../../services/httpClient';
+import { httpClient } from '@/services/httpClient';
 
 interface AuthProviderProps {
   children: ReactNode;

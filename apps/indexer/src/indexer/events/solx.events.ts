@@ -4,20 +4,20 @@ import BN from 'bn.js';
 import { EventWithTimestampAndIndex } from './common';
 
 export type ListingCreatedEvent = {
-  name: 'listingCreated';
+  name: 'ListingCreated';
   globalState: PublicKey;
   listing: PublicKey;
   nft: PublicKey;
   buyer: PublicKey;
-  id: BN;
+  id: string;
   collateralMint: PublicKey;
   collateralAmount: BN;
   priceUsd: BN;
 } & EventWithTimestampAndIndex;
 
 export type ListingPurchasedEvent = {
-  name: 'listingPurchased';
-  id: BN;
+  name: 'ListingPurchased';
+  id: string;
   globalState: PublicKey;
   listing: PublicKey;
   nft: PublicKey;
@@ -28,24 +28,24 @@ export type ListingPurchasedEvent = {
 } & EventWithTimestampAndIndex;
 
 export type ListingClosedEvent = {
-  name: 'listingClosed';
+  name: 'ListingClosed';
   globalState: PublicKey;
   listing: PublicKey;
   nft: PublicKey;
-  id: BN;
+  id: string;
 } & EventWithTimestampAndIndex;
 
 export type ListingDisputedEvent = {
-  name: 'listingDisputed';
+  name: 'ListingDisputed';
   globalState: PublicKey;
   initiator: PublicKey;
   listing: PublicKey;
   nft: PublicKey;
-  id: BN;
+  id: string;
 } & EventWithTimestampAndIndex;
 
 export type DisputeResolvedEvent = {
-  name: 'disputeResolved';
+  name: 'DisputeResolved';
   globalState: PublicKey;
   listing: PublicKey;
   nft: PublicKey;

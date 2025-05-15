@@ -84,7 +84,6 @@ export class IndexerProcessor extends WorkerHost {
       data: {
         listing: data.listing,
         nftMint: data.nft,
-        buyer: data.buyer,
         collateralMint: data.collateralMint,
         collateralAmount: data.collateralAmount,
         priceUsd: data.priceUsd,

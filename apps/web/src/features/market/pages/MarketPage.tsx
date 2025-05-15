@@ -1,6 +1,7 @@
 import { Input } from '../../../components/ui/input';
 import { Banner } from '../components/banner';
 import { Categories } from '../components/categories';
+import { useMarket } from '../hooks/useMarket';
 
 import { ProjectCard } from '@/components/common/ProjectCard';
 import {
@@ -10,9 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { projects } from '@/mocks';
 
 const MarketPage = () => {
+  const { sales, isLoading, error } = useMarket();
+
   return (
     <div className="container mx-auto p-4 flex flex-col gap-[20px]">
       <Banner />
@@ -45,8 +47,8 @@ const MarketPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[20px] mb-[100px]">
-        {projects.map((p) => (
-          <ProjectCard key={p.id} {...p} />
+        {sales.map((s) => (
+          <ProjectCard key={s.id} {...s} />
         ))}
       </div>
     </div>

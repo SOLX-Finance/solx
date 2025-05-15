@@ -15,6 +15,12 @@ export const envSchema = z.object({
     .string()
     .url('API URL must be a valid URL')
     .default('http://localhost:3000/api'),
+
+  // RPC configuration
+  RPC_URL: z
+    .string()
+    .url('RPC URL must be a valid URL')
+    .default('https://api.devnet.solana.com'),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>;

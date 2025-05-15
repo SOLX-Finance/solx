@@ -47,6 +47,9 @@ import { UsersModule } from './users/users.module';
         return {
           connection: {
             url: redisUrl,
+            tls: {
+              rejectUnauthorized: false,
+            },
           },
         };
       },

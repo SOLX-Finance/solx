@@ -1,0 +1,237 @@
+import { useSolanaWallets } from '@privy-io/react-auth';
+import { PublicKey } from '@solana/web3.js';
+import { useForm } from '@tanstack/react-form';
+import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
+
+import { createSale } from '../api/salesApi';
+
+import { useCreateSale } from '@/hooks/contracts/useCreateSale';
+import { FileType, useFileUploadQuery } from '@/hooks/useFileUploadQuery';
+import { SOL_MINT } from '@/utils/programs.utils';
+
+const FILE_TYPE_CONFIG = {
+  [FileType.SALE_CONTENT]: {
+    required: true,
+    maxCount: 1,
+    missingError: 'You must upload a content file',
+    exceededError: 'You can upload only one content file',
+  },
+  [FileType.SALE_DEMO]: {
+    required: false,
+    maxCount: 1,
+    missingError: 'Demo file is missing',
+    exceededError: 'You can upload only one demo file',
+  },
+  [FileType.SALE_PREVIEW]: {
+    required: false,
+    maxCount: 1,
+    missingError: 'Preview file is missing',
+    exceededError: 'You can upload only one preview file',
+  },
+};
+
+export const useCreateSaleForm = () => {
+  const navigate = useNavigate();
+  const [formError, setFormError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { wallets, ready: walletsReady } = useSolanaWallets();
+
+  const {
+    isUploading,
+    uploadedFiles,
+    error: uploadError,
+    uploadFiles,
+    removeFile,
+  } = useFileUploadQuery();
+
+  const apiMutation = useMutation({
+    mutationFn: async ({
+      title,
+      description,
+      fileIds,
+    }: {
+      title: string;
+      description: string;
+      fileIds: string[];
+    }) => {
+      return createSale(title, description, fileIds);
+    },
+  });
+
+  const {
+    createSale: createSaleOnchain,
+    isPending: isCreatingOnchain,
+    error: onchainError,
+  } = useCreateSale();
+
+  const form = useForm({
+    defaultValues: {
+      title: '',
+      description: '',
+      price: 0,
+      collateralAmount: 0,
+    },
+    onSubmit: async ({ value }) => {
+      setFormError(null);
+      setSuccessMessage(null);
+
+      try {
+        if (!walletsReady || !wallets || wallets.length === 0) {
+          setFormError('Please connect your wallet first');
+          return { error: 'Please connect your wallet first' };
+        }
+
+        const filesByType = Object.entries(FILE_TYPE_CONFIG).map(
+          ([type, config]) => {
+            const files = uploadedFiles.filter((file) => file.type === type);
+            return { type, files, config };
+          },
+        );
+
+        for (const { type, files, config } of filesByType) {
+          if (config.required && files.length === 0) {
+            setFormError(
+              config.missingError || `You must upload a ${type} file`,
+            );
+            return {
+              error: config.missingError || `You must upload a ${type} file`,
+            };
+          }
+
+          if (files.length > config.maxCount) {
+            setFormError(
+              config.exceededError ||
+                `You can upload at most ${config.maxCount} ${type} file(s)`,
+            );
+            return {
+              error:
+                config.exceededError ||
+                `You can upload at most ${config.maxCount} ${type} file(s)`,
+            };
+          }
+        }
+
+        const fileIds = uploadedFiles.map((file) => file.id);
+
+        // 1. Create the sale in the backend
+        const saleResponse = await apiMutation.mutateAsync({
+          title: value.title,
+          description: value.description,
+          fileIds,
+        });
+
+        // 2. Create the sale on the blockchain
+        const uuid = uuidv4();
+
+        // Convert SOL to lamports (1 SOL = 10^9 lamports)
+        const priceInLamports = BigInt(Math.floor(value.price * 1_000_000_000));
+        const collateralInLamports = BigInt(
+          Math.floor(value.collateralAmount * 1_000_000_000),
+        );
+
+        await createSaleOnchain({
+          uuid,
+          price: priceInLamports,
+          collateralAmount: collateralInLamports,
+          collateralMint: new PublicKey(SOL_MINT),
+        });
+
+        setSuccessMessage('Sale created successfully');
+        navigate(`/sales/${saleResponse.id}`);
+        return {};
+      } catch (err) {
+        console.error('Error creating sale:', err);
+        setFormError('Failed to create sale. Please try again.');
+        return {
+          error: 'Failed to create sale. Please try again.',
+        };
+      }
+    },
+  });
+
+  const createFileChangeHandler =
+    (fileType: FileType) => async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files.length > 0) {
+        // Remove any existing files of this type
+        const existingFiles = uploadedFiles.filter(
+          (file) => file.type === fileType,
+        );
+        for (const file of existingFiles) {
+          removeFile(file.id);
+        }
+
+        // Upload the new file
+        await uploadFiles([e.target.files[0]], fileType);
+      }
+    };
+
+  const handleContentFileChange = createFileChangeHandler(
+    FileType.SALE_CONTENT,
+  );
+  const handleDemoFileChange = createFileChangeHandler(FileType.SALE_DEMO);
+  const handlePreviewFileChange = createFileChangeHandler(
+    FileType.SALE_PREVIEW,
+  );
+
+  // Get all files of a specific type
+  const getFilesByType = (fileType: FileType) => {
+    return uploadedFiles.filter((file) => file.type === fileType);
+  };
+
+  const validateTitle = (title: string) => {
+    if (!title.trim()) {
+      return 'Title is required';
+    }
+    if (title.length > 100) {
+      return 'Title cannot exceed 100 characters';
+    }
+    return undefined;
+  };
+
+  const validateDescription = (description: string) => {
+    if (!description.trim()) {
+      return 'Description is required';
+    }
+    if (description.length > 5000) {
+      return 'Description cannot exceed 5000 characters';
+    }
+    return undefined;
+  };
+
+  const validatePrice = (price: number) => {
+    if (price <= 0) {
+      return 'Price must be greater than 0';
+    }
+    return undefined;
+  };
+
+  const validateCollateralAmount = (collateralAmount: number) => {
+    if (collateralAmount <= 0) {
+      return 'Collateral amount must be greater than 0';
+    }
+    return undefined;
+  };
+
+  return {
+    form,
+    isSubmitting: apiMutation.isPending || isCreatingOnchain,
+    isUploading,
+    uploadedFiles,
+    formError,
+    uploadError,
+    onchainError: onchainError ? String(onchainError) : null,
+    successMessage,
+    handleContentFileChange,
+    handleDemoFileChange,
+    handlePreviewFileChange,
+    removeFile,
+    getFilesByType,
+    validateTitle,
+    validateDescription,
+    validatePrice,
+    validateCollateralAmount,
+  };
+};

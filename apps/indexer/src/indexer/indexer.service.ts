@@ -35,11 +35,11 @@ export class IndexerService implements OnModuleInit {
   private readonly logger = new Logger(IndexerService.name);
 
   private readonly eventsToIndex: IndexerEvent['name'][] = [
-    'listingCreated',
-    'disputeResolved',
-    'listingClosed',
-    'listingDisputed',
-    'listingPurchased',
+    'ListingCreated',
+    'DisputeResolved',
+    'ListingClosed',
+    'ListingDisputed',
+    'ListingPurchased',
   ];
 
   private readonly customEventsToIndex: string[] = [];
@@ -145,7 +145,6 @@ export class IndexerService implements OnModuleInit {
   ) {
     const addresses = networkAddresses[this.indexerConfig.environment];
 
-    console.log({ addresses, f: this.indexerConfig.environment });
     const programs = [
       new anchor.Program<Solx>(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -163,8 +162,6 @@ export class IndexerService implements OnModuleInit {
 
     const accountsToFetch = [
       ...programs.map((program) => program.programId),
-      // TODO: uncomment when need to index mToken transfers
-      // addresses.mTBILL?.mToken,
     ].filter((v) => !!v);
 
     const parsedTxs = await this.fetchTransactionsPaginated(
@@ -208,24 +205,14 @@ export class IndexerService implements OnModuleInit {
 
     for (const parsedTx of parsedTxs) {
       const events = eventParsers
-        .map((eventParser, i) =>
+        .map((eventParser) =>
           [
             ...eventParser.parseLogs(parsedTx.meta?.logMessages ?? [], false),
-          ].map((event) => {
-            const coder = coders[i];
-            const encodedEvent = coder.events.encode(event);
-            const logIndex = parsedTx.meta?.logMessages.findIndex((log) =>
-              log.includes(encodedEvent),
-            );
-
-            if (logIndex === -1) {
-              throw new Error('Log index not found');
-            }
-
+          ].map((event, j) => {
             return {
               ...event,
               programId: eventParser.programIdPubkey,
-              logIndex,
+              logIndex: j,
             };
           }),
         )

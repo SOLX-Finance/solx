@@ -5,18 +5,18 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-contracts = "3YZMgcQTSYXeQd6Ma7WRDGRMMZFd29m5Vdr1DHFqq7qW"
-solx = "5nCJ7xpgDfsSpcnbpRZf8WadzyxwShFoK8FRrVfYcSJ5"
+solx = "72GoG8mDsCuBMBSQZe3TmXtgQgNxuAzCh4ipgyRJqGCi"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
-wallet = "/Users/nick/.config/solana/id.json"
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "anchor build && yarn ts-mocha -p ./apps/contracts/tsconfig.json --trace-warnings -t 1000000 ./apps/contracts/tests/contracts.ts"
+test = "anchor build && yarn ts-mocha -p ./tsconfig.json --trace-warnings -t 1000000 ./tests/contracts.ts"
+deploy = "yarn ts-node ./migrations/deploy.ts"
 
 [test]
 startup_wait = 5000

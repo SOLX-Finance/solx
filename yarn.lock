@@ -3749,6 +3749,91 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metaplex-foundation/mpl-token-metadata@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "@metaplex-foundation/mpl-token-metadata@npm:3.4.0"
+  dependencies:
+    "@metaplex-foundation/mpl-toolbox": "npm:^0.10.0"
+  peerDependencies:
+    "@metaplex-foundation/umi": ">= 0.8.2 <= 1"
+  checksum: 10c0/1c85ea8314ebf4847f5a6fb8c7dff5669a9cccf2d7c1fdf9028707041015db81dba7337f558d56266e4c78c9783edd97e57d619615376b1c76d39851a9ff0639
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/mpl-toolbox@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "@metaplex-foundation/mpl-toolbox@npm:0.10.0"
+  peerDependencies:
+    "@metaplex-foundation/umi": ">= 0.8.2 <= 1"
+  checksum: 10c0/5faf3c31f7eda511bb67c31f41f9627e41d5b1d9b496d561715c8a48a7d035ec084df1685cda5022bfd2d8fd85dfa3bddba14183af1f313166fac25cdce493eb
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/umi-options@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@metaplex-foundation/umi-options@npm:1.2.0"
+  checksum: 10c0/847c4a5a22b0808af2d86957546e57f72158869312562d75b56998cbd3c873ae804dd82c376bced3db5212567dca0add8e3644361bce5974bc0a9a3bb147d239
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/umi-public-keys@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@metaplex-foundation/umi-public-keys@npm:1.2.0"
+  dependencies:
+    "@metaplex-foundation/umi-serializers-encodings": "npm:^1.2.0"
+  checksum: 10c0/161e5b26d814ab442aac4b980244c08751b1c9ad44deae11d21aede92b8f719b2415c99ff7f946394cafbccac664e97ea240d56acbd4eb50fd4c73c46516fde6
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/umi-serializers-core@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@metaplex-foundation/umi-serializers-core@npm:1.2.0"
+  checksum: 10c0/788660f026e43ad1c033ec73c9c1f1e2cfe6667017d8abe50fc47256f349c31a71043b4a75c8bbdf3e77914f56ff88c70e5c85601e7da35343bd10bff2fc8414
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/umi-serializers-encodings@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@metaplex-foundation/umi-serializers-encodings@npm:1.2.0"
+  dependencies:
+    "@metaplex-foundation/umi-serializers-core": "npm:^1.2.0"
+  checksum: 10c0/f448cfcf5696f066d282911e23ded423bf73d996d9073c13fff2711049e82e83cdf5320411269be7ae828c9bb35c93d588233a128cbd3584216bdeaa0cf23168
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/umi-serializers-numbers@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@metaplex-foundation/umi-serializers-numbers@npm:1.2.0"
+  dependencies:
+    "@metaplex-foundation/umi-serializers-core": "npm:^1.2.0"
+  checksum: 10c0/4192290a5e1cf6b68c86784617c337a70fe026d2ef235143f0236d2bba6189e1cf8caf026a44bdfc4ed7ae3e27b4ff7389c79b981a60d622c15f61314e2bfbb7
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/umi-serializers@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@metaplex-foundation/umi-serializers@npm:1.2.0"
+  dependencies:
+    "@metaplex-foundation/umi-options": "npm:^1.2.0"
+    "@metaplex-foundation/umi-public-keys": "npm:^1.2.0"
+    "@metaplex-foundation/umi-serializers-core": "npm:^1.2.0"
+    "@metaplex-foundation/umi-serializers-encodings": "npm:^1.2.0"
+    "@metaplex-foundation/umi-serializers-numbers": "npm:^1.2.0"
+  checksum: 10c0/d2e7f7a26d7673f7cf613d53744a40e022102b5d0561867802b0715fcb73e3704779672847ab319f6b82c135c5ef0f19bd679525e4b3b05942e62d4ca209bbed
+  languageName: node
+  linkType: hard
+
+"@metaplex-foundation/umi@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@metaplex-foundation/umi@npm:1.2.0"
+  dependencies:
+    "@metaplex-foundation/umi-options": "npm:^1.2.0"
+    "@metaplex-foundation/umi-public-keys": "npm:^1.2.0"
+    "@metaplex-foundation/umi-serializers": "npm:^1.2.0"
+  checksum: 10c0/12b977be3e3404710e65548415afdc8caa3e5af401a15ed9d76d6887e390ab390087bcf6c237f6f6de042c3481e8fd369ba74dad22191a5c492b0649bf49e20e
+  languageName: node
+  linkType: hard
+
 "@microsoft/tsdoc@npm:0.15.1":
   version: 0.15.1
   resolution: "@microsoft/tsdoc@npm:0.15.1"
@@ -7502,6 +7587,8 @@ __metadata:
     "@coral-xyz/anchor": "npm:^0.29.0"
     "@esbuild-plugins/node-globals-polyfill": "npm:^0.2.3"
     "@eslint/js": "npm:^9.25.1"
+    "@metaplex-foundation/mpl-token-metadata": "npm:^3.4.0"
+    "@metaplex-foundation/umi": "npm:^1.2.0"
     "@nestjs/axios": "npm:^4.0.0"
     "@nestjs/bullmq": "npm:^11.0.1"
     "@nestjs/common": "npm:^10.0.2"

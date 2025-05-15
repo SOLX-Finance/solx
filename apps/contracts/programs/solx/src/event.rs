@@ -13,19 +13,19 @@ pub struct Initialized {
 
 #[event]
 pub struct ListingCreated {
+  pub id: String,
   pub global_state: Pubkey,
   pub listing: Pubkey,
   pub nft: Pubkey,
   pub buyer: Pubkey,
   pub collateral_mint: Pubkey,
-  pub id: u64,
   pub collateral_amount: u64,
   pub price_usd: u64,
 }
 
 #[event]
 pub struct ListingPurchased {
-  pub id: u64,
+  pub id: String,
   pub global_state: Pubkey,
   pub listing: Pubkey,
   pub nft: Pubkey,
@@ -37,26 +37,26 @@ pub struct ListingPurchased {
 
 #[event]
 pub struct ListingClosed {
+  pub id: String,
   pub global_state: Pubkey,
   pub listing: Pubkey,
   pub nft: Pubkey,
-  pub id: u64,
 }
 
 #[event]
 pub struct ListingDisputed {
+  pub id: String,
   pub global_state: Pubkey,
   pub initiator: Pubkey,
   pub listing: Pubkey,
   pub nft: Pubkey,
-  pub id: u64,
 }
 
 #[event]
 pub struct DisputeResolved {
+  pub id: String,
   pub global_state: Pubkey,
   pub listing: Pubkey,
   pub nft: Pubkey,
-  pub id: u64,
   pub verdict: Verdict,
 }

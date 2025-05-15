@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getSaleById, Sale } from '../api/salesApi';
+import { salesApi, Sale } from '../api/salesApi';
 
 const SALE_QUERY_KEY = 'sale';
 
@@ -16,14 +16,14 @@ export const useSale = (saleId: string | undefined) => {
       if (!saleId) {
         throw new Error('Sale ID is missing');
       }
-      return getSaleById(saleId);
+      return salesApi.getSaleById(saleId);
     },
     enabled: !!saleId, // Only run the query if saleId is provided
   });
 
   // Helper functions to find specific file types
   const getFileByType = (type: string) => {
-    return sale?.files.find((file) => file.type === type);
+    return sale?.files?.find((file) => file.type === type);
   };
 
   const previewFile = sale ? getFileByType('SALE_PREVIEW') : undefined;

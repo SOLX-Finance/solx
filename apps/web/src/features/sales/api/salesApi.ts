@@ -6,6 +6,10 @@ export interface Sale {
   title: string;
   description: string;
   priceUsd: string;
+  collateralAmount: string;
+  collateralMint: string;
+  listing: string;
+  nftMint: string;
   creator: string;
   buyer: string | null;
   createdAt: string;
@@ -13,7 +17,14 @@ export interface Sale {
   files?: {
     id: string;
     type: string;
+    mimeType: string;
+    remoteId: string;
   }[];
+  user: {
+    id: string;
+    walletAddress: string;
+    name: string | null;
+  };
   categories?: string[];
   isAudited?: boolean;
 }

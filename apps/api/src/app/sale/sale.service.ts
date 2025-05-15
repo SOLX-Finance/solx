@@ -2,9 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from '@solx/data-access';
 
+import { StorageService } from '../storage/storage.service';
+
 @Injectable()
 export class SaleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storageService: StorageService,
+  ) {}
 
   async createSale({
     user,
@@ -57,6 +62,8 @@ export class SaleService {
         categories,
       },
     });
+
+    await this.storageService.onFilesUploaded(fileEntities);
 
     return sale;
   }

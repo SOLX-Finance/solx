@@ -60,6 +60,7 @@ export default registerAs('app', () => {
     ai: {
       apiKey: env.AI_API_KEY,
       modelId: env.AI_MODEL_ID,
+      enableAIAnalyze: env.ENABLE_AI_ANALYZE,
     },
 
     // Database configuration

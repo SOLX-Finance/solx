@@ -2,6 +2,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { File, FileType, Prisma } from '@prisma/client';
@@ -64,7 +65,7 @@ export class StorageService {
     });
 
     if (!file) {
-      throw new Error('File not found');
+      throw new NotFoundException('File not found');
     }
 
     if (
@@ -78,6 +79,12 @@ export class StorageService {
 
     if (file.userId !== userId) {
       throw new UnauthorizedException('File does not belong to the user');
+    }
+
+    if (file.deleted) {
+      throw new NotFoundException(
+        'File is found but content was removed, as it was flagged as malicious',
+      );
     }
 
     const url = await this.storjService.getSignedReadUrl(file.remoteId);
@@ -114,7 +121,7 @@ export class StorageService {
     });
 
     if (!file) {
-      throw new Error('File not found');
+      throw new NotFoundException('File not found');
     }
     if (
       validateType &&
@@ -123,13 +130,24 @@ export class StorageService {
       throw new BadRequestException('File is not accessible');
     }
 
+    if (file.deleted) {
+      throw new NotFoundException(
+        'File is found but content was removed, as it was flagged as malicious',
+      );
+    }
+
     return this.getFileContentFromFile({ file });
   }
 
-  async onFileUploaded(file: File) {
-    await this.indexedTxQueue.add(ANALYZE_FILE_QUEUE.name, {
-      fileId: file.id,
-    });
+  async onFilesUploaded(files: File[]) {
+    await this.indexedTxQueue.addBulk(
+      files.map((file) => ({
+        name: ANALYZE_FILE_QUEUE.name,
+        data: {
+          fileId: file.id,
+        },
+      })),
+    );
   }
 
   async getFileContentFromFile({ file }: { file: File }) {

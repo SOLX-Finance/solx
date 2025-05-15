@@ -45,6 +45,7 @@ export const envSchema = z.object({
   // AI
   AI_API_KEY: z.string(),
   AI_MODEL_ID: z.string().default('gpt-4o-mini'),
+  ENABLE_AI_ANALYZE: z.coerce.boolean().default(true),
 
   // Redis
   REDIS_URL: z.string().default('redis://localhost:6379'),

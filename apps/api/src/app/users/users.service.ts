@@ -3,12 +3,18 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { KycStatus, Prisma, Role, User } from '@prisma/client';
-import { PrismaUserRepository } from '@solx/data-access';
+import { File, KycStatus, Prisma, Role, User } from '@prisma/client';
+import { PrismaService, PrismaUserRepository } from '@solx/data-access';
+
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: PrismaUserRepository) {}
+  constructor(
+    private readonly userRepository: PrismaUserRepository,
+    private readonly prisma: PrismaService,
+    private readonly storageService: StorageService,
+  ) {}
 
   async findById(userId: string): Promise<User> {
     const user = await this.userRepository.findById(userId);
@@ -52,7 +58,26 @@ export class UsersService {
     user.username = data.username ?? user.username;
     user.profilePictureId = data.profilePictureId ?? user.profilePictureId;
 
-    return this.userRepository.save(user);
+    let file: File | null = null;
+
+    if (data.profilePictureId) {
+      file = await this.prisma.file.findUnique({
+        where: { id: data.profilePictureId },
+      });
+      if (!file) {
+        throw new BadRequestException(
+          `File with ID ${data.profilePictureId} not found`,
+        );
+      }
+    }
+
+    const updatedUser = await this.userRepository.save(user);
+
+    if (file) {
+      await this.storageService.onFilesUploaded([file]);
+    }
+
+    return updatedUser;
   }
 
   // KYC verification methods

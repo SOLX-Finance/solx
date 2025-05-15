@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as anchor from '@coral-xyz/anchor';
 import { Program } from '@coral-xyz/anchor';
-import { LiteSVM } from 'litesvm';
 import { PublicKey } from '@solana/web3.js';
+import { LiteSVM } from 'litesvm';
 
 export class LiteSvmProgram<Idl> extends Program<anchor.Idl> {
   svm: LiteSVM;

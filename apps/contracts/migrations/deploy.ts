@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-require-imports */
 
-import { AnchorProvider, BN, Program } from '@coral-xyz/anchor';
-import {
-  createMint,
-  getOrCreateAssociatedTokenAccount,
-  mintTo,
-} from '@solana/spl-token';
+import { AnchorProvider, Program } from '@coral-xyz/anchor';
+import { getOrCreateAssociatedTokenAccount, mintTo } from '@solana/spl-token';
 import {
   Connection,
   Keypair,
@@ -14,7 +10,6 @@ import {
   sendAndConfirmTransaction,
   SystemProgram,
   Transaction,
-  LAMPORTS_PER_SOL,
 } from '@solana/web3.js';
 
 import { randomUUID } from 'crypto';
@@ -159,15 +154,7 @@ export default async function main() {
 
     console.log('Updated SOL and USDC feeds');
   } else {
-    const buyer = Keypair.fromSecretKey(
-      Uint8Array.from([
-        15, 89, 252, 168, 128, 100, 135, 71, 39, 249, 128, 21, 63, 177, 70, 36,
-        238, 41, 176, 132, 199, 99, 251, 234, 195, 235, 112, 221, 155, 122, 69,
-        58, 170, 141, 63, 197, 6, 205, 243, 208, 123, 52, 53, 231, 131, 149, 56,
-        181, 229, 131, 255, 188, 137, 131, 221, 141, 122, 95, 55, 16, 36, 209,
-        141, 79,
-      ]),
-    );
+    const buyer = Keypair.generate();
 
     if (needMint) {
       const buyerAta = await getOrCreateAssociatedTokenAccount(
@@ -207,7 +194,6 @@ export default async function main() {
       console.log('Minted USDC to buyer and authority');
     }
 
-    await sendSol(connection, authority, buyer.publicKey, 1);
     try {
       const globalState = new PublicKey(
         'H5ZkAYbKVAnm8n5p8taHhrNWvBWQyY2PabXoD6QLXCDH',
@@ -223,10 +209,22 @@ export default async function main() {
     } catch (e) {
       console.error(e);
     } finally {
-      //await sleep(10000);
-      //const balance = await connection.getBalance(buyer.publicKey, 'finalized');
-      // await sendSol(connection, buyer, authority.publicKey, balance);
-      //console.log('Sent SOL to authority');
+      await sleep(10000);
+      const balance = await connection.getBalance(buyer.publicKey, 'finalized');
+      await sendSol(connection, buyer, authority.publicKey, balance);
+      console.log('Sent SOL to authority');
+
+      const buyerBalance = await connection.getBalance(
+        buyer.publicKey,
+        'finalized',
+      );
+
+      await sendSol(
+        connection,
+        buyer,
+        authority.publicKey,
+        buyerBalance - 5000,
+      );
     }
   }
 }
@@ -457,7 +455,7 @@ export async function sendSol(
   const transferIx = SystemProgram.transfer({
     fromPubkey: sender.publicKey,
     toPubkey: recipient,
-    lamports: amountSol * LAMPORTS_PER_SOL,
+    lamports: amountSol,
   });
 
   const tx = new Transaction().add(transferIx);

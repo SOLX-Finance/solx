@@ -63,6 +63,7 @@ export const useCloseSale = () => {
         await getCreateAssociatedTokenAccountInstruction(
           connection,
           collateralMint,
+          payer,
           listing,
           true,
         );
@@ -71,6 +72,7 @@ export const useCloseSale = () => {
         ? await getCreateAssociatedTokenAccountInstruction(
             connection,
             paymentMint,
+            payer,
             listing,
             true,
           )
@@ -81,6 +83,7 @@ export const useCloseSale = () => {
           connection,
           collateralMint,
           payer,
+          payer,
           true,
         );
 
@@ -88,6 +91,7 @@ export const useCloseSale = () => {
         ? await getCreateAssociatedTokenAccountInstruction(
             connection,
             paymentMint,
+            payer,
             payer,
             true,
           )
@@ -97,6 +101,7 @@ export const useCloseSale = () => {
         ? await getCreateAssociatedTokenAccountInstruction(
             connection,
             paymentMint,
+            payer,
             treasury,
             true,
           )
@@ -141,7 +146,7 @@ export const useCloseSale = () => {
             nftTokenAccount: listerNftTokenAccount,
             tokenProgram: TOKEN_PROGRAM_ID,
             tokenProgram2022: TOKEN_2022_PROGRAM_ID,
-            payer,
+            treasury,
           })
           .transaction(),
       );

@@ -1,9 +1,11 @@
 import { PublicKey } from '@solana/web3.js';
 
+import { SOLX_PROGRAM_ID } from '@/utils/programs.utils';
+
 export const addresses = {
   devnet: {
     programs: {
-      solx: new PublicKey('72GoG8mDsCuBMBSQZe3TmXtgQgNxuAzCh4ipgyRJqGCi'),
+      solx: SOLX_PROGRAM_ID,
     },
     globalState: new PublicKey('H5ZkAYbKVAnm8n5p8taHhrNWvBWQyY2PabXoD6QLXCDH'),
     authority: new PublicKey('Ay5QkFRYzDt7SpDoEJi5vKjZk3xqZTWeqpwKDNL1sLn6'),

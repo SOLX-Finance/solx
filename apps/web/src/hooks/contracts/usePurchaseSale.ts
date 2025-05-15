@@ -46,8 +46,6 @@ export const usePurchaseSale = () => {
       uuid,
       paymentMint,
     }: {
-      collateralAmount: bigint;
-      price: bigint;
       uuid: string;
       paymentMint: PublicKey;
     }) => {
@@ -75,6 +73,7 @@ export const usePurchaseSale = () => {
         connection,
         paymentMint,
         payer,
+        payer,
         true,
       );
 
@@ -82,6 +81,7 @@ export const usePurchaseSale = () => {
         await getCreateAssociatedTokenAccountInstruction(
           connection,
           paymentMint,
+          payer,
           listingPda,
           true,
         );
@@ -104,15 +104,27 @@ export const usePurchaseSale = () => {
         })
         .transaction();
 
-      const tx = new Transaction().add(purchaseIx);
+      const tx = new Transaction();
 
-      const receipt = await sendTransaction({
-        connection: connection,
-        transaction: tx,
-        address: payer.toBase58(),
-      });
+      if (buyerPaymentAta?.createInx) {
+        tx.add(buyerPaymentAta.createInx);
+      }
 
-      await connection.confirmTransaction(receipt.signature, 'finalized');
+      if (listingPaymentAta?.createInx) {
+        tx.add(listingPaymentAta.createInx);
+      }
+
+      tx.add(purchaseIx);
+
+      tx.feePayer = payer;
+      tx.recentBlockhash = (
+        await connection.getLatestBlockhash('finalized')
+      ).blockhash;
+
+      const receipt = await wallet.signTransaction(tx);
+      console.log('receipt ==>', receipt);
+      const data = await connection.sendRawTransaction(receipt.serialize());
+      console.log('data ==>', data);
     },
   });
 

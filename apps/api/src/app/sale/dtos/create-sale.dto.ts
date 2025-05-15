@@ -1,4 +1,10 @@
-import { IsArray, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateSaleRequestDto {
   @IsString()
@@ -17,6 +23,7 @@ export class CreateSaleRequestDto {
 
   @IsArray()
   @IsString({ each: true })
+  @IsOptional({ each: true })
   categories: string[];
 }
 

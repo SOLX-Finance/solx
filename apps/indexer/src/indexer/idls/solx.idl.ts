@@ -225,11 +225,6 @@ export type Solx = {
           isSigner: false;
         },
         {
-          name: 'globalStateAuthority';
-          isMut: false;
-          isSigner: false;
-        },
-        {
           name: 'nftMint';
           isMut: true;
           isSigner: false;
@@ -472,12 +467,12 @@ export type Solx = {
           isSigner: true;
         },
         {
-          name: 'payer';
+          name: 'globalState';
           isMut: true;
-          isSigner: true;
+          isSigner: false;
         },
         {
-          name: 'globalState';
+          name: 'treasury';
           isMut: true;
           isSigner: false;
         },
@@ -495,6 +490,7 @@ export type Solx = {
           name: 'listingPaymentMintAccount';
           isMut: true;
           isSigner: false;
+          isOptional: true;
         },
         {
           name: 'authorityCollateralMintAccount';
@@ -1307,11 +1303,6 @@ export const SolxIDL = {
           isSigner: false,
         },
         {
-          name: 'globalStateAuthority',
-          isMut: false,
-          isSigner: false,
-        },
-        {
           name: 'nftMint',
           isMut: true,
           isSigner: false,
@@ -1554,12 +1545,12 @@ export const SolxIDL = {
           isSigner: true,
         },
         {
-          name: 'payer',
+          name: 'globalState',
           isMut: true,
-          isSigner: true,
+          isSigner: false,
         },
         {
-          name: 'globalState',
+          name: 'treasury',
           isMut: true,
           isSigner: false,
         },
@@ -1577,6 +1568,7 @@ export const SolxIDL = {
           name: 'listingPaymentMintAccount',
           isMut: true,
           isSigner: false,
+          isOptional: true,
         },
         {
           name: 'authorityCollateralMintAccount',

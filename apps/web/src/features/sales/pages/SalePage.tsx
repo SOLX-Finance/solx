@@ -3,10 +3,15 @@ import { useParams } from 'react-router-dom';
 
 import { useSale } from '../hooks/useSale';
 
+import { usePurchaseSale } from '@/hooks/contracts/usePurchaseSale';
+import { SOL_MINT } from '@/utils/programs.utils';
+
 const SalePage = () => {
   const { saleId } = useParams<{ saleId: string }>();
   const { sale, isLoading, error, previewFile, contentFile, demoFile } =
     useSale(saleId);
+
+  const { purchaseSale } = usePurchaseSale();
 
   if (isLoading) {
     return (
@@ -37,6 +42,14 @@ const SalePage = () => {
   }
 
   // File types are now provided by the useSale hook
+
+  const onPurchaseSale = async () => {
+    await purchaseSale({
+      uuid: sale.id,
+      // TODO: remove hardcode
+      paymentMint: SOL_MINT,
+    });
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -94,7 +107,7 @@ const SalePage = () => {
         <div className="flex justify-center">
           <button
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => alert('Purchase functionality not implemented yet')}
+            onClick={() => onPurchaseSale()}
           >
             Purchase
           </button>

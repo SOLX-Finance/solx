@@ -12,6 +12,7 @@ export const envSchema = z.object({
   PORT: z.coerce.number().default(3004),
   REDIS_URL: z.string().default('redis://localhost:6379'),
   REDIS_USE_CLUSTER: z.coerce.boolean().default(false),
+  REDIS_REJECT_UNAUTHORIZED: z.coerce.boolean().default(false),
   INDEX_ENV: z.enum(['devnet', 'mainnet'] as const).default('devnet'),
   PINO_LOG_LEVEL: z
     .enum(['debug', 'info', 'warn', 'error'] as const)

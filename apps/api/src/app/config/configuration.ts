@@ -70,6 +70,7 @@ export default registerAs('app', () => {
     // Redis configuration
     redis: {
       url: env.REDIS_URL,
+      rejectUnauthorized: env.REDIS_REJECT_UNAUTHORIZED,
     },
   };
 });

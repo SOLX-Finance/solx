@@ -48,6 +48,7 @@ export const envSchema = z.object({
 
   // Redis
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  REDIS_REJECT_UNAUTHORIZED: z.coerce.boolean().default(false),
 });
 
 export type EnvSchema = z.infer<typeof envSchema>;

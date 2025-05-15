@@ -1,50 +1,24 @@
+import { MarketFilters } from '@/features/market/hooks/useMarket';
 import { httpClient } from '@/services/httpClient';
 
 export interface Sale {
   id: string;
-  buyer: string | null;
-  collateralAmount: string | null;
-  collateralMint: string | null;
-  creator: string | null;
-  description: string | null;
-  listing: string | null;
-  nftMint: string | null;
-  priceUsd: string | null;
-  title: string | null;
-  categories: string[];
-  userId: string;
-  files: {
-    id: string;
-    type: string;
-    mimeType: string;
-    remoteId: string;
-  }[];
-  user: {
-    id: string;
-    walletAddress: string;
-    name: string | null;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateSaleRequest {
   title: string;
   description: string;
-  files: string[];
-  price: number;
-  collateralAmount: number;
+  priceUsd: string;
+  creator: string;
+  buyer: string | null;
+  createdAt: string;
+  updatedAt: string;
+  files?: {
+    id: string;
+    type: string;
+  }[];
+  categories?: string[];
+  isAudited?: boolean;
 }
 
-export interface CreateSaleResponse {
-  id: string;
-}
-
-export interface GetSalesResponse {
-  sales: Sale[];
-}
-
-export interface GetSalesByUserResponse {
+export interface SalesResponse {
   sales: Sale[];
   total: number;
   page: number;
@@ -52,38 +26,92 @@ export interface GetSalesByUserResponse {
   totalPages: number;
 }
 
-export const createSale = async (
-  title: string,
-  description: string,
-  fileIds: string[],
-  categories: string[],
-): Promise<CreateSaleResponse> => {
-  const response = await httpClient.post<CreateSaleResponse>(`/sales`, {
-    title,
-    description,
-    files: fileIds,
-    categories,
-  });
-  return response.data;
-};
+export interface UserSalesFilters {
+  page: number;
+  limit: number;
+  search?: string;
+  sortBy?: string;
+  filter?: 'created' | 'bought';
+}
 
-export const getSaleById = async (id: string): Promise<Sale> => {
-  const response = await httpClient.get<Sale>(`/sales/${id}`);
-  return response.data;
-};
+class SalesApi {
+  private baseUrl = `/sales`;
 
-export const getActiveSales = async (): Promise<Sale[]> => {
-  const response = await httpClient.get<GetSalesResponse>('/sales/active');
-  return response.data.sales;
-};
+  async getActiveSales(filters: MarketFilters): Promise<SalesResponse> {
+    const queryParams = new URLSearchParams();
 
-export const getUserSales = async (
-  walletAddress: string,
-  page = 1,
-  limit = 9,
-): Promise<GetSalesByUserResponse> => {
-  const response = await httpClient.get(`/sales/user/${walletAddress}`, {
-    params: { page, limit },
-  });
-  return response.data;
-};
+    // Add pagination params
+    queryParams.append('page', filters.page.toString());
+    queryParams.append('limit', filters.limit.toString());
+
+    // Add search param if provided
+    if (filters.search) {
+      queryParams.append('search', filters.search);
+    }
+
+    // Add sort param
+    if (filters.sortBy) {
+      queryParams.append('sortBy', filters.sortBy);
+    }
+
+    // Add category filter if not 'all'
+    if (filters.category && filters.category !== 'all') {
+      queryParams.append('category', filters.category);
+    }
+
+    const { data } = await httpClient.get(
+      `${this.baseUrl}/active?${queryParams.toString()}`,
+    );
+
+    return data;
+  }
+
+  async getSalesByUser(
+    walletAddress: string,
+    filters: UserSalesFilters = { page: 1, limit: 9 },
+  ): Promise<SalesResponse> {
+    const queryParams = new URLSearchParams({
+      page: filters.page.toString(),
+      limit: filters.limit.toString(),
+    });
+
+    // Add search param if provided
+    if (filters.search) {
+      queryParams.append('search', filters.search);
+    }
+
+    // Add sort param if provided
+    if (filters.sortBy) {
+      queryParams.append('sortBy', filters.sortBy);
+    }
+
+    // Add filter param if provided
+    if (filters.filter) {
+      queryParams.append('filter', filters.filter);
+    }
+
+    const { data } = await httpClient.get(
+      `${this.baseUrl}/user/${walletAddress}?${queryParams.toString()}`,
+    );
+
+    return data;
+  }
+
+  async getSaleById(id: string): Promise<Sale> {
+    const { data } = await httpClient.get(`${this.baseUrl}/${id}`);
+    return data;
+  }
+
+  async createSale(saleData: {
+    title: string;
+    description: string;
+    priceUsd: string;
+    files: string[];
+    categories: string[];
+  }): Promise<{ id: string }> {
+    const { data } = await httpClient.post(`${this.baseUrl}`, saleData);
+    return data;
+  }
+}
+
+export const salesApi = new SalesApi();

@@ -7,13 +7,14 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Sale } from '@prisma/client';
 
 import {
   CreateSaleRequestDto,
   CreateSaleResponseDto,
 } from './dtos/create-sale.dto';
+import { GetActiveSalesQueryDto } from './dtos/get-active-sales.dto';
 import { GetSaleByIdRequestDto } from './dtos/get-sale-by-id.dto';
 import {
   GetSalesByUserRequestDto,
@@ -55,33 +56,62 @@ export class SaleController {
 
   @Public()
   @Get('/active')
-  @ApiOperation({ summary: 'Get all sales' })
+  @ApiOperation({ summary: 'Get active sales' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['newest', 'price-low', 'price-high'],
+  })
+  @ApiQuery({ name: 'category', required: false, type: String })
   @ApiResponse({
     status: 200,
-    description: 'Returns all sales',
+    description: 'Returns filtered, sorted, and paginated active sales',
   })
-  async getActiveSales(): Promise<GetSalesResponseDto> {
-    return {
-      sales: await this.saleService.getAllActiveSales(),
-    };
+  async getActiveSales(
+    @Query() query: GetActiveSalesQueryDto,
+  ): Promise<GetSalesResponseDto> {
+    const { page = 1, limit = 8, search, sortBy, category } = query;
+
+    return await this.saleService.getActiveSales({
+      page: Number(page),
+      limit: Number(limit),
+      search,
+      sortBy,
+      category,
+    });
   }
 
   @Public()
   @Get('user/:userAddress')
-  @ApiOperation({ summary: 'Get all sales by user address' })
+  @ApiOperation({ summary: 'Get sales by user address' })
   @ApiParam({ name: 'userAddress', type: String })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['newest', 'price-low', 'price-high'],
+  })
+  @ApiQuery({ name: 'filter', required: false, enum: ['created', 'bought'] })
   @ApiResponse({
     status: 200,
-    description: 'Returns all sales by user address',
+    description: 'Returns filtered, sorted, and paginated sales by user',
   })
   async getSalesByUserAddress(
     @Param() { userAddress }: GetSalesByUserParamDto,
-    @Query() { page, limit }: GetSalesByUserRequestDto,
+    @Query() { page, limit, search, sortBy, filter }: GetSalesByUserRequestDto,
   ): Promise<GetSalesByUserResponseDto> {
-    return await this.saleService.getAllSalesByUserAddress({
+    return await this.saleService.getSalesByUserAddress({
       userAddress,
-      page,
-      limit,
+      page: Number(page),
+      limit: Number(limit),
+      search,
+      sortBy,
+      filter,
     });
   }
 

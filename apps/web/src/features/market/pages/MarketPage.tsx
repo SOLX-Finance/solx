@@ -1,56 +1,92 @@
-import { Input } from '../../../components/ui/input';
+import { useState } from 'react';
+
 import { Banner } from '../components/banner';
 import { Categories } from '../components/categories';
 import { useMarket } from '../hooks/useMarket';
 
-import { ProjectCard } from '@/components/common/ProjectCard';
+import { Pagination } from '@/components/common/Pagination';
+import { SalesGrid } from '@/components/common/SalesGrid';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  SearchAndFilter,
+  SortOption,
+} from '@/components/common/SearchAndFilter';
+import { Spinner } from '@/components/ui/spinner';
 
 const MarketPage = () => {
-  const { sales, isLoading, error } = useMarket();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterBy, setFilterBy] = useState('all');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
+
+  const {
+    sales,
+    total,
+    currentPage,
+    totalPages,
+    limit,
+    isLoading,
+    error,
+    handleSearch,
+    handleSort,
+    handleFilter,
+    handlePageChange,
+    handleLimitChange,
+  } = useMarket({
+    page: 1,
+    limit: 8,
+  });
+
+  const onSearchChange = (query: string) => {
+    setSearchQuery(query);
+    handleSearch(query);
+  };
+
+  const onSortChange = (value: string) => {
+    setSortBy(value as SortOption);
+    handleSort(value as SortOption);
+  };
+
+  const onFilterChange = (value: string) => {
+    setFilterBy(value);
+    handleFilter(value);
+  };
+
+  const filterOptions = [{ value: 'all', label: 'All' }];
 
   return (
     <div className="container mx-auto p-4 flex flex-col gap-[20px]">
       <Banner />
       <Categories />
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Discover</h1>
-        <div className="flex items-center gap-[10px]">
-          <Input className="rounded-[30px]" placeholder="Search" />
-          <Select defaultValue="newest">
-            <SelectTrigger className="w-[260px] rounded-[30px]">
-              <SelectValue placeholder="Newest" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select>
-            <SelectTrigger className="w-[180px] rounded-[30px]">
-              <SelectValue placeholder="Filter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="system">System</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <SearchAndFilter
+          searchQuery={searchQuery}
+          onSearchChange={onSearchChange}
+          sortBy={sortBy}
+          onSortChange={onSortChange}
+          filterBy={filterBy}
+          onFilterChange={onFilterChange}
+          filterOptions={filterOptions}
+          className="w-auto"
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[20px] mb-[100px]">
-        {sales.map((s) => (
-          <ProjectCard key={s.id} {...s} />
-        ))}
-      </div>
+      <SalesGrid sales={sales} columns={4} />
+
+      <Pagination
+        isHidden={sales.length === 0}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onNextPage={() => handlePageChange(currentPage + 1)}
+        onPrevPage={() => handlePageChange(currentPage - 1)}
+        onPageChange={handlePageChange}
+        totalItems={total}
+        itemsShown={sales.length}
+        pageSizeOptions={[8, 16, 24, 32]}
+        showItemsPerPage={true}
+        itemsPerPage={limit}
+        onItemsPerPageChange={handleLimitChange}
+      />
     </div>
   );
 };

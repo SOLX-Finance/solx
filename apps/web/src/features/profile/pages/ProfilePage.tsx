@@ -11,6 +11,7 @@ import { useProfile } from '../hooks/useProfile';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useUserSales, SalesFilter } from '../hooks/useUserSales';
 
+import { SearchAndFilter } from '@/components/common/SearchAndFilter';
 import { Spinner } from '@/components/ui/spinner';
 import { FileType, useFileUploadQuery } from '@/hooks/useFileUploadQuery';
 import { stats } from '@/mocks';
@@ -50,10 +51,14 @@ const ProfilePage: React.FC = () => {
     currentPage,
     totalPages,
     limit,
+    searchQuery,
+    sortBy,
     handleNextPage,
     handlePrevPage,
     goToPage,
     changeLimit,
+    handleSearchChange,
+    handleSortChange,
     refetch: refetchSales,
   } = useUserSales(user?.walletAddress || '', activeTab);
 
@@ -143,13 +148,20 @@ const ProfilePage: React.FC = () => {
         showBoughtTab={isOwnProfile}
       />
 
+      <SearchAndFilter
+        searchQuery={searchQuery}
+        onSearchChange={handleSearchChange}
+        sortBy={sortBy}
+        onSortChange={handleSortChange}
+      />
+
       {salesLoading ? (
         <div className="flex justify-center py-10">
           <Spinner />
         </div>
       ) : (
         <div className="w-full">
-          {/* FilterableSales component unchanged */}
+          {/* FilterableSales component */}
           <FilterableSales
             walletAddress={user?.walletAddress || ''}
             activeTab={activeTab}
@@ -162,6 +174,7 @@ const ProfilePage: React.FC = () => {
             onLimitChange={changeLimit}
             total={total}
             limit={limit}
+            isLoading={salesLoading}
           />
         </div>
       )}

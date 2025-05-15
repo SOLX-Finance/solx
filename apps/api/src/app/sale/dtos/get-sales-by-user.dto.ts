@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Sale } from '@prisma/client';
-import { Transform } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+
+import { SortOption } from './get-active-sales.dto';
 
 export class GetSalesByUserRequestDto {
   @ApiProperty({
@@ -10,7 +11,7 @@ export class GetSalesByUserRequestDto {
     default: 1,
   })
   @IsOptional()
-  @Transform(({ value }) => (value ? parseInt(value, 10) : 1))
+  @IsNumber()
   page?: number = 1;
 
   @ApiProperty({
@@ -19,8 +20,27 @@ export class GetSalesByUserRequestDto {
     default: 9,
   })
   @IsOptional()
-  @Transform(({ value }) => (value ? parseInt(value, 10) : 9))
+  @IsNumber()
   limit?: number = 9;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiProperty({
+    required: false,
+    enum: SortOption,
+    default: SortOption.NEWEST,
+  })
+  @IsOptional()
+  @IsEnum(SortOption)
+  sortBy?: SortOption = SortOption.NEWEST;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  filter?: SalesFilter;
 }
 
 export class GetSalesByUserParamDto {
@@ -54,4 +74,9 @@ export class GetSalesByUserResponseDto {
     description: 'Total number of pages',
   })
   totalPages: number;
+}
+
+export enum SalesFilter {
+  CREATED = 'created',
+  BOUGHT = 'bought',
 }

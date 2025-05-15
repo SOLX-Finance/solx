@@ -1,61 +1,85 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
-import {
-  getUserSales,
-  GetSalesByUserResponse,
-} from '@/features/sales/api/salesApi';
+import { salesApi, UserSalesFilters } from '@/features/sales/api/salesApi';
 
 export type SalesFilter = 'created' | 'bought';
 
 export const useUserSales = (
   walletAddress: string,
-  filter: SalesFilter = 'created',
+  initialFilter: SalesFilter = 'created',
+  initialPage = 1,
+  initialLimit = 9,
 ) => {
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(6);
+  const [activeFilter, setActiveFilter] = useState<SalesFilter>(initialFilter);
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [limit, setLimit] = useState(initialLimit);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<string>('newest');
 
-  const { data, isLoading, error, refetch } = useQuery<GetSalesByUserResponse>({
-    queryKey: ['userSales', walletAddress, filter, page, limit],
-    queryFn: () => getUserSales(walletAddress, page, limit),
+  const filters: UserSalesFilters = {
+    page: currentPage,
+    limit,
+    search: searchQuery || undefined,
+    sortBy,
+    filter: activeFilter,
+  };
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['userSales', walletAddress, filters],
+    queryFn: () => salesApi.getSalesByUser(walletAddress, filters),
     enabled: !!walletAddress,
   });
 
   const handleNextPage = () => {
-    if (data && page < data.totalPages) {
-      setPage(page + 1);
+    if (data && currentPage < data.totalPages) {
+      setCurrentPage(currentPage + 1);
     }
   };
 
   const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page - 1);
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
   };
 
-  const goToPage = (pageNumber: number) => {
-    if (data && pageNumber >= 1 && pageNumber <= data.totalPages) {
-      setPage(pageNumber);
-    }
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
   };
 
   const changeLimit = (newLimit: number) => {
     setLimit(newLimit);
-    setPage(1); // Reset to first page when changing limit
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (sort: string) => {
+    setSortBy(sort);
+    setCurrentPage(1);
   };
 
   return {
     sales: data?.sales || [],
-    total: data?.total || 0,
-    currentPage: data?.page || page,
-    totalPages: data?.totalPages || 0,
-    limit: data?.limit || limit,
     isLoading,
-    error: error ? (error as Error).message : null,
-    refetch,
+    error,
+    activeFilter,
+    setActiveFilter,
+    currentPage,
+    totalPages: data?.totalPages || 1,
+    total: data?.total || 0,
+    limit,
+    searchQuery,
+    sortBy,
     handleNextPage,
     handlePrevPage,
     goToPage,
     changeLimit,
+    handleSearchChange,
+    handleSortChange,
+    refetch,
   };
 };

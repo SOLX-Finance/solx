@@ -91,7 +91,7 @@ export const ProjectCard = ({
             <div className="text-[20px]">{price} USDC/SOL</div>
           </div>
           <Link
-            to={`/projects/${id}`}
+            to={`/sales/${id}`}
             className={cn(
               buttonVariants(),
               'py-[15px] px-[40px] text-[24px] font-medium bg-[#C4E703] border border-black rounded-[30px] text-black hover:bg-[#C4E703]',

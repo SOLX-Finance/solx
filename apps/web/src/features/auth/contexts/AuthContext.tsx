@@ -33,70 +33,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { user, authenticated, ready } = usePrivy();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Debug: Log Privy state changes
-  useEffect(() => {
-    console.log('[AuthContext][DEBUG] Privy state changed:', {
-      ready,
-      authenticated,
-      user,
-    });
-  }, [ready, authenticated, user]);
-
   useEffect(() => {
     if (ready) {
       setIsLoading(false);
-      console.log(
-        '[AuthContext][DEBUG] Privy is ready. isLoading set to false.',
-      );
-    } else {
-      console.log(
-        '[AuthContext][DEBUG] Privy is not ready. isLoading remains true.',
-      );
     }
 
     // Sync user with backend when authenticated
     if (ready && authenticated && user) {
-      console.log('[AuthContext][DEBUG] Attempting to POST /auth/user', {
-        user,
-      });
       httpClient
         .post('/auth/user')
-        .then(() =>
-          console.log('[AuthContext][DEBUG] User synced with backend'),
-        )
-        .catch((error) => {
-          console.error(
-            '[AuthContext][ERROR] Error syncing user with backend:',
-            error,
-          );
-        });
-    } else {
-      if (ready && !authenticated) {
-        console.log(
-          '[AuthContext][DEBUG] Privy ready but not authenticated. Skipping /auth/user POST.',
+        .then(() => console.log('User synced with backend'))
+        .catch((error) =>
+          console.error('Error syncing user with backend:', error),
         );
-      }
-      if (ready && authenticated && !user) {
-        console.log(
-          '[AuthContext][DEBUG] Privy ready and authenticated but user is null. Skipping /auth/user POST.',
-        );
-      }
     }
   }, [ready, authenticated, user]);
 
-  // Debug: Log hasWallet and hasVerifiedEmail
   const hasWallet = Boolean(user?.wallet?.address);
   const hasVerifiedEmail = Boolean(user?.email?.address);
-  useEffect(() => {
-    console.log(
-      '[AuthContext][DEBUG] hasWallet:',
-      hasWallet,
-      'hasVerifiedEmail:',
-      hasVerifiedEmail,
-    );
-  }, [hasWallet, hasVerifiedEmail]);
-
-
 
   const value: AuthContextValue = {
     user: user || null,

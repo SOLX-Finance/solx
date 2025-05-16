@@ -11,6 +11,7 @@ const CreateSalePage = lazy(
   () => import('../features/sales/pages/CreateSalePage'),
 );
 const ProfilePage = lazy(() => import('../features/profile/pages/ProfilePage'));
+const AboutPage = lazy(() => import('../features/about/pages/AboutPage'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-screen">
@@ -28,6 +29,8 @@ const AppRoutes = () => {
 
         <Route element={<MainLayout />}>
           <Route path="/market" element={<MarketPage />} />
+
+          <Route path="/about" element={<AboutPage />} />
 
           <Route path="/sales/create" element={<CreateSalePage />} />
           <Route path="/sales/:saleId" element={<SalePage />} />

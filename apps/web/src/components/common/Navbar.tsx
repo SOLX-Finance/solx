@@ -76,7 +76,12 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden lg:flex gap-[40px] items-center">
-          <div>About Project</div>
+          <button
+            onClick={() => navigate('/about')}
+            className="bg-transparent hover:bg-white/10 rounded-full px-4 py-2 text-white font-medium transition-colors"
+          >
+            About Project
+          </button>
           <div className="relative">
             {ready && authenticated ? (
               <div className="flex items-center gap-2">

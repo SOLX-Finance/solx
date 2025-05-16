@@ -96,16 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     );
   }, [hasWallet, hasVerifiedEmail]);
 
-  // Debug: Log environment (if available)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      console.log('[AuthContext][DEBUG] Environment:', {
-        NODE_ENV: process.env.NODE_ENV,
-        VERCEL_ENV: process.env.VERCEL_ENV,
-        API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
-      });
-    }
-  }, []);
+
 
   const value: AuthContextValue = {
     user: user || null,

@@ -8111,6 +8111,7 @@ __metadata:
     ai: "npm:^4.3.13"
     autoprefixer: "npm:10.4.13"
     axios: "npm:^1.9.0"
+    buffer: "npm:^6.0.3"
     bullmq: "npm:^5.52.0"
     chai: "npm:^5.2.0"
     class-transformer: "npm:^0.5.1"

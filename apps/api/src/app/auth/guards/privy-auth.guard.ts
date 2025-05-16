@@ -27,13 +27,11 @@ export class PrivyAuthGuard implements CanActivate {
     if (isPublic(context, this.reflector)) return true;
 
     const request = context.switchToHttp().getRequest<Request>();
-    const idToken = request.cookies?.['privy-token'];
+    const idToken =
+      request.cookies?.['privy-token'] || request.cookies?.['privy-id-token'];
 
     if (!idToken) {
-      throw new UnauthorizedException(
-        '`privy-token` cookie is required; Cookies: ' +
-          JSON.stringify(request.cookies, null, 2),
-      );
+      throw new UnauthorizedException('`privy-token` cookie is required');
     }
 
     try {

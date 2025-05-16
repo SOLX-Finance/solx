@@ -7,6 +7,11 @@ import games from '../../../assets/logo/games.svg';
 import others from '../../../assets/logo/others.svg';
 
 import { Button } from '@/components/ui/button';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel';
 import { cn } from '@/utils/cn';
 
 interface CategoryProps {
@@ -14,15 +19,23 @@ interface CategoryProps {
   icon: ReactNode;
   onClick: () => void;
   isActive: boolean;
+  className?: string;
 }
 
-const Category = ({ name, icon, onClick, isActive }: CategoryProps) => {
+const Category = ({
+  name,
+  icon,
+  onClick,
+  isActive,
+  className,
+}: CategoryProps) => {
   return (
     <Button
       variant="ghost"
       className={cn(
         'bg-transparent hover:bg-transparent text-black hover:text-black flex flex-col justify-center items-center border h-fit py-[30px] rounded-[40px]',
         isActive ? 'border-black' : 'border-[#C7C7C7]',
+        className,
       )}
       onClick={onClick}
     >
@@ -86,16 +99,35 @@ export const Categories = ({
   };
 
   return (
-    <div className="grid grid-cols-5 gap-[20px]">
-      {categories.map((category) => (
-        <Category
-          key={category.name}
-          name={category.name}
-          icon={category.icon}
-          isActive={selected.includes(category.value)}
-          onClick={() => handleCategoryClick(category.value)}
-        />
-      ))}
-    </div>
+    <>
+      <div className="flex flex-col gap-5">
+        <Carousel className="md:hidden">
+          <CarouselContent>
+            {categories.map((category) => (
+              <CarouselItem className="basis-[170px]" key={category.name}>
+                <Category
+                  name={category.name}
+                  icon={category.icon}
+                  isActive={selected.includes(category.value)}
+                  onClick={() => handleCategoryClick(category.value)}
+                  className="min-w-[150px]"
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
+      <div className="grid grid-cols-5 gap-[20px] max-md:hidden">
+        {categories.map((category) => (
+          <Category
+            key={category.name}
+            name={category.name}
+            icon={category.icon}
+            isActive={selected.includes(category.value)}
+            onClick={() => handleCategoryClick(category.value)}
+          />
+        ))}
+      </div>
+    </>
   );
 };

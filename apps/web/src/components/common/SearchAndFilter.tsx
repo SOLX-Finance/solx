@@ -83,7 +83,7 @@ export const SearchAndFilter = ({
     >
       <Input
         ref={inputRef}
-        className="rounded-[30px] md:w-[600px]"
+        className="rounded-[30px] md:w-[500px]"
         placeholder="Search"
         value={inputValue}
         onChange={handleInputChange}

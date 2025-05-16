@@ -85,16 +85,17 @@ export const ProjectCard = ({
           ))}
         </div>
         <Separator />
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
+        <div className="flex items-center max-md:flex-col  justify-between">
+          <div className="flex flex-col max-md:w-full">
             <div className="text-[#9E9E9E] text-[18px]">Price</div>
             <div className="text-[20px]">{price} SOL</div>
           </div>
+
           <Link
             to={`/sales/${id}`}
             className={cn(
               buttonVariants(),
-              'py-[15px] px-[40px] text-[24px] font-medium bg-[#C4E703] border border-black rounded-[30px] text-black hover:bg-[#C4E703]',
+              'py-[15px] px-[40px] max-md:w-full text-[24px] font-medium bg-[#C4E703] border border-black rounded-[30px] text-black hover:bg-[#C4E703]',
             )}
           >
             Buy

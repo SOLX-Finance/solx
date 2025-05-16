@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useCallback } from 'react';
 
-import { salesApi } from '@/features/sales/api/salesApi';
+import { Sale, salesApi } from '@/features/sales/api/salesApi';
 
 export type MarketFilters = {
   search?: string;
@@ -58,8 +58,29 @@ export const useMarket = (initialFilters?: Partial<MarketFilters>) => {
   }, []);
 
   return {
-    sales: data?.sales || [],
-    total: data?.total || 0,
+    sales: [
+      {
+        buyer: 'ABOBA',
+        collateralAmount: '100',
+        collateralMint: 'ABOBA',
+        createdAt: 'ABOBA',
+        categories: ['ABOBA'],
+        description: 'ABOBA',
+        files: [
+          { id: 'ABOBA', type: 'ABOBA', mimeType: 'ABOBA', remoteId: 'ABOBA' },
+        ],
+        id: 'ABOBA',
+        isAudited: true,
+        listing: 'ABOBA',
+        nftMint: 'ABOBA',
+        priceUsd: 'ABOBA',
+        title: 'ABOBA',
+        updatedAt: 'ABOBA',
+        user: { id: 'ABOBA', walletAddress: 'ABOBA', name: 'ABOBA' },
+        creator: 'ABOBA',
+      } satisfies Sale,
+    ],
+    total: data?.total || 5,
     currentPage: filters.page,
     totalPages: data?.totalPages || 1,
     limit: filters.limit,

@@ -39,8 +39,10 @@ export const SalesGrid = ({ sales, columns = 3 }: SalesGridProps) => {
   return (
     <div
       className={cn(
-        'grid gap-6 min-h-[450px]',
-        columns === 3 ? 'grid-cols-3' : 'grid-cols-4',
+        'grid gap-6 min-h-[450px] ',
+        columns === 3
+          ? 'grid-cols-3'
+          : 'grid-cols-4 max-xl:!grid-cols-3 max-lg:!grid-cols-2 max-md:!grid-cols-1',
       )}
       style={{ minHeight: calculateMinHeight }}
     >

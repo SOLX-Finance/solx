@@ -65,7 +65,7 @@ const MarketPage = () => {
         onCategoryChange={onCategoryChange}
       />
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between flex-wrap gap-5 max-lg:flex-col-reverse lg:items-center mb-6">
         <h1 className="text-3xl font-bold">Discover</h1>
         <SearchAndFilter
           searchQuery={searchQuery}
@@ -75,7 +75,7 @@ const MarketPage = () => {
           filterBy={filterBy}
           onFilterChange={onFilterChange}
           filterOptions={filterOptions}
-          className="w-auto"
+          className="w-auto max-lg:flex-wrap"
         />
       </div>
 

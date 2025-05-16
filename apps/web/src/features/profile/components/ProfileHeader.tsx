@@ -76,7 +76,7 @@ export const ProfileHeader = ({
 
   return (
     <div className="flex gap-[40px] max-lg:flex-col">
-      <div className="flex lg:gap-[40px] gap-[20px]">
+      <div className="flex lg:gap-[40px] gap-2.5">
         <input
           type="file"
           ref={fileInputRef}
@@ -86,19 +86,21 @@ export const ProfileHeader = ({
           disabled={!isOwnProfile || !onProfilePictureChange}
         />
         {user.profilePictureId ? (
-          <img
-            src={`${env.api.url}/storage/${user.profilePictureId}`}
-            alt="Profile"
-            width={180}
-            height={180}
-            crossOrigin="anonymous"
-            className={`my-auto rounded-full object-cover ${
-              isOwnProfile && onProfilePictureChange
-                ? 'cursor-pointer hover:opacity-80 transition-opacity'
-                : ''
-            }`}
+          <button
+            className="lg:my-auto rounded-full min-w-[50px] min-h-[50px] lg:min-w-[180px] lg:min-h-[180px] lg:size-[180px] size-[50px] object-cover"
             onClick={handleProfilePictureClick}
-          />
+          >
+            <img
+              src={`${env.api.url}/storage/${user.profilePictureId}`}
+              alt="Profile"
+              crossOrigin="anonymous"
+              className={` rounded-full lg:size-[180px] size-[50px] object-cover ${
+                isOwnProfile && onProfilePictureChange
+                  ? 'cursor-pointer hover:opacity-80 transition-opacity'
+                  : ''
+              }`}
+            />
+          </button>
         ) : (
           <div
             className={`lg:my-auto lg:min-w-[180px] lg:min-h-[180px] lg:size-[180px] min-w-[50px] min-h-[50px] size-[50px] bg-gray-200 flex items-center justify-center rounded-full ${
@@ -124,7 +126,7 @@ export const ProfileHeader = ({
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyDown={handleUsernameKeyDown}
-                className="tlg:ext-[50px] text-[28px] lg:leading-[60px] font-semibold py-0 bg-transparent border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus:outline-none focus:ring-0 px-0 transition-all duration-300 w-full placeholder:text-[50px] h-[60px]"
+                className="lg:text-[50px] text-[28px] lg:leading-[60px] font-semibold py-0 bg-transparent border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus:outline-none focus:ring-0 px-0 transition-all duration-300 w-full placeholder:text-[50px] h-[60px]"
                 style={{
                   fontWeight: 600,
                   boxSizing: 'border-box',

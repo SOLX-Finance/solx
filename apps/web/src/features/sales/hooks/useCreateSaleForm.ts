@@ -20,13 +20,13 @@ const FILE_TYPE_CONFIG = {
   },
   [FileType.SALE_DEMO]: {
     required: false,
-    maxCount: 5,
+    maxCount: 1,
     missingError: 'Demo file is missing',
-    exceededError: 'You can upload at most 5 demo files',
+    exceededError: 'You can upload at most 1 demo file',
   },
   [FileType.SALE_PREVIEW]: {
     required: false,
-    maxCount: 1,
+    maxCount: 5,
     missingError: 'Preview file is missing',
     exceededError: 'You can upload only one preview file',
   },
@@ -190,6 +190,7 @@ export const useCreateSaleForm = () => {
           const file = filesArray[0];
           if (file.type !== 'application/zip' && !file.name.endsWith('.zip')) {
             setFormError('Content file must be a ZIP archive');
+            e.target.value = '';
             return;
           }
 
@@ -199,19 +200,42 @@ export const useCreateSaleForm = () => {
             [fileType]: [file],
           }));
         } else if (fileType === FileType.SALE_PREVIEW) {
-          // Store only the first file
+          // Allow up to 5 preview files (any type)
+          setSelectedFiles((prev) => {
+            const existing = prev[fileType] || [];
+            const existingKeys = new Set(
+              existing.map((f) => `${f.name}_${f.size}`),
+            );
+            const uniqueNewFiles = filesArray.filter(
+              (f) => !existingKeys.has(`${f.name}_${f.size}`),
+            );
+            const merged = [...existing, ...uniqueNewFiles];
+            if (merged.length > 5) {
+              setFormError('You can upload up to 5 preview files');
+              e.target.value = '';
+              return prev;
+            }
+            return {
+              ...prev,
+              [fileType]: merged,
+            };
+          });
+        } else if (fileType === FileType.SALE_DEMO) {
+          // Only one demo file (any type)
           const file = filesArray[0];
           setSelectedFiles((prev) => ({
             ...prev,
             [fileType]: [file],
           }));
         } else {
-          // Store all selected files for other types
+          // Store all selected files for other types (fallback)
           setSelectedFiles((prev) => ({
             ...prev,
             [fileType]: [...(prev[fileType] || []), ...filesArray],
           }));
         }
+        // Reset input value so the same file can be selected again after removal
+        e.target.value = '';
       }
     };
 

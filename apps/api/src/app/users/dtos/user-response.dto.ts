@@ -76,4 +76,18 @@ export class UserResponseDto {
     example: '2023-01-01T00:00:00.000Z',
   })
   updatedAt: Date;
+
+  @ApiProperty({
+    description: 'The earnings of the user',
+    example: {
+      earned: 1000,
+      spent: 500,
+      collateral: 1000,
+    },
+  })
+  earnings?: {
+    earned: number;
+    spent: number;
+    collateral: number;
+  };
 }

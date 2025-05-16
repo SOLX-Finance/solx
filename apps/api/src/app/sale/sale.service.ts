@@ -99,7 +99,11 @@ export class SaleService {
   }) {
     const skip = (page - 1) * limit;
 
-    let where: Prisma.SaleWhereInput = {};
+    let where: Prisma.SaleWhereInput = {
+      priceUsd: {
+        not: null,
+      },
+    };
 
     if (filter === SalesFilter.CREATED) {
       where.creator = userAddress;

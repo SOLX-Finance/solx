@@ -138,7 +138,22 @@ const ProfilePage: React.FC = () => {
         }
       />
 
-      <ProfileStats stats={stats} />
+      <ProfileStats
+        stats={[
+          {
+            label: 'Earnings',
+            value: user.earnings?.earned?.toString?.() || '0',
+          },
+          {
+            label: 'Spent',
+            value: user.earnings?.spent?.toString?.() || '0',
+          },
+          {
+            label: 'Collateral',
+            value: user.earnings?.collateral?.toString?.() || '0',
+          },
+        ]}
+      />
 
       <ProfileSalesTabs
         activeTab={activeTab}
@@ -176,7 +191,7 @@ const ProfilePage: React.FC = () => {
       )}
 
       {/* KYC Verification Section (only for own profile) */}
-      {isOwnProfile && (
+      {/* {isOwnProfile && (
         <div className="mb-6">
           <details className="bg-white shadow-sm rounded-[40px] py-4 md:p-4">
             <summary className="text-[24px] font-semibold cursor-pointer">
@@ -190,7 +205,7 @@ const ProfilePage: React.FC = () => {
             </div>
           </details>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

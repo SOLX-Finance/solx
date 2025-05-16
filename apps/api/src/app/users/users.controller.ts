@@ -46,7 +46,11 @@ export class UsersController {
   async getCurrentUser(
     @RequestUser() user: UserClaims,
   ): Promise<UserResponseDto> {
-    return this.usersService.findById(user.dbUser.id);
+    const userDb = await this.usersService.findById(user.dbUser.id);
+    const earnings = await this.usersService.getEarnings(
+      user.dbUser.walletAddress,
+    );
+    return { ...userDb, earnings };
   }
 
   @Get('wallet/:walletAddress')
@@ -67,7 +71,10 @@ export class UsersController {
   async getUserByWalletAddress(
     @Param('walletAddress') walletAddress: string,
   ): Promise<UserResponseDto> {
-    return this.usersService.findByWalletAddress(walletAddress);
+    const user = await this.usersService.findByWalletAddress(walletAddress);
+    const earnings = await this.usersService.getEarnings(walletAddress);
+
+    return { ...user, earnings };
   }
 
   @Get(':id')
@@ -96,7 +103,14 @@ export class UsersController {
     @RequestUser() user: UserClaims,
     @Body() updateProfileDto: UpdateProfileDto,
   ): Promise<UserResponseDto> {
-    return this.usersService.updateProfile(user.dbUser.id, updateProfileDto);
+    const userDb = await this.usersService.updateProfile(
+      user.dbUser.id,
+      updateProfileDto,
+    );
+    const earnings = await this.usersService.getEarnings(
+      user.dbUser.walletAddress,
+    );
+    return { ...userDb, earnings };
   }
 
   @Post('me/kyc/start')

@@ -67,7 +67,7 @@ const SalePage = () => {
             title={sale.title}
             description={sale.description}
             categories={sale.categories || []}
-            priceUsd={sale.priceUsd}
+            priceUsd={BigInt(sale.priceUsd ?? '0')}
           />
 
           {/* Action buttons */}

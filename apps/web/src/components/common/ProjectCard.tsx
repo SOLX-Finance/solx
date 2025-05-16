@@ -1,6 +1,7 @@
 import { ImageIcon, SquareCheckBig, Star } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { formatUnits } from 'viem';
 
 import { Badge } from '../ui/badge';
 import { Button, buttonVariants } from '../ui/button';
@@ -14,7 +15,8 @@ interface ProjectCardProps {
   title: string;
   description: string;
   tags: string[];
-  price: string;
+  price: bigint;
+  bought?: boolean;
   isAudited?: boolean;
 }
 
@@ -25,6 +27,7 @@ export const ProjectCard = ({
   description,
   tags,
   price,
+  bought = false,
   isAudited = false,
 }: ProjectCardProps) => {
   const normalizedTitle = title || 'Untitled';
@@ -60,7 +63,7 @@ export const ProjectCard = ({
 
   return (
     <div className="flex flex-col relative border border-[#C7C7C7] rounded-[40px]">
-      {renderCardHeader()}
+      <Link to={`/sales/${id}`}>{renderCardHeader()}</Link>
 
       {isAudited && (
         <div className="absolute top-[20px] right-[20px] bg-white/60 flex items-center gap-[10px] px-[20px] py-[10px] rounded-[20px]">
@@ -88,18 +91,20 @@ export const ProjectCard = ({
         <div className="flex items-center max-md:flex-col  justify-between">
           <div className="flex flex-col max-md:w-full">
             <div className="text-[#9E9E9E] text-[18px]">Price</div>
-            <div className="text-[20px]">{price} SOL</div>
+            <div className="text-[20px]">{formatUnits(price, 9)} SOL</div>
           </div>
 
-          <Link
-            to={`/sales/${id}`}
-            className={cn(
-              buttonVariants(),
-              'py-[15px] px-[40px] max-md:w-full text-[24px] font-medium bg-[#C4E703] border border-black rounded-[30px] text-black hover:bg-[#C4E703]',
-            )}
-          >
-            Buy
-          </Link>
+          {!bought && (
+            <Link
+              to={`/sales/${id}`}
+              className={cn(
+                buttonVariants(),
+                'py-[15px] px-[40px] max-md:w-full text-[24px] font-medium bg-[#C4E703] border border-black rounded-[30px] text-black hover:bg-[#C4E703]',
+              )}
+            >
+              Buy
+            </Link>
+          )}
         </div>
       </div>
     </div>

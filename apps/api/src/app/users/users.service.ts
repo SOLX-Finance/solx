@@ -3,8 +3,9 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { File, KycStatus, Prisma, Role, User } from '@prisma/client';
+import { File, KycStatus, Prisma, Role, Sale, User } from '@prisma/client';
 import { PrismaService, PrismaUserRepository } from '@solx/data-access';
+import { formatUnits } from 'viem';
 
 import { StorageService } from '../storage/storage.service';
 
@@ -94,6 +95,46 @@ export class UsersService {
     }
 
     return this.userRepository.updateKycStatus(userId, KycStatus.IN_PROGRESS);
+  }
+
+  async getEarnings(userWallet: string) {
+    const allSales = await this.prisma.sale.findMany({
+      where: {
+        OR: [
+          {
+            creator: userWallet,
+          },
+          {
+            buyer: userWallet,
+          },
+        ],
+      },
+    });
+
+    const calSum = (sales: Sale[], field: 'priceUsd' | 'collateralAmount') => {
+      return +formatUnits(
+        sales.reduce((acc, sale) => acc + BigInt(sale[field] ?? '0'), 0n),
+        9,
+      );
+    };
+
+    const earnedSales = allSales.filter(
+      (sale) => !!sale.priceUsd && sale.creator === userWallet && !!sale.buyer,
+    );
+
+    const collateralSales = allSales.filter(
+      (sale) => !!sale.collateralAmount && sale.creator === userWallet,
+    );
+
+    const spentSales = allSales.filter(
+      (sale) => !!sale.priceUsd && sale.buyer === userWallet,
+    );
+
+    return {
+      earned: calSum(earnedSales, 'priceUsd'),
+      spent: calSum(spentSales, 'priceUsd'),
+      collateral: calSum(collateralSales, 'collateralAmount'),
+    };
   }
 
   async completeKycVerification(

@@ -29,7 +29,7 @@ export const Footer = () => {
                 <Figma />
               </div>
               <Link
-                to="#"
+                to="https://www.figma.com/design/5cqdLHRjf5n8G6zCRl9mRq/SOLX"
                 target="_blank"
                 className="text-white active:text-white hover:text-white hover:underline"
               >
@@ -41,7 +41,7 @@ export const Footer = () => {
                 <Github />
               </div>
               <Link
-                to="#"
+                to="https://github.com/SOLX-Finance/solx"
                 target="_blank"
                 className="text-white active:text-white hover:text-white hover:underline"
               >

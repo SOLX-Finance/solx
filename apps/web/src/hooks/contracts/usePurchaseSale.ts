@@ -112,7 +112,7 @@ export const usePurchaseSale = () => {
 
       tx.feePayer = payer;
       tx.recentBlockhash = (
-        await connection.getLatestBlockhash('finalized')
+        await connection.getLatestBlockhash('processed')
       ).blockhash;
 
       const receipt = await wallet.signTransaction(tx);

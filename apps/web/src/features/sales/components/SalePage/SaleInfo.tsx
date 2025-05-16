@@ -1,12 +1,12 @@
 import React from 'react';
+import { formatUnits } from 'viem';
 
 import { CategoryTags } from '.';
-
 interface SaleInfoProps {
   title: string;
   description: string;
   categories: string[];
-  priceUsd?: string;
+  priceUsd: bigint;
 }
 
 const SaleInfo: React.FC<SaleInfoProps> = ({
@@ -59,7 +59,7 @@ const SaleInfo: React.FC<SaleInfoProps> = ({
       <div>
         <p className="text-xl">Price</p>
         <p className="text-4xl font-medium">
-          {priceUsd ? `$${priceUsd} SOL` : 'Price not set'}
+          {`$${formatUnits(priceUsd, 9)} SOL`}
         </p>
       </div>
     </div>

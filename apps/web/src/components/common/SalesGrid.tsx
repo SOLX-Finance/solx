@@ -62,7 +62,8 @@ export const SalesGrid = ({ sales, columns = 3 }: SalesGridProps) => {
             id={sale.id}
             title={sale.title || ''}
             description={sale.description || ''}
-            price={`${sale.priceUsd}`}
+            price={BigInt(sale.priceUsd ?? '0')}
+            bought={!!sale.buyer}
             image={imageUrl}
             tags={[]}
             isAudited={false}

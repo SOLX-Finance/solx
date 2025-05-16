@@ -10,6 +10,11 @@ export interface User {
   kycDetails: unknown | null;
   createdAt: string;
   updatedAt: string;
+  earnings?: {
+    earned: number;
+    spent: number;
+    collateral: number;
+  };
 }
 
 export const getCurrentUser = async (): Promise<User> => {

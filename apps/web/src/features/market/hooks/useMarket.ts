@@ -58,28 +58,7 @@ export const useMarket = (initialFilters?: Partial<MarketFilters>) => {
   }, []);
 
   return {
-    sales: [
-      {
-        buyer: 'ABOBA',
-        collateralAmount: '100',
-        collateralMint: 'ABOBA',
-        createdAt: 'ABOBA',
-        categories: ['ABOBA'],
-        description: 'ABOBA',
-        files: [
-          { id: 'ABOBA', type: 'ABOBA', mimeType: 'ABOBA', remoteId: 'ABOBA' },
-        ],
-        id: 'ABOBA',
-        isAudited: true,
-        listing: 'ABOBA',
-        nftMint: 'ABOBA',
-        priceUsd: 'ABOBA',
-        title: 'ABOBA',
-        updatedAt: 'ABOBA',
-        user: { id: 'ABOBA', walletAddress: 'ABOBA', name: 'ABOBA' },
-        creator: 'ABOBA',
-      } satisfies Sale,
-    ],
+    sales: data?.sales ?? [],
     total: data?.total || 5,
     currentPage: filters.page,
     totalPages: data?.totalPages || 1,

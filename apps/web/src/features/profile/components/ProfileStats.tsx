@@ -14,7 +14,7 @@ const ProfileStatItem = ({ label, value }: ProfileStatItemProps) => {
     <div className="flex flex-col gap-[20px] w-full md:w-[320px] p-[40px] h-[180px] border border-[#C7C7C7] rounded-[40px] justify-center">
       <div className="text-[20px]">{label}</div>
       <div className="text-[20px] font-medium">
-        <span className="text-[40px]">{value}</span> USDC
+        <span className="text-[40px]">{value}</span> SOL
       </div>
     </div>
   );

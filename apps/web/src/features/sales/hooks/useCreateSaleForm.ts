@@ -9,6 +9,7 @@ import { salesApi } from '../api/salesApi';
 
 import { useCreateSale } from '@/hooks/contracts/useCreateSale';
 import { FileType, useFileUploadQuery } from '@/hooks/useFileUploadQuery';
+import { useSolanaBalance } from '@/hooks/useSolanaBalance';
 import { SOL_MINT } from '@/utils/programs.utils';
 
 const FILE_TYPE_CONFIG = {
@@ -43,6 +44,11 @@ export const useCreateSaleForm = () => {
   }>({});
 
   const { isUploading, error: uploadError, uploadFiles } = useFileUploadQuery();
+  const {
+    balance: solBalance,
+    isLoading: isBalanceLoading,
+    error: balanceError,
+  } = useSolanaBalance();
 
   const apiMutation = useMutation({
     mutationFn: async ({
@@ -87,6 +93,29 @@ export const useCreateSaleForm = () => {
         if (!walletsReady || !wallets || wallets.length === 0) {
           setFormError('Please connect your wallet first');
           return { error: 'Please connect your wallet first' };
+        }
+
+        if (isBalanceLoading) {
+          setFormError('Checking your SOL balance, please wait...');
+          return { error: 'Checking your SOL balance, please wait...' };
+        }
+        if (balanceError) {
+          setFormError('Failed to fetch SOL balance. Please try again.');
+          return { error: 'Failed to fetch SOL balance. Please try again.' };
+        }
+        // Validate enough SOL for collateral
+        const collateralAmount = Number(value.collateralAmount);
+        if (isNaN(collateralAmount) || collateralAmount <= 0) {
+          setFormError('Collateral amount must be greater than 0');
+          return { error: 'Collateral amount must be greater than 0' };
+        }
+        if (typeof solBalance === 'number' && solBalance < collateralAmount) {
+          setFormError(
+            `Insufficient SOL balance. You have ${solBalance} SOL, but the collateral amount is ${collateralAmount} SOL.`,
+          );
+          return {
+            error: `Insufficient SOL balance. You have ${solBalance} SOL, but the collateral amount is ${collateralAmount} SOL.`,
+          };
         }
 
         const filesByType = Object.entries(FILE_TYPE_CONFIG).map(
@@ -298,7 +327,11 @@ export const useCreateSaleForm = () => {
 
   return {
     form,
-    isSubmitting: apiMutation.isPending || isCreatingOnchain || isUploading,
+    isSubmitting:
+      apiMutation.isPending ||
+      isCreatingOnchain ||
+      isUploading ||
+      isBalanceLoading,
     isUploading,
     formError,
     setFormError,
@@ -314,5 +347,8 @@ export const useCreateSaleForm = () => {
     validateDescription,
     validatePrice,
     validateCollateralAmount,
+    solBalance,
+    isBalanceLoading,
+    balanceError,
   };
 };

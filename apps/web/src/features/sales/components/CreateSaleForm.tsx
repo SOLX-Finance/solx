@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useCreateSaleForm } from '../hooks/useCreateSaleForm';
 
+import { Spinner } from '@/components/ui/spinner';
 import { FileType } from '@/hooks/useFileUploadQuery';
 import { cn } from '@/utils/cn';
 
@@ -25,6 +26,9 @@ const CreateSaleForm: React.FC = () => {
     validateDescription,
     validatePrice,
     validateCollateralAmount,
+    solBalance,
+    isBalanceLoading,
+    balanceError,
   } = useCreateSaleForm();
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -76,7 +80,7 @@ const CreateSaleForm: React.FC = () => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="px-10 py-3 bg-black text-white font-medium text-xl rounded-full hover:bg-gray-800 disabled:bg-gray-400"
+          className="px-10 py-3 bg-black text-white font-medium text-xl rounded-full hover:bg-gray-800 disabled:bg-gray-400 flex items-center justify-center relative"
           disabled={
             isUploading ||
             isSubmitting ||
@@ -85,10 +89,19 @@ const CreateSaleForm: React.FC = () => {
             !form.state.values.title ||
             !form.state.values.description ||
             form.state.values.price <= 0 ||
-            form.state.values.collateralAmount <= 0
+            form.state.values.collateralAmount <= 0 ||
+            (typeof solBalance === 'number' &&
+              Number(form.state.values.collateralAmount) > solBalance) ||
+            isBalanceLoading
           }
         >
-          {isSubmitting ? 'Creating Project...' : 'Create Project'}
+          {isSubmitting ? (
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              <Spinner size="small" />
+            </span>
+          ) : (
+            'Create Project'
+          )}
         </button>
       </div>
 
@@ -204,26 +217,43 @@ const CreateSaleForm: React.FC = () => {
               >
                 Collateral Amount
               </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  id="collateralAmount"
-                  step="0.01"
-                  min="0"
-                  value={field.state.value}
-                  onChange={(e) =>
-                    field.handleChange(parseFloat(e.target.value))
-                  }
-                  onBlur={field.handleBlur}
-                  className={cn(
-                    'w-full px-6 py-3 rounded-full border focus:outline-none focus:ring-1 focus:ring-black',
-                    field.state.meta.errors.length > 0 &&
-                      field.state.meta.isTouched
-                      ? 'border-red-300'
-                      : 'border-gray-300',
+              <div className="flex items-center gap-4 mb-2">
+                <div className="relative flex-1">
+                  <input
+                    type="number"
+                    id="collateralAmount"
+                    step="0.01"
+                    min="0"
+                    value={field.state.value}
+                    onChange={(e) =>
+                      field.handleChange(parseFloat(e.target.value))
+                    }
+                    onBlur={field.handleBlur}
+                    className={cn(
+                      'w-full px-6 py-3 rounded-full border focus:outline-none focus:ring-1 focus:ring-black',
+                      field.state.meta.errors.length > 0 &&
+                        field.state.meta.isTouched
+                        ? 'border-red-300'
+                        : 'border-gray-300',
+                    )}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="text-sm text-gray-600 min-w-[120px] flex items-center gap-1">
+                  {isBalanceLoading ? (
+                    <Spinner size="small" />
+                  ) : (
+                    <>
+                      Balance:{' '}
+                      <span className="font-semibold">
+                        {typeof solBalance === 'number'
+                          ? solBalance.toFixed(4)
+                          : '0.0000'}{' '}
+                        SOL
+                      </span>
+                    </>
                   )}
-                  placeholder="0"
-                />
+                </div>
               </div>
               {field.state.meta.errors.length > 0 &&
                 field.state.meta.isTouched && (
@@ -231,6 +261,18 @@ const CreateSaleForm: React.FC = () => {
                     {field.state.meta.errors[0]}
                   </div>
                 )}
+              {/* Show warning if collateral exceeds balance */}
+              {typeof solBalance === 'number' &&
+                Number(field.state.value) > solBalance && (
+                  <div className="text-red-500 text-sm mt-1">
+                    Insufficient SOL balance for this collateral amount.
+                  </div>
+                )}
+              {balanceError && (
+                <div className="text-red-500 text-sm mt-1">
+                  Failed to fetch SOL balance. Please try again.
+                </div>
+              )}
               <p className="mt-1 text-sm text-gray-500">
                 Amount to be held as collateral for this sale
               </p>

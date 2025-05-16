@@ -28,7 +28,7 @@ const SalePage = () => {
     enabled: !!demoFile,
   });
 
-  const { purchaseSale } = usePurchaseSale();
+  const { purchaseSale, isPending: isPurchasePending } = usePurchaseSale();
 
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState error={error} />;
@@ -76,6 +76,8 @@ const SalePage = () => {
             hasDemoFile={!!demoFile}
             onPurchase={onPurchaseSale}
             onDownloadDemo={onDownloadDemo}
+            isLoadingPurchase={isPurchasePending}
+            isLoadingDemo={isDemoUrlLoading}
           />
         </div>
       </div>

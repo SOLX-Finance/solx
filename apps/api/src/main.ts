@@ -62,14 +62,13 @@ async function bootstrap() {
 
     app.use(cookieParser(configService.get<string>('app.cookieSecret')));
 
-    // const corsOrigins = configService.get<string>('app.corsOrigins').split(',');
+    const corsOrigins = configService.get<string>('app.corsOrigins').split(',');
     app.enableCors({
-      origin: true,
-      // origin: corsOrigins,
-      // credentials: true,
-      // methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-      // preflightContinue: false,
-      // optionsSuccessStatus: 204,
+      origin: corsOrigins,
+      credentials: true,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
     });
 
     const globalPrefix = configService.get<string>('app.apiPrefix');

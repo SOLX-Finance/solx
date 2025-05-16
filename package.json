@@ -147,5 +147,5 @@
   "prisma": {
     "schema": "./libs/data-access/prisma/schema"
   },
-  "packageManager": "yarn@4.9.1"
+  "packageManager": "yarn@4.8.1"
 }

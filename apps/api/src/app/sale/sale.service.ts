@@ -190,6 +190,9 @@ export class SaleService {
 
     const where: Prisma.SaleWhereInput = {
       buyer: null, // Only active (unsold) sales
+      priceUsd: {
+        not: null,
+      },
     };
 
     if (search) {

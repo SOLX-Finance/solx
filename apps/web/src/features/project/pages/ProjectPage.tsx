@@ -85,9 +85,7 @@ const ProjectPage = () => {
             <div className="text-[18px]">{project.description}</div>
             <div className="my-[20px] flex flex-col">
               <div className="text-[20px]">Price</div>
-              <div className="text-[36px] font-medium">
-                {project.price} USDC/SOL
-              </div>
+              <div className="text-[36px] font-medium">{project.price} SOL</div>
             </div>
             <div className="flex items-center gap-[20px]">
               <Button className="leading-[30px] text-[24px] font-medium py-[15px] px-[40px] rounded-[30px] bg-[#C4E703] hover:bg-[#C4E703] text-black border border-black">

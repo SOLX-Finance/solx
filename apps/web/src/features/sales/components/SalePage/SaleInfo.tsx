@@ -59,7 +59,7 @@ const SaleInfo: React.FC<SaleInfoProps> = ({
       <div>
         <p className="text-xl">Price</p>
         <p className="text-4xl font-medium">
-          {priceUsd ? `$${priceUsd} USDC/SOL` : 'Price not set'}
+          {priceUsd ? `$${priceUsd} SOL` : 'Price not set'}
         </p>
       </div>
     </div>

@@ -88,7 +88,7 @@ export const ProjectCard = ({
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
             <div className="text-[#9E9E9E] text-[18px]">Price</div>
-            <div className="text-[20px]">{price} USDC/SOL</div>
+            <div className="text-[20px]">{price} SOL</div>
           </div>
           <Link
             to={`/sales/${id}`}

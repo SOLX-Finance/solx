@@ -25,6 +25,11 @@ export class CreateSaleRequestDto {
   @IsString({ each: true })
   @IsOptional({ each: true })
   categories: string[];
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(1000)
+  whatYouWillGet: string;
 }
 
 export class CreateSaleResponseDto {

@@ -150,7 +150,7 @@ export const ProfileHeader = ({
             Wallet: {user.walletAddress.substring(0, 6)}...
             {user.walletAddress.substring(user.walletAddress.length - 4)}
           </div>
-          <div className="text-[18px]">KYC Status: {user.kycStatus}</div>
+          {/* <div className="text-[18px]">KYC Status: {user.kycStatus}</div> */}
         </div>
         {isOwnProfile && onUsernameEdit && (
           <button

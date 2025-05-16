@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import { useSolxContract } from './useSolxContract';
 
+import { showToast } from '@/components/ui/toaster';
 import { addresses } from '@/config/addresses';
 import { solanaConnection } from '@/config/connection';
 import {
@@ -119,6 +120,30 @@ export const usePurchaseSale = () => {
       console.log('receipt ==>', receipt);
       const data = await connection.sendRawTransaction(receipt.serialize());
       console.log('data ==>', data);
+    },
+    onMutate: () => {
+      showToast({
+        type: 'info',
+        title: 'Transaction Started',
+        description: 'Purchase transaction is being processed.',
+      });
+    },
+    onSuccess: () => {
+      showToast({
+        type: 'success',
+        title: 'Transaction Success!',
+        description: 'Your purchase was successful.',
+      });
+    },
+    onError: (err: unknown) => {
+      let message = 'Purchase failed. Please try again.';
+      if (err instanceof Error) message = err.message;
+      else if (typeof err === 'string') message = err;
+      showToast({
+        type: 'error',
+        title: 'Transaction Failed',
+        description: message,
+      });
     },
   });
 

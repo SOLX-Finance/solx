@@ -73,11 +73,8 @@ export const ProjectCard = ({
       )}
 
       <div className="flex flex-col gap-[20px] px-[30px] py-[20px] border-t border-[#C7C7C7]">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           <div className="font-semibold text-[28px]">{normalizedTitle}</div>
-          <Button variant="ghost" size="icon">
-            <Star />
-          </Button>
         </div>
         <div className="text-[18px] truncate">{normalizedDescription}</div>
         <div className="flex items-center gap-[10px] flex-wrap">

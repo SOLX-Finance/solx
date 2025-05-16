@@ -15,6 +15,8 @@ import { useSale } from '../hooks/useSale';
 
 import { usePurchaseSale } from '@/hooks/contracts/usePurchaseSale';
 import { usePublicReadFileUrl } from '@/hooks/usePublicReadFileUrl';
+import { useSolanaBalance } from '@/hooks/useSolanaBalance';
+import { isDefined } from '@/utils/is-defined';
 import { SOL_MINT } from '@/utils/programs.utils';
 
 const SalePage = () => {
@@ -28,11 +30,32 @@ const SalePage = () => {
     enabled: !!demoFile,
   });
 
-  const { purchaseSale } = usePurchaseSale();
+  const { purchaseSale, isPending: isPurchasePending } = usePurchaseSale();
+  const {
+    balance: solBalance,
+    isLoading: isBalanceLoading,
+    error: balanceError,
+  } = useSolanaBalance();
 
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState error={error} />;
   if (!sale) return <NotFoundState />;
+
+  // Convert priceUsd (string) to SOL (number)
+  const priceSol = sale.priceUsd ? Number(sale.priceUsd) : 0;
+  let canBuy = true;
+  let insufficientBalanceMessage = '';
+
+  if (isBalanceLoading) {
+    canBuy = false;
+    insufficientBalanceMessage = 'Checking your SOL balance...';
+  } else if (balanceError) {
+    canBuy = false;
+    insufficientBalanceMessage = 'Failed to fetch SOL balance.';
+  } else if (typeof solBalance === 'number' && priceSol > solBalance) {
+    canBuy = false;
+    insufficientBalanceMessage = `Insufficient SOL balance. You have ${solBalance?.toFixed(4) ?? '0.0000'} SOL, but the price is ${priceSol} SOL.`;
+  }
 
   const onPurchaseSale = async () => {
     await purchaseSale({
@@ -68,6 +91,7 @@ const SalePage = () => {
             description={sale.description}
             categories={sale.categories || []}
             priceUsd={BigInt(sale.priceUsd ?? '0')}
+            whatYouWillGet={sale.whatYouWillGet}
           />
 
           {/* Action buttons */}
@@ -76,13 +100,19 @@ const SalePage = () => {
             hasDemoFile={!!demoFile}
             onPurchase={onPurchaseSale}
             onDownloadDemo={onDownloadDemo}
+            isLoadingPurchase={isPurchasePending}
+            isLoadingDemo={isDemoUrlLoading}
+            canBuy={canBuy}
+            insufficientBalanceMessage={insufficientBalanceMessage}
           />
         </div>
       </div>
 
       {/* Creator section */}
       <div className="space-y-10">
-        <ContentInfo hasContentFile={!!contentFile} />
+        {isDefined(sale.whatYouWillGet) ? (
+          <ContentInfo userWillGet={sale.whatYouWillGet} />
+        ) : null}
         <DemoInfo
           hasDemoFile={!!demoFile}
           onDownloadDemo={onDownloadDemo}

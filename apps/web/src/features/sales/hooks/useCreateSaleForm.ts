@@ -9,6 +9,7 @@ import { salesApi } from '../api/salesApi';
 
 import { useCreateSale } from '@/hooks/contracts/useCreateSale';
 import { FileType, useFileUploadQuery } from '@/hooks/useFileUploadQuery';
+import { useSolanaBalance } from '@/hooks/useSolanaBalance';
 import { SOL_MINT } from '@/utils/programs.utils';
 
 const FILE_TYPE_CONFIG = {
@@ -20,13 +21,13 @@ const FILE_TYPE_CONFIG = {
   },
   [FileType.SALE_DEMO]: {
     required: false,
-    maxCount: 5,
+    maxCount: 1,
     missingError: 'Demo file is missing',
-    exceededError: 'You can upload at most 5 demo files',
+    exceededError: 'You can upload at most 1 demo file',
   },
   [FileType.SALE_PREVIEW]: {
     required: false,
-    maxCount: 1,
+    maxCount: 5,
     missingError: 'Preview file is missing',
     exceededError: 'You can upload only one preview file',
   },
@@ -43,22 +44,30 @@ export const useCreateSaleForm = () => {
   }>({});
 
   const { isUploading, error: uploadError, uploadFiles } = useFileUploadQuery();
+  const {
+    balance: solBalance,
+    isLoading: isBalanceLoading,
+    error: balanceError,
+  } = useSolanaBalance();
 
   const apiMutation = useMutation({
     mutationFn: async ({
       title,
       description,
+      whatYouWillGet,
       fileIds,
       categories,
     }: {
       title: string;
       description: string;
+      whatYouWillGet: string;
       fileIds: string[];
       categories: string[];
     }) => {
       return salesApi.createSale({
         title,
         description,
+        whatYouWillGet,
         files: fileIds,
         categories,
       });
@@ -75,6 +84,7 @@ export const useCreateSaleForm = () => {
     defaultValues: {
       title: '',
       description: '',
+      whatYouWillGet: '',
       price: 0,
       collateralAmount: 0,
       categories: [] as string[],
@@ -87,6 +97,29 @@ export const useCreateSaleForm = () => {
         if (!walletsReady || !wallets || wallets.length === 0) {
           setFormError('Please connect your wallet first');
           return { error: 'Please connect your wallet first' };
+        }
+
+        if (isBalanceLoading) {
+          setFormError('Checking your SOL balance, please wait...');
+          return { error: 'Checking your SOL balance, please wait...' };
+        }
+        if (balanceError) {
+          setFormError('Failed to fetch SOL balance. Please try again.');
+          return { error: 'Failed to fetch SOL balance. Please try again.' };
+        }
+        // Validate enough SOL for collateral
+        const collateralAmount = Number(value.collateralAmount);
+        if (isNaN(collateralAmount) || collateralAmount <= 0) {
+          setFormError('Collateral amount must be greater than 0');
+          return { error: 'Collateral amount must be greater than 0' };
+        }
+        if (typeof solBalance === 'number' && solBalance < collateralAmount) {
+          setFormError(
+            `Insufficient SOL balance. You have ${solBalance} SOL, but the collateral amount is ${collateralAmount} SOL.`,
+          );
+          return {
+            error: `Insufficient SOL balance. You have ${solBalance} SOL, but the collateral amount is ${collateralAmount} SOL.`,
+          };
         }
 
         const filesByType = Object.entries(FILE_TYPE_CONFIG).map(
@@ -149,6 +182,7 @@ export const useCreateSaleForm = () => {
         const saleResponse = await apiMutation.mutateAsync({
           title: value.title,
           description: value.description,
+          whatYouWillGet: value.whatYouWillGet,
           fileIds,
           categories: value.categories,
         });
@@ -190,6 +224,7 @@ export const useCreateSaleForm = () => {
           const file = filesArray[0];
           if (file.type !== 'application/zip' && !file.name.endsWith('.zip')) {
             setFormError('Content file must be a ZIP archive');
+            e.target.value = '';
             return;
           }
 
@@ -199,19 +234,42 @@ export const useCreateSaleForm = () => {
             [fileType]: [file],
           }));
         } else if (fileType === FileType.SALE_PREVIEW) {
-          // Store only the first file
+          // Allow up to 5 preview files (any type)
+          setSelectedFiles((prev) => {
+            const existing = prev[fileType] || [];
+            const existingKeys = new Set(
+              existing.map((f) => `${f.name}_${f.size}`),
+            );
+            const uniqueNewFiles = filesArray.filter(
+              (f) => !existingKeys.has(`${f.name}_${f.size}`),
+            );
+            const merged = [...existing, ...uniqueNewFiles];
+            if (merged.length > 5) {
+              setFormError('You can upload up to 5 preview files');
+              e.target.value = '';
+              return prev;
+            }
+            return {
+              ...prev,
+              [fileType]: merged,
+            };
+          });
+        } else if (fileType === FileType.SALE_DEMO) {
+          // Only one demo file (any type)
           const file = filesArray[0];
           setSelectedFiles((prev) => ({
             ...prev,
             [fileType]: [file],
           }));
         } else {
-          // Store all selected files for other types
+          // Store all selected files for other types (fallback)
           setSelectedFiles((prev) => ({
             ...prev,
             [fileType]: [...(prev[fileType] || []), ...filesArray],
           }));
         }
+        // Reset input value so the same file can be selected again after removal
+        e.target.value = '';
       }
     };
 
@@ -249,11 +307,21 @@ export const useCreateSaleForm = () => {
   };
 
   const validateDescription = (description: string) => {
-    if (!description.trim()) {
+    if (!description || description.trim().length === 0) {
       return 'Description is required';
     }
     if (description.length > 5000) {
-      return 'Description cannot exceed 5000 characters';
+      return 'Description must be at most 5000 characters';
+    }
+    return undefined;
+  };
+
+  const validateWhatYouWillGet = (whatYouWillGet: string) => {
+    if (!whatYouWillGet || whatYouWillGet.trim().length === 0) {
+      return 'This field is required';
+    }
+    if (whatYouWillGet.length > 1000) {
+      return 'Must be at most 1000 characters';
     }
     return undefined;
   };
@@ -274,7 +342,11 @@ export const useCreateSaleForm = () => {
 
   return {
     form,
-    isSubmitting: apiMutation.isPending || isCreatingOnchain || isUploading,
+    isSubmitting:
+      apiMutation.isPending ||
+      isCreatingOnchain ||
+      isUploading ||
+      isBalanceLoading,
     isUploading,
     formError,
     setFormError,
@@ -288,7 +360,11 @@ export const useCreateSaleForm = () => {
     getFilesByType,
     validateTitle,
     validateDescription,
+    validateWhatYouWillGet,
     validatePrice,
     validateCollateralAmount,
+    solBalance,
+    isBalanceLoading,
+    balanceError,
   };
 };

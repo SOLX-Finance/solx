@@ -77,20 +77,6 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <div className="hidden lg:flex gap-[40px] items-center">
           <div>About Project</div>
-          <div className="gap-[20px] flex items-center">
-            <CircleButton
-              icon={<Star />}
-              onClick={() => {
-                // No-op
-              }}
-            />
-            <CircleButton
-              icon={<Mail />}
-              onClick={() => {
-                // No-op
-              }}
-            />
-          </div>
           <div className="relative">
             {ready && authenticated ? (
               <div className="flex items-center gap-2">

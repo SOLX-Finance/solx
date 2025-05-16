@@ -47,6 +47,7 @@ export class SaleController {
     const sale = await this.saleService.createSale({
       ...body,
       user: user.dbUser,
+      whatYouWillGet: body.whatYouWillGet,
     });
 
     return {

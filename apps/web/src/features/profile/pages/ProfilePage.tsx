@@ -128,7 +128,7 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 flex flex-col gap-[40px]">
+    <div className="container mx-auto md:p-4 py-4 px-0 flex flex-col gap-[40px]">
       <ProfileHeader
         user={user}
         isOwnProfile={isOwnProfile}
@@ -178,7 +178,7 @@ const ProfilePage: React.FC = () => {
       {/* KYC Verification Section (only for own profile) */}
       {isOwnProfile && (
         <div className="mb-6">
-          <details className="bg-white shadow-sm rounded-[40px] p-4">
+          <details className="bg-white shadow-sm rounded-[40px] py-4 md:p-4">
             <summary className="text-[24px] font-semibold cursor-pointer">
               KYC Verification
             </summary>

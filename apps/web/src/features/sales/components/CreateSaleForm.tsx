@@ -29,6 +29,7 @@ const CreateSaleForm: React.FC = () => {
     solBalance,
     isBalanceLoading,
     balanceError,
+    validateWhatYouWillGet,
   } = useCreateSaleForm();
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -80,7 +81,7 @@ const CreateSaleForm: React.FC = () => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="px-10 py-3 bg-black text-white font-medium text-xl rounded-full hover:bg-gray-800 disabled:bg-gray-400 flex items-center justify-center relative"
+          className="px-10 w-[225px] h-[52px] py-3 bg-black text-white font-medium text-xl rounded-full hover:bg-gray-800 disabled:bg-gray-400 flex items-center justify-center relative"
           disabled={
             isUploading ||
             isSubmitting ||
@@ -125,7 +126,7 @@ const CreateSaleForm: React.FC = () => {
                 htmlFor="title"
                 className="block text-lg font-normal text-black mb-2"
               >
-                Project name
+                Project name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -166,7 +167,7 @@ const CreateSaleForm: React.FC = () => {
                 htmlFor="price"
                 className="block text-lg font-normal text-black mb-2"
               >
-                Price
+                Price <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -215,7 +216,7 @@ const CreateSaleForm: React.FC = () => {
                 htmlFor="collateralAmount"
                 className="block text-lg font-normal text-black mb-2"
               >
-                Collateral Amount
+                Collateral Amount <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center gap-4 mb-2">
                 <div className="relative flex-1">
@@ -293,7 +294,7 @@ const CreateSaleForm: React.FC = () => {
                 htmlFor="description"
                 className="block text-lg font-normal text-black mb-2"
               >
-                Project description
+                Project description <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <textarea
@@ -316,6 +317,47 @@ const CreateSaleForm: React.FC = () => {
                   {field.state.value.length}/1000
                 </div>
               </div>
+              {field.state.meta.errors.length > 0 &&
+                field.state.meta.isTouched && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {field.state.meta.errors[0]}
+                  </div>
+                )}
+            </div>
+          ),
+        })}
+
+        {/* What You Will Get Field */}
+        {form.Field({
+          name: 'whatYouWillGet',
+          validators: {
+            onChange: ({ value }) => validateWhatYouWillGet(value),
+            onBlur: ({ value }) => validateWhatYouWillGet(value),
+          },
+          children: (field) => (
+            <div className="mb-6">
+              <label
+                htmlFor="whatYouWillGet"
+                className="block text-lg font-normal text-black mb-2"
+              >
+                What you will get <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="whatYouWillGet"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                className={cn(
+                  'w-full px-6 py-3 rounded-2xl border focus:outline-none focus:ring-1 focus:ring-black',
+                  field.state.meta.errors.length > 0 &&
+                    field.state.meta.isTouched
+                    ? 'border-red-300'
+                    : 'border-gray-300',
+                )}
+                placeholder="Describe what the buyer will receive (e.g. source code, documentation, support, etc.)"
+                maxLength={1000}
+                rows={4}
+              />
               {field.state.meta.errors.length > 0 &&
                 field.state.meta.isTouched && (
                   <div className="text-red-500 text-sm mt-1">
@@ -404,7 +446,7 @@ const CreateSaleForm: React.FC = () => {
         {/* Content Files Upload */}
         <div className="mb-6">
           <label className="block text-lg font-normal text-black mb-2">
-            Content Files *
+            Content Files <span className="text-red-500">*</span>
           </label>
 
           <div className="relative">

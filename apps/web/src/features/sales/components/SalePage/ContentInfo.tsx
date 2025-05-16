@@ -1,18 +1,14 @@
 import React from 'react';
 
 interface ContentInfoProps {
-  hasContentFile: boolean;
+  userWillGet: string;
 }
 
-const ContentInfo: React.FC<ContentInfoProps> = ({ hasContentFile }) => {
+const ContentInfo: React.FC<ContentInfoProps> = ({ userWillGet }) => {
   return (
     <div className="space-y-5">
       <h2 className="text-4xl font-semibold">What you will get</h2>
-      <p className="text-lg">
-        {hasContentFile
-          ? "After purchase, you'll get immediate access to all project files and content."
-          : "Information about what's included will be available after purchase."}
-      </p>
+      <p className="text-lg">{userWillGet}</p>
     </div>
   );
 };

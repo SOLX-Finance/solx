@@ -54,17 +54,20 @@ export const useCreateSaleForm = () => {
     mutationFn: async ({
       title,
       description,
+      whatYouWillGet,
       fileIds,
       categories,
     }: {
       title: string;
       description: string;
+      whatYouWillGet: string;
       fileIds: string[];
       categories: string[];
     }) => {
       return salesApi.createSale({
         title,
         description,
+        whatYouWillGet,
         files: fileIds,
         categories,
       });
@@ -81,6 +84,7 @@ export const useCreateSaleForm = () => {
     defaultValues: {
       title: '',
       description: '',
+      whatYouWillGet: '',
       price: 0,
       collateralAmount: 0,
       categories: [] as string[],
@@ -178,6 +182,7 @@ export const useCreateSaleForm = () => {
         const saleResponse = await apiMutation.mutateAsync({
           title: value.title,
           description: value.description,
+          whatYouWillGet: value.whatYouWillGet,
           fileIds,
           categories: value.categories,
         });
@@ -302,11 +307,21 @@ export const useCreateSaleForm = () => {
   };
 
   const validateDescription = (description: string) => {
-    if (!description.trim()) {
+    if (!description || description.trim().length === 0) {
       return 'Description is required';
     }
     if (description.length > 5000) {
-      return 'Description cannot exceed 5000 characters';
+      return 'Description must be at most 5000 characters';
+    }
+    return undefined;
+  };
+
+  const validateWhatYouWillGet = (whatYouWillGet: string) => {
+    if (!whatYouWillGet || whatYouWillGet.trim().length === 0) {
+      return 'This field is required';
+    }
+    if (whatYouWillGet.length > 1000) {
+      return 'Must be at most 1000 characters';
     }
     return undefined;
   };
@@ -345,6 +360,7 @@ export const useCreateSaleForm = () => {
     getFilesByType,
     validateTitle,
     validateDescription,
+    validateWhatYouWillGet,
     validatePrice,
     validateCollateralAmount,
     solBalance,

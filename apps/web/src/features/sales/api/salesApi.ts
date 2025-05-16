@@ -5,6 +5,7 @@ export interface Sale {
   id: string;
   title: string;
   description: string;
+  whatYouWillGet: string;
   priceUsd: string;
   collateralAmount: string;
   collateralMint: string;
@@ -119,6 +120,7 @@ class SalesApi {
     description: string;
     files: string[];
     categories?: string[];
+    whatYouWillGet: string;
   }): Promise<{ id: string }> {
     const { data } = await httpClient.post(`${this.baseUrl}`, saleData);
     return data;

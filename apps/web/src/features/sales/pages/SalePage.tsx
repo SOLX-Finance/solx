@@ -16,6 +16,7 @@ import { useSale } from '../hooks/useSale';
 import { usePurchaseSale } from '@/hooks/contracts/usePurchaseSale';
 import { usePublicReadFileUrl } from '@/hooks/usePublicReadFileUrl';
 import { useSolanaBalance } from '@/hooks/useSolanaBalance';
+import { isDefined } from '@/utils/is-defined';
 import { SOL_MINT } from '@/utils/programs.utils';
 
 const SalePage = () => {
@@ -90,6 +91,7 @@ const SalePage = () => {
             description={sale.description}
             categories={sale.categories || []}
             priceUsd={BigInt(sale.priceUsd ?? '0')}
+            whatYouWillGet={sale.whatYouWillGet}
           />
 
           {/* Action buttons */}
@@ -108,7 +110,9 @@ const SalePage = () => {
 
       {/* Creator section */}
       <div className="space-y-10">
-        <ContentInfo hasContentFile={!!contentFile} />
+        {isDefined(sale.whatYouWillGet) ? (
+          <ContentInfo userWillGet={sale.whatYouWillGet} />
+        ) : null}
         <DemoInfo
           hasDemoFile={!!demoFile}
           onDownloadDemo={onDownloadDemo}

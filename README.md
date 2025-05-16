@@ -36,6 +36,18 @@ Solana smart contracts written using Anchor framework, including:
 - 💎 SPL token integration
 - ⚡ Custom program logic
 
+### 📖 Smart Contract Documentation
+
+For detailed information about the smart contract, including accounts, instructions, and development setup, see [Smart Contract Documentation](apps/contracts/README.md).
+
+Key features:
+
+- 🎨 NFT minting and listing management
+- 💰 Collateralized transactions
+- ⚖️ Built-in dispute resolution
+- ✅ Whitelisting system
+- 📊 Comprehensive event tracking
+
 ### 🔍 Indexer (`apps/indexer`)
 
 Blockchain indexer service that processes and stores on-chain data, built with NestJS.

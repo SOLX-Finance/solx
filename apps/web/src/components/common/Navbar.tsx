@@ -1,6 +1,6 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { Star, Mail, ChevronDown, Menu, X } from 'lucide-react';
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import LoginButton from './LoginButton';
@@ -34,18 +34,6 @@ const Navbar = () => {
   const { user } = useProfile();
   const [showDropdown, setShowDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIfMobile();
-    window.addEventListener('resize', checkIfMobile);
-
-    return () => window.removeEventListener('resize', checkIfMobile);
-  }, []);
 
   const walletAddress = user?.walletAddress || privyUser?.wallet?.address || '';
   const shortenedAddress = walletAddress
@@ -154,11 +142,7 @@ const Navbar = () => {
           onClick={toggleMobileMenu}
           className="md:hidden rounded-full bg-transparent hover:bg-white/10 w-10 h-10 flex items-center justify-center"
         >
-          {mobileMenuOpen ? (
-            <X className="text-white" />
-          ) : (
-            <Menu className="text-white size-6" />
-          )}
+          {mobileMenuOpen ? null : <Menu className="text-white size-6" />}
         </button>
       </nav>
 
@@ -166,46 +150,18 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 md:hidden">
           <div className="flex flex-col h-full p-8">
-            <div className="flex justify-between items-center mb-8">
-              <div className="flex items-center gap-[10px] md:gap-[20px]">
-                <img src={logo} alt="logo" />
-                <h1 className="font-brand text-[30px] leading-[30px] text-white">
-                  SOLX
-                </h1>
-              </div>
+            <div className="flex justify-end items-center mb-8">
               <button
                 onClick={toggleMobileMenu}
-                className="rounded-full bg-transparent hover:bg-white/10 border border-white w-10 h-10 flex items-center justify-center"
+                className="rounded-full bg-transparent hover:bg-white/10 w-10 h-10 flex items-center justify-center"
               >
                 <X className="text-white" />
               </button>
             </div>
 
             <div className="flex flex-col gap-6">
-              <button
-                onClick={() => handleNavigate('/about')}
-                className="text-white text-xl py-2"
-              >
-                About Project
-              </button>
-
-              <div className="flex gap-4">
-                <CircleButton
-                  icon={<Star />}
-                  onClick={() => {
-                    // No-op
-                  }}
-                />
-                <CircleButton
-                  icon={<Mail />}
-                  onClick={() => {
-                    // No-op
-                  }}
-                />
-              </div>
-
               {ready && authenticated ? (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 items-center">
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-full overflow-hidden mr-2">
                       {user?.profilePictureId ? (
@@ -236,7 +192,7 @@ const Navbar = () => {
                       logout();
                       setMobileMenuOpen(false);
                     }}
-                    className="text-white text-xl py-2"
+                    className="text-xl bg-lime-300 text-black py-2 px-4 rounded-full w-full"
                   >
                     Log Out
                   </button>

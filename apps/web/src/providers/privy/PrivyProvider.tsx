@@ -15,7 +15,7 @@ const PrivyProvider = ({ children }: { children: ReactNode }) => {
     config: {
       appearance: {
         theme: 'light',
-        accentColor: '#3182ce',
+        accentColor: '#C4E703',
         logo: '/logo.svg',
         walletChainType: 'solana-only',
       },

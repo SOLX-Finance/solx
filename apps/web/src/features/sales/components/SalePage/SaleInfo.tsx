@@ -7,7 +7,6 @@ interface SaleInfoProps {
   description: string;
   categories: string[];
   priceUsd: bigint;
-  whatYouWillGet: string;
 }
 
 const SaleInfo: React.FC<SaleInfoProps> = ({
@@ -15,7 +14,6 @@ const SaleInfo: React.FC<SaleInfoProps> = ({
   description,
   categories,
   priceUsd,
-  whatYouWillGet,
 }) => {
   return (
     <div className="space-y-10">
@@ -32,7 +30,7 @@ const SaleInfo: React.FC<SaleInfoProps> = ({
       <div>
         <p className="text-xl">Price</p>
         <p className="text-4xl font-medium">
-          {`$${formatUnits(priceUsd, 9)} SOL`}
+          {!priceUsd ? '...' : `$${formatUnits(priceUsd, 9)} SOL`}
         </p>
       </div>
     </div>

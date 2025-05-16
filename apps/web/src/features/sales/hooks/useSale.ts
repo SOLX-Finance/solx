@@ -26,7 +26,11 @@ export const useSale = (saleId: string | undefined) => {
     return sale?.files?.find((file) => file.type === type);
   };
 
-  const previewFile = sale ? getFileByType('SALE_PREVIEW') : undefined;
+  const getAllFilesByType = (type: string) => {
+    return sale?.files?.filter((file) => file.type === type) || [];
+  };
+
+  const previewFiles = sale ? getAllFilesByType('SALE_PREVIEW') : [];
   const contentFile = sale ? getFileByType('SALE_CONTENT') : undefined;
   const demoFile = sale ? getFileByType('SALE_DEMO') : undefined;
 
@@ -35,7 +39,7 @@ export const useSale = (saleId: string | undefined) => {
     isLoading,
     error: error ? (error as Error).message : null,
     refetchSale: refetch,
-    previewFile,
+    previewFiles,
     contentFile,
     demoFile,
   };

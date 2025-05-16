@@ -1,5 +1,5 @@
 import { usePrivy } from '@privy-io/react-auth';
-import { Star, Mail, ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { ReactNode, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,26 +11,8 @@ import { useProfile } from '../../features/profile/hooks/useProfile';
 import { useSolanaBalance } from '../../hooks/useSolanaBalance';
 import { cn } from '../../utils/cn';
 import { SolanaLogo } from '../logos/SolanaLogo';
-import { Button } from '../ui/button';
 
 import { isDefined } from '@/utils/is-defined';
-
-interface CircleButtonProps {
-  icon: ReactNode;
-  onClick: () => void;
-}
-const CircleButton = ({ icon, onClick }: CircleButtonProps) => {
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={onClick}
-      className="rounded-full bg-transparent hover:bg-white/10 border border-white/20 text-white hover:text-white"
-    >
-      {icon}
-    </Button>
-  );
-};
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -193,9 +175,12 @@ const Navbar = () => {
                           />
                         </button>
                       ) : (
-                        <div className="w-full h-full bg-lime-300 flex items-center justify-center text-black font-medium">
+                        <button
+                          onClick={() => navigate('/profile')}
+                          className="w-full h-full bg-lime-300 flex items-center justify-center text-black font-medium"
+                        >
                           {(user?.username || 'U').charAt(0).toUpperCase()}
-                        </div>
+                        </button>
                       )}
                     </div>
                     <button

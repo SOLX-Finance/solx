@@ -23,7 +23,7 @@ import { SOL_MINT } from '@/utils/programs.utils';
 const SalePage = () => {
   const navigate = useNavigate();
   const { saleId } = useParams<{ saleId: string }>();
-  const { sale, isLoading, error, previewFile, demoFile } = useSale(saleId);
+  const { sale, isLoading, error, previewFiles, demoFile } = useSale(saleId);
 
   const { url: demoUrl, isLoading: isDemoUrlLoading } = usePublicReadFileUrl({
     fileId: demoFile?.id,
@@ -71,7 +71,7 @@ const SalePage = () => {
       <div className="flex flex-col lg:flex-row gap-10 mb-10">
         {/* Left column - Image and content */}
         <PreviewSection
-          previewFile={previewFile}
+          previewFiles={previewFiles}
           title={sale.title}
           isAudited={sale.isAudited}
         />
@@ -83,7 +83,6 @@ const SalePage = () => {
             description={sale.description}
             categories={sale.categories || []}
             priceUsd={BigInt(sale.priceUsd ?? '0')}
-            whatYouWillGet={sale.whatYouWillGet}
           />
 
           {/* Action buttons */}

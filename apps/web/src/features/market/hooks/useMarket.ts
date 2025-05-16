@@ -6,7 +6,7 @@ import { salesApi } from '@/features/sales/api/salesApi';
 export type MarketFilters = {
   search?: string;
   sortBy?: 'newest' | 'price-low' | 'price-high';
-  category?: string;
+  categories?: string[];
   page: number;
   limit: number;
 };
@@ -17,7 +17,7 @@ export const useMarket = (initialFilters?: Partial<MarketFilters>) => {
     limit: initialFilters?.limit || 8,
     search: initialFilters?.search || '',
     sortBy: initialFilters?.sortBy || 'newest',
-    category: initialFilters?.category || 'all',
+    categories: initialFilters?.categories || [],
   });
 
   const apiFilters = {
@@ -45,8 +45,8 @@ export const useMarket = (initialFilters?: Partial<MarketFilters>) => {
     [],
   );
 
-  const handleFilter = useCallback((category: string) => {
-    setFilters((prev) => ({ ...prev, category, page: 1 }));
+  const handleFilter = useCallback((categories: string[]) => {
+    setFilters((prev) => ({ ...prev, categories, page: 1 }));
   }, []);
 
   const handlePageChange = useCallback((page: number) => {

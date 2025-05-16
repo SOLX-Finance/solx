@@ -3,6 +3,7 @@ import { User } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@solx/data-access';
 
+import { CATEGORIES, CATEGORY_MAP, Category } from './constants';
 import { SortOption } from './dtos/get-active-sales.dto';
 import { SalesFilter } from './dtos/get-sales-by-user.dto';
 
@@ -56,6 +57,15 @@ export class SaleService {
       );
     }
 
+    const normalizedCategories = categories
+      .map((category) => {
+        const lowercaseCategory = category.toLowerCase();
+        return CATEGORY_MAP[lowercaseCategory] || category;
+      })
+      .filter((category): category is Category =>
+        CATEGORIES.includes(category as Category),
+      );
+
     const sale = await this.prisma.sale.create({
       data: {
         files: { connect: fileEntities.map((file) => ({ id: file.id })) },
@@ -63,7 +73,7 @@ export class SaleService {
         description,
         userId: user.id,
         creator: user.walletAddress,
-        categories,
+        categories: normalizedCategories,
       },
     });
 
@@ -168,13 +178,13 @@ export class SaleService {
     limit = 8,
     search,
     sortBy = SortOption.NEWEST,
-    category,
+    categories,
   }: {
     page?: number;
     limit?: number;
     search?: string;
     sortBy?: SortOption;
-    category?: string;
+    categories?: string[];
   }) {
     const skip = (page - 1) * limit;
 
@@ -191,9 +201,19 @@ export class SaleService {
       ];
     }
 
-    if (category && category !== 'all') {
+    if (categories && categories.length > 0) {
+      // Normalize categories to proper case
+      const normalizedCategories = categories
+        .map((category) => {
+          const lowercaseCategory = category.toLowerCase();
+          return CATEGORY_MAP[lowercaseCategory] || category;
+        })
+        .filter((category): category is Category =>
+          CATEGORIES.includes(category as Category),
+        );
+
       where.categories = {
-        has: category,
+        hasSome: normalizedCategories,
       };
     }
 

@@ -23,6 +23,19 @@ export const SalesGrid = ({ sales, columns = 3 }: SalesGridProps) => {
     return `${totalHeight}px`;
   }, [sales.length, columns]);
 
+  if (sales.length === 0) {
+    return (
+      <div
+        className={cn(
+          'flex flex-col items-center justify-center min-h-[450px] text-gray-500 text-xl',
+        )}
+        style={{ minHeight: calculateMinHeight }}
+      >
+        No active sales at the moment. Please check back later.
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(

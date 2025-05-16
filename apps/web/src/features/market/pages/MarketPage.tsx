@@ -16,6 +16,7 @@ const MarketPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBy, setFilterBy] = useState('all');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const {
     sales,
@@ -32,6 +33,7 @@ const MarketPage = () => {
   } = useMarket({
     page: 1,
     limit: 8,
+    categories: selectedCategories,
   });
 
   const onSearchChange = (query: string) => {
@@ -46,7 +48,11 @@ const MarketPage = () => {
 
   const onFilterChange = (value: string) => {
     setFilterBy(value);
-    handleFilter(value);
+  };
+
+  const onCategoryChange = (categories: string[]) => {
+    setSelectedCategories(categories);
+    handleFilter(categories);
   };
 
   const filterOptions = [{ value: 'all', label: 'All' }];
@@ -54,7 +60,10 @@ const MarketPage = () => {
   return (
     <div className="container mx-auto p-4 flex flex-col gap-[20px]">
       <Banner />
-      <Categories />
+      <Categories
+        selectedCategories={selectedCategories}
+        onCategoryChange={onCategoryChange}
+      />
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Discover</h1>

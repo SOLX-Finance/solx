@@ -65,9 +65,10 @@ class SalesApi {
       queryParams.append('sortBy', filters.sortBy);
     }
 
-    // Add category filter if not 'all'
-    if (filters.category && filters.category !== 'all') {
-      queryParams.append('category', filters.category);
+    if (filters.categories && filters.categories.length > 0) {
+      filters.categories.forEach((category) => {
+        queryParams.append('category', category);
+      });
     }
 
     const { data } = await httpClient.get(

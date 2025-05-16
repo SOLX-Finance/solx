@@ -65,7 +65,13 @@ export class SaleController {
     required: false,
     enum: ['newest', 'price-low', 'price-high'],
   })
-  @ApiQuery({ name: 'category', required: false, type: String })
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    type: [String],
+    isArray: true,
+    description: 'Filter by multiple categories',
+  })
   @ApiResponse({
     status: 200,
     description: 'Returns filtered, sorted, and paginated active sales',
@@ -73,14 +79,14 @@ export class SaleController {
   async getActiveSales(
     @Query() query: GetActiveSalesQueryDto,
   ): Promise<GetSalesResponseDto> {
-    const { page = 1, limit = 8, search, sortBy, category } = query;
+    const { page = 1, limit = 8, search, sortBy, category: categories } = query;
 
     return await this.saleService.getActiveSales({
       page: Number(page),
       limit: Number(limit),
       search,
       sortBy,
-      category,
+      categories,
     });
   }
 

@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export enum SortOption {
   NEWEST = 'newest',
@@ -32,8 +39,14 @@ export class GetActiveSalesQueryDto {
   @IsEnum(SortOption)
   sortBy?: SortOption = SortOption.NEWEST;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, isArray: true, type: String })
   @IsOptional()
-  @IsString()
-  category?: string;
+  @IsArray()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return [value];
+    }
+    return value;
+  })
+  category?: string[];
 }

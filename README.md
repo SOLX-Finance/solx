@@ -1,5 +1,17 @@
 # 🚀 SolX Monorepo
 
+SOLX is a new kind of digital marketplace — made for creators and builders who want to sell their projects, and for buyers who want peace of mind when purchasing them.
+
+On SOLX, anyone can list a project for sale — whether it’s code, a design pack, a tool, or something entirely unique. Sellers add a description, price, and optional preview, and lock a small deposit as a trust signal. This helps protect buyers from scams or misleading content.
+
+Buyers can browse, filter, and purchase using crypto. When someone buys a project, they instantly get an access NFT that lets them download the files. It’s simple and secure.
+
+If something’s wrong with a purchase — like the files don’t match the description or contain harmful code — buyers can file a dispute. Our platform will review the case, and if the issue is real, the buyer gets refunded from the seller’s deposit.
+
+To help keep the marketplace clean, every uploaded project is automatically scanned by AI for viruses, backdoors, or suspicious content.
+
+SOLX makes buying and selling digital projects safer, more transparent, and fair — without middlemen.
+
 ## 📱 Applications
 
 ### 🌐 Web App (`apps/web`)

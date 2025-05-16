@@ -98,9 +98,12 @@ const Navbar = () => {
                         />
                       </button>
                     ) : (
-                      <div className="w-full h-full bg-lime-300 flex items-center justify-center text-black font-medium">
+                      <button
+                        onClick={() => navigate('/profile')}
+                        className="w-full h-full bg-lime-300 flex items-center justify-center text-black font-medium"
+                      >
                         {(user?.username || 'U').charAt(0).toUpperCase()}
-                      </div>
+                      </button>
                     )}
                   </div>
                   <button

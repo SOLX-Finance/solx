@@ -93,4 +93,21 @@ export class StorageController {
       userId: user.dbUser.id,
     });
   }
+
+  @Public()
+  @Get('read-url/public/:fileId')
+  @ApiOperation({ summary: 'Get a public file read URL' })
+  @ApiParam({ name: 'fileId', type: String })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a public file read URL',
+    type: GetFileReadUrlResponseDto,
+  })
+  async getPublicFileReadUrl(
+    @Param() { fileId }: GetFileReadUrlRequestDto,
+  ): Promise<GetFileReadUrlResponseDto> {
+    return await this.storageService.getReadUrl({
+      fileId,
+    });
+  }
 }

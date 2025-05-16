@@ -58,7 +58,7 @@ export class StorageService {
     };
   }
 
-  async getReadUrl({ fileId, userId }: { fileId: string; userId: string }) {
+  async getReadUrl({ fileId, userId }: { fileId: string; userId?: string }) {
     // TODO: use repository
     const file = await this.prisma.file.findUnique({
       where: { id: fileId },
@@ -77,8 +77,14 @@ export class StorageService {
       );
     }
 
-    if (file.userId !== userId) {
-      throw new UnauthorizedException('File does not belong to the user');
+    if (file.type === FileType.SALE_CONTENT) {
+      if (!userId) {
+        throw new Error('User id is required for sale content file type');
+      }
+
+      if (file.userId !== userId) {
+        throw new UnauthorizedException('File does not belong to the user');
+      }
     }
 
     if (file.deleted) {

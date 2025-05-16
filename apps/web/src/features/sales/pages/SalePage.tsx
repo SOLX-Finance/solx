@@ -1,47 +1,38 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
+import {
+  LoadingState,
+  ErrorState,
+  NotFoundState,
+  PageHeader,
+  PreviewSection,
+  SaleInfo,
+  ActionButtons,
+  ContentInfo,
+  DemoInfo,
+} from '../components/SalePage';
 import { useSale } from '../hooks/useSale';
 
 import { usePurchaseSale } from '@/hooks/contracts/usePurchaseSale';
+import { usePublicReadFileUrl } from '@/hooks/usePublicReadFileUrl';
 import { SOL_MINT } from '@/utils/programs.utils';
 
 const SalePage = () => {
+  const navigate = useNavigate();
   const { saleId } = useParams<{ saleId: string }>();
   const { sale, isLoading, error, previewFile, contentFile, demoFile } =
     useSale(saleId);
 
+  const { url: demoUrl, isLoading: isDemoUrlLoading } = usePublicReadFileUrl({
+    fileId: demoFile?.id,
+    enabled: !!demoFile,
+  });
+
   const { purchaseSale } = usePurchaseSale();
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-4 flex justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto p-4">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      </div>
-    );
-  }
-
-  if (!sale) {
-    return (
-      <div className="container mx-auto p-4">
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-          Sale not found
-        </div>
-      </div>
-    );
-  }
-
-  // File types are now provided by the useSale hook
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState error={error} />;
+  if (!sale) return <NotFoundState />;
 
   const onPurchaseSale = async () => {
     await purchaseSale({
@@ -51,68 +42,53 @@ const SalePage = () => {
     });
   };
 
+  const onDownloadDemo = () => {
+    if (demoUrl) {
+      window.open(demoUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">{sale.title}</h1>
+    <div className="mt-5 mb-[100px]">
+      <PageHeader onGoBack={() => navigate(-1)} />
 
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold mb-2">Description</h2>
-          <p className="text-gray-700 whitespace-pre-line">
-            {sale.description}
-          </p>
-        </div>
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold mb-2">Creator</h2>
-          <p className="text-gray-700">{sale.user.name || sale.creator}</p>
-        </div>
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold mb-2">Status</h2>
-          <p className="text-gray-700">
-            {sale.buyer ? 'Sold' : 'Available for purchase'}
-          </p>
-        </div>
-        {contentFile && (
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold mb-2">Content</h2>
-            <p className="text-gray-700">
-              This sale includes content that will be available after purchase.
-            </p>
-          </div>
-        )}
-        {demoFile && (
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold mb-2">Demo</h2>
-            <p className="text-gray-700">
-              This sale includes a demo that will be available after purchase.
-            </p>
-          </div>
-        )}
+      {/* Main content section */}
+      <div className="flex flex-col lg:flex-row gap-10 mb-10">
+        {/* Left column - Image and content */}
+        <PreviewSection
+          previewFile={previewFile}
+          title={sale.title}
+          isAudited={sale.isAudited}
+        />
 
-        {previewFile && (
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold mb-2">Preview</h2>
-            <p className="text-gray-700">This sale includes a preview</p>
-          </div>
-        )}
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Created</h2>
-          <p className="text-gray-700">
-            {new Date(sale.createdAt).toLocaleDateString()}
-          </p>
+        {/* Project info */}
+        <div className="flex-1 space-y-10">
+          <SaleInfo
+            title={sale.title}
+            description={sale.description}
+            categories={sale.categories || []}
+            priceUsd={sale.priceUsd}
+          />
+
+          {/* Action buttons */}
+          <ActionButtons
+            hasBuyer={!!sale.buyer}
+            hasDemoFile={!!demoFile}
+            onPurchase={onPurchaseSale}
+            onDownloadDemo={onDownloadDemo}
+          />
         </div>
       </div>
 
-      {!sale.buyer && (
-        <div className="flex justify-center">
-          <button
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => onPurchaseSale()}
-          >
-            Purchase
-          </button>
-        </div>
-      )}
+      {/* Creator section */}
+      <div className="space-y-10">
+        <ContentInfo hasContentFile={!!contentFile} />
+        <DemoInfo
+          hasDemoFile={!!demoFile}
+          onDownloadDemo={onDownloadDemo}
+          isLoading={isDemoUrlLoading}
+        />
+      </div>
     </div>
   );
 };

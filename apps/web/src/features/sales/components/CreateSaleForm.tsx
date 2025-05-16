@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 import { useCreateSaleForm } from '../hooks/useCreateSaleForm';
 
-import { env } from '@/config/env';
 import { FileType } from '@/hooks/useFileUploadQuery';
 import { cn } from '@/utils/cn';
 
@@ -14,14 +13,13 @@ const CreateSaleForm: React.FC = () => {
     isSubmitting,
     isUploading,
     formError,
-    setFormError,
     uploadError,
     onchainError,
     successMessage,
     handleContentFileChange,
     handleDemoFileChange,
     handlePreviewFileChange,
-    removeFile,
+    removeSelectedFile,
     getFilesByType,
     validateTitle,
     validateDescription,
@@ -370,9 +368,9 @@ const CreateSaleForm: React.FC = () => {
           <div className="relative">
             <button
               type="button"
-              onClick={() =>
-                document.getElementById('contentFileInput')?.click()
-              }
+              onClick={() => {
+                document.getElementById('contentFileInput')?.click();
+              }}
               className={cn(
                 'w-full flex flex-col justify-center items-center py-8 px-4 border-2 border-dashed rounded-lg transition-colors duration-200',
                 contentFiles.length > 0
@@ -432,22 +430,7 @@ const CreateSaleForm: React.FC = () => {
             <input
               id="contentFileInput"
               type="file"
-              onChange={(e) => {
-                if (e.target.files && e.target.files.length > 0) {
-                  const file = e.target.files[0];
-                  if (
-                    file.type !== 'application/zip' &&
-                    !file.name.endsWith('.zip')
-                  ) {
-                    setFormError('Content file must be a ZIP archive');
-                    return;
-                  }
-                  // Remove any existing content files first
-                  contentFiles.forEach((file) => removeFile(file.id));
-                  // Then upload the new file
-                  handleContentFileChange(e);
-                }
-              }}
+              onChange={handleContentFileChange}
               className="hidden"
               disabled={isUploading}
               accept=".zip,application/zip"
@@ -479,7 +462,7 @@ const CreateSaleForm: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => removeFile(contentFiles[0].id)}
+                  onClick={() => removeSelectedFile(FileType.SALE_CONTENT, 0)}
                   className="text-red-500 hover:text-red-700"
                 >
                   <svg
@@ -516,9 +499,9 @@ const CreateSaleForm: React.FC = () => {
           <div className="relative">
             <button
               type="button"
-              onClick={() =>
-                document.getElementById('previewFileInput')?.click()
-              }
+              onClick={() => {
+                document.getElementById('previewFileInput')?.click();
+              }}
               className={cn(
                 'w-full flex flex-col justify-center items-center py-8 px-4 border-2 border-dashed rounded-lg transition-colors duration-200',
                 previewFiles.length > 0
@@ -591,36 +574,29 @@ const CreateSaleForm: React.FC = () => {
             <div className="mt-4 space-y-2">
               <h4 className="font-medium">Uploaded Preview Images:</h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {previewFiles.map((file) => (
-                  <div key={file.id} className="relative group">
-                    {file.id ? (
-                      <img
-                        src={`${env.api.url}/storage/${file.id}`}
-                        alt={file.name}
-                        className="w-full h-24 object-cover rounded-lg border border-gray-300"
-                        crossOrigin="anonymous"
-                      />
-                    ) : (
-                      <div className="w-full h-24 bg-gray-100 flex items-center justify-center rounded-lg border border-gray-300">
-                        <svg
-                          className="w-8 h-8 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          ></path>
-                        </svg>
-                      </div>
-                    )}
+                {previewFiles.map((file, idx) => (
+                  <div key={idx} className="relative group">
+                    <div className="w-full h-24 bg-gray-100 flex items-center justify-center rounded-lg border border-gray-300">
+                      <svg
+                        className="w-8 h-8 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        ></path>
+                      </svg>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => removeFile(file.id)}
+                      onClick={() =>
+                        removeSelectedFile(FileType.SALE_PREVIEW, idx)
+                      }
                       className="absolute top-1 right-1 bg-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <svg
@@ -691,9 +667,9 @@ const CreateSaleForm: React.FC = () => {
             <div className="relative">
               <button
                 type="button"
-                onClick={() =>
-                  document.getElementById('demoFileInput')?.click()
-                }
+                onClick={() => {
+                  document.getElementById('demoFileInput')?.click();
+                }}
                 className={cn(
                   'w-full flex flex-col justify-center items-center py-8 px-4 border-2 border-dashed rounded-lg transition-colors duration-200',
                   demoFiles.length > 0
@@ -765,9 +741,9 @@ const CreateSaleForm: React.FC = () => {
               <div className="mt-4 space-y-2">
                 <h4 className="font-medium">Uploaded Demo Files:</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {demoFiles.map((file) => (
+                  {demoFiles.map((file, idx) => (
                     <div
-                      key={file.id}
+                      key={idx}
                       className="flex items-center justify-between p-2 border rounded-lg bg-gray-50"
                     >
                       <div className="flex items-center">
@@ -789,7 +765,9 @@ const CreateSaleForm: React.FC = () => {
                       </div>
                       <button
                         type="button"
-                        onClick={() => removeFile(file.id)}
+                        onClick={() =>
+                          removeSelectedFile(FileType.SALE_DEMO, idx)
+                        }
                         className="text-red-500 hover:text-red-700"
                       >
                         <svg

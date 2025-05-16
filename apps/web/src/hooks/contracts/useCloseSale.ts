@@ -11,6 +11,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import { useSolxContract } from './useSolxContract';
 
+import { showToast } from '@/components/ui/toaster';
 import { addresses } from '@/config/addresses';
 import { solanaConnection } from '@/config/connection';
 import {
@@ -160,6 +161,30 @@ export const useCloseSale = () => {
       });
 
       await connection.confirmTransaction(receipt.signature, 'finalized');
+    },
+    onMutate: () => {
+      showToast({
+        type: 'info',
+        title: 'Transaction Started',
+        description: 'Closing sale transaction is being processed.',
+      });
+    },
+    onSuccess: () => {
+      showToast({
+        type: 'success',
+        title: 'Transaction Success!',
+        description: 'Sale has been closed successfully.',
+      });
+    },
+    onError: (err: unknown) => {
+      let message = 'Sale close failed. Please try again.';
+      if (err instanceof Error) message = err.message;
+      else if (typeof err === 'string') message = err;
+      showToast({
+        type: 'error',
+        title: 'Transaction Failed',
+        description: message,
+      });
     },
   });
 

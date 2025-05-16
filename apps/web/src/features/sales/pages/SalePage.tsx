@@ -15,6 +15,7 @@ import { useSale } from '../hooks/useSale';
 
 import { usePurchaseSale } from '@/hooks/contracts/usePurchaseSale';
 import { usePublicReadFileUrl } from '@/hooks/usePublicReadFileUrl';
+import { useSolanaBalance } from '@/hooks/useSolanaBalance';
 import { SOL_MINT } from '@/utils/programs.utils';
 
 const SalePage = () => {
@@ -29,10 +30,31 @@ const SalePage = () => {
   });
 
   const { purchaseSale, isPending: isPurchasePending } = usePurchaseSale();
+  const {
+    balance: solBalance,
+    isLoading: isBalanceLoading,
+    error: balanceError,
+  } = useSolanaBalance();
 
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState error={error} />;
   if (!sale) return <NotFoundState />;
+
+  // Convert priceUsd (string) to SOL (number)
+  const priceSol = sale.priceUsd ? Number(sale.priceUsd) : 0;
+  let canBuy = true;
+  let insufficientBalanceMessage = '';
+
+  if (isBalanceLoading) {
+    canBuy = false;
+    insufficientBalanceMessage = 'Checking your SOL balance...';
+  } else if (balanceError) {
+    canBuy = false;
+    insufficientBalanceMessage = 'Failed to fetch SOL balance.';
+  } else if (typeof solBalance === 'number' && priceSol > solBalance) {
+    canBuy = false;
+    insufficientBalanceMessage = `Insufficient SOL balance. You have ${solBalance?.toFixed(4) ?? '0.0000'} SOL, but the price is ${priceSol} SOL.`;
+  }
 
   const onPurchaseSale = async () => {
     await purchaseSale({
@@ -78,6 +100,8 @@ const SalePage = () => {
             onDownloadDemo={onDownloadDemo}
             isLoadingPurchase={isPurchasePending}
             isLoadingDemo={isDemoUrlLoading}
+            canBuy={canBuy}
+            insufficientBalanceMessage={insufficientBalanceMessage}
           />
         </div>
       </div>

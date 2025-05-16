@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import FilterableSales from '../components/FilterableSales';
-import KycVerification from '../components/KycVerification';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { ProfileSalesTabs } from '../components/ProfileSalesTabs';
 import { ProfileStats } from '../components/ProfileStats';
@@ -14,7 +13,6 @@ import { useUserSales, SalesFilter } from '../hooks/useUserSales';
 import { SearchAndFilter } from '@/components/common/SearchAndFilter';
 import { Spinner } from '@/components/ui/spinner';
 import { FileType, useFileUploadQuery } from '@/hooks/useFileUploadQuery';
-import { stats } from '@/mocks';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();

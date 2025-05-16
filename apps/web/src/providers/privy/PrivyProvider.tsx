@@ -31,6 +31,7 @@ const PrivyProvider = ({ children }: { children: ReactNode }) => {
         },
       },
       externalWallets: {
+        walletConnect: { enabled: true },
         solana: { connectors: toSolanaWalletConnectors() },
       },
     },

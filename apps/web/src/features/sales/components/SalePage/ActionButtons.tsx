@@ -10,7 +10,6 @@ interface ActionButtonsProps {
   isLoadingPurchase?: boolean;
   isLoadingDemo?: boolean;
   canBuy?: boolean;
-  insufficientBalanceMessage?: string;
 }
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -21,7 +20,6 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   isLoadingPurchase = false,
   isLoadingDemo = false,
   canBuy = true,
-  insufficientBalanceMessage = '',
 }) => {
   return (
     <div className="flex gap-5 flex-col md:flex-row">
@@ -40,11 +38,6 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
               'Buy'
             )}
           </button>
-          {!canBuy && insufficientBalanceMessage && (
-            <span className="text-red-500 text-sm mt-2">
-              {insufficientBalanceMessage}
-            </span>
-          )}
         </div>
       )}
 

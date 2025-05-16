@@ -16,14 +16,14 @@ import { useSale } from '../hooks/useSale';
 import { usePurchaseSale } from '@/hooks/contracts/usePurchaseSale';
 import { usePublicReadFileUrl } from '@/hooks/usePublicReadFileUrl';
 import { useSolanaBalance } from '@/hooks/useSolanaBalance';
+import { formatUnits } from '@/utils/format-sol-utils';
 import { isDefined } from '@/utils/is-defined';
 import { SOL_MINT } from '@/utils/programs.utils';
 
 const SalePage = () => {
   const navigate = useNavigate();
   const { saleId } = useParams<{ saleId: string }>();
-  const { sale, isLoading, error, previewFile, contentFile, demoFile } =
-    useSale(saleId);
+  const { sale, isLoading, error, previewFile, demoFile } = useSale(saleId);
 
   const { url: demoUrl, isLoading: isDemoUrlLoading } = usePublicReadFileUrl({
     fileId: demoFile?.id,
@@ -42,20 +42,12 @@ const SalePage = () => {
   if (!sale) return <NotFoundState />;
 
   // Convert priceUsd (string) to SOL (number)
-  const priceSol = sale.priceUsd ? Number(sale.priceUsd) : 0;
-  let canBuy = true;
-  let insufficientBalanceMessage = '';
-
-  if (isBalanceLoading) {
-    canBuy = false;
-    insufficientBalanceMessage = 'Checking your SOL balance...';
-  } else if (balanceError) {
-    canBuy = false;
-    insufficientBalanceMessage = 'Failed to fetch SOL balance.';
-  } else if (typeof solBalance === 'number' && priceSol > solBalance) {
-    canBuy = false;
-    insufficientBalanceMessage = `Insufficient SOL balance. You have ${solBalance?.toFixed(4) ?? '0.0000'} SOL, but the price is ${priceSol} SOL.`;
-  }
+  const priceSol = sale.priceUsd ? parseFloat(formatUnits(sale.priceUsd)) : 0;
+  const canBuy =
+    !isBalanceLoading &&
+    !balanceError &&
+    typeof solBalance === 'number' &&
+    priceSol <= solBalance;
 
   const onPurchaseSale = async () => {
     await purchaseSale({
@@ -103,7 +95,6 @@ const SalePage = () => {
             isLoadingPurchase={isPurchasePending}
             isLoadingDemo={isDemoUrlLoading}
             canBuy={canBuy}
-            insufficientBalanceMessage={insufficientBalanceMessage}
           />
         </div>
       </div>

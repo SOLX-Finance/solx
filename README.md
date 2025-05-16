@@ -1,101 +1,230 @@
-# Solx
+# SolX Monorepo
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+## Applications
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+### Web App (`apps/web`)
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+The main web application built with React, featuring a modern UI using Tailwind CSS and Radix UI components. Includes authentication via Privy and integrates with Solana blockchain and API.
 
-## Run tasks
+### API (`apps/api`)
 
-To run the dev server for your app, use:
+NestJS-based backend service providing RESTful endpoints. Features include:
 
-```sh
-npx nx serve api
+- Swagger documentation
+- Rate limiting
+- Health checks
+- BullMQ for job processing
+- Prisma for database access
+
+### Smart Contracts (`apps/contracts`)
+
+Solana smart contracts written using Anchor framework, including:
+
+- Token metadata handling
+- SPL token integration
+- Custom program logic
+
+### Indexer (`apps/indexer`)
+
+Blockchain indexer service that processes and stores on-chain data, built with NestJS.
+
+### Landing Page (`apps/landing`)
+
+Marketing website built with React and Tailwind CSS.
+
+## Tech Stack
+
+### Core Technologies
+
+- Node.js
+- TypeScript
+- Yarn
+- Nx
+
+### Frontend
+
+- React 19
+- Tailwind CSS
+- Shadcn
+- TanStack Query
+- Vite
+
+### Backend
+
+- NestJS
+- Prisma
+- BullMQ
+- OpenAPI
+
+### Blockchain
+
+- Solana Web3.js
+- Anchor
+- Metaplex
+
+## Prerequisites
+
+- Node.js (LTS version)
+- Yarn v4.9.1
+- PostgreSQL
+- Redis (for BullMQ)
+- Solana CLI tools
+
+## Setup
+
+1. Install dependencies:
+
+```bash
+yarn install
 ```
 
-To create a production bundle:
+2. Generate Prisma client:
 
-```sh
-npx nx build api
+```bash
+yarn db:generate
 ```
 
-To see all available targets to run for a project, run:
+3. Run database migrations:
 
-```sh
-npx nx show project api
+```bash
+yarn db:migrate:deploy
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## Development
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Running Applications
 
-## Add new projects
+Web App:
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/nest:app demo
+```bash
+yarn serve:web
 ```
 
-To generate a new library, use:
+API:
 
-```sh
-npx nx g @nx/node:lib mylib
+```bash
+yarn serve:api
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+Indexer:
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+```bash
+yarn serve:indexer
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+### Building Applications
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+# Build all applications
+yarn build:web
+yarn build:api
+yarn build:indexer
 
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+# Or build specific application
+yarn build:web
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Environment Variables
 
-## Install Nx Console
+Create `.env` files in respective application directories or in the project root with the following variables:
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+### API
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+#### Application
 
-## Useful links
+- `NODE_ENV` (default: 'development')
+- `PORT` (default: 3000)
+- `API_PREFIX` (default: 'api')
+- `API_URL` (default: '<http://localhost:3000>')
+- `PINO_LOG_LEVEL` (default: 'info')
 
-Learn more:
+#### CORS
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- `CORS_ORIGINS` (default: '<http://localhost:4200>')
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+#### Security
+
+- `COOKIE_SECRET` (min 32 characters)
+
+#### Rate Limiting
+
+- `THROTTLE_SHORT_TTL` (default: 1000)
+- `THROTTLE_SHORT_LIMIT` (default: 1)
+- `THROTTLE_MEDIUM_TTL` (default: 10000)
+- `THROTTLE_MEDIUM_LIMIT` (default: 4)
+- `THROTTLE_LONG_TTL` (default: 60000)
+- `THROTTLE_LONG_LIMIT` (default: 10)
+
+#### Authentication
+
+- `PRIVY_APP_ID`
+- `PRIVY_SECRET`
+
+#### Database
+
+- `DATABASE_URL`
+
+#### Storage (Storj/S3)
+
+- `STORJ_ACCESS_KEY_ID`
+- `STORJ_SECRET_ACCESS_KEY`
+- `STORJ_BUCKET`
+- `STORJ_READ_URL_EXPIRATION` (default: 3600)
+- `STORJ_UPLOAD_URL_EXPIRATION` (default: 3600)
+
+#### AI Integration
+
+- `AI_API_KEY`
+- `AI_MODEL_ID` (default: 'gpt-4o-mini')
+- `ENABLE_AI_ANALYZE` (default: true)
+
+#### Redis
+
+- `REDIS_URL` (default: 'redis://localhost:6379')
+- `REDIS_REJECT_UNAUTHORIZED` (default: false)
+
+### Web
+
+#### Application
+
+- `NODE_ENV` (default: 'development')
+
+#### Authentication
+
+- `VITE_PRIVY_APP_ID` (required)
+- `VITE_PRIVY_CLIENT_ID` (required)
+
+#### API Configuration
+
+- `VITE_API_URL` (default: '<http://localhost:3000/api>')
+
+#### Blockchain
+
+- `RPC_URL` (default: '<https://api.devnet.solana.com>')
+
+### Indexer
+
+#### Application
+
+- `NODE_ENV` (default: 'development')
+- `PORT` (default: 3004)
+- `PINO_LOG_LEVEL` (default: 'info')
+
+#### Database
+
+- `DATABASE_URL` (default: 'postgresql://postgres:1234@localhost:5432/solx')
+
+#### Blockchain
+
+- `RPC_URL` (required)
+- `INDEX_ENV` (default: 'devnet')
+
+#### Indexer Configuration
+
+- `INDEXER_LOOP_CYCLE_DELAY` (default: 5000)
+
+#### Redis
+
+- `REDIS_URL` (default: 'redis://localhost:6379')
+- `REDIS_USE_CLUSTER` (default: false)
+- `REDIS_REJECT_UNAUTHORIZED` (default: false)

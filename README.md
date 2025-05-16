@@ -1,47 +1,47 @@
-# SolX Monorepo
+# 🚀 SolX Monorepo
 
-## Applications
+## 📱 Applications
 
-### Web App (`apps/web`)
+### 🌐 Web App (`apps/web`)
 
 The main web application built with React, featuring a modern UI using Tailwind CSS and Radix UI components. Includes authentication via Privy and integrates with Solana blockchain and API.
 
-### API (`apps/api`)
+### 🔌 API (`apps/api`)
 
 NestJS-based backend service providing RESTful endpoints. Features include:
 
-- Swagger documentation
-- Rate limiting
-- Health checks
-- BullMQ for job processing
-- Prisma for database access
+- 📚 Swagger documentation
+- 🛡️ Rate limiting
+- 💓 Health checks
+- 🔄 BullMQ for job processing
+- 💾 Prisma for database access
 
-### Smart Contracts (`apps/contracts`)
+### 📝 Smart Contracts (`apps/contracts`)
 
 Solana smart contracts written using Anchor framework, including:
 
-- Token metadata handling
-- SPL token integration
-- Custom program logic
+- 🏷️ Token metadata handling
+- 💎 SPL token integration
+- ⚡ Custom program logic
 
-### Indexer (`apps/indexer`)
+### 🔍 Indexer (`apps/indexer`)
 
 Blockchain indexer service that processes and stores on-chain data, built with NestJS.
 
-### Landing Page (`apps/landing`)
+### 🏠 Landing Page (`apps/landing`)
 
 Marketing website built with React and Tailwind CSS.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-### Core Technologies
+### 🔧 Core Technologies
 
 - Node.js
 - TypeScript
 - Yarn
 - Nx
 
-### Frontend
+### 🎨 Frontend
 
 - React 19
 - Tailwind CSS
@@ -49,20 +49,20 @@ Marketing website built with React and Tailwind CSS.
 - TanStack Query
 - Vite
 
-### Backend
+### ⚙️ Backend
 
 - NestJS
 - Prisma
 - BullMQ
 - OpenAPI
 
-### Blockchain
+### ⛓️ Blockchain
 
 - Solana Web3.js
 - Anchor
 - Metaplex
 
-## Prerequisites
+## 📋 Prerequisites
 
 - Node.js (LTS version)
 - Yarn v4.9.1
@@ -70,7 +70,7 @@ Marketing website built with React and Tailwind CSS.
 - Redis (for BullMQ)
 - Solana CLI tools
 
-## Setup
+## 🚀 Setup
 
 1. Install dependencies:
 
@@ -90,9 +90,9 @@ yarn db:generate
 yarn db:migrate:deploy
 ```
 
-## Development
+## 💻 Development
 
-### Running Applications
+### 🏃‍♂️ Running Applications
 
 Web App:
 
@@ -112,7 +112,7 @@ Indexer:
 yarn serve:indexer
 ```
 
-### Building Applications
+### 🏗️ Building Applications
 
 ```bash
 # Build all applications
@@ -124,13 +124,13 @@ yarn build:indexer
 yarn build:web
 ```
 
-## Environment Variables
+## 🔐 Environment Variables
 
 Create `.env` files in respective application directories or in the project root with the following variables:
 
-### API
+### 🔌 API
 
-#### Application
+#### 📱 Application
 
 - `NODE_ENV` (default: 'development')
 - `PORT` (default: 3000)
@@ -138,15 +138,15 @@ Create `.env` files in respective application directories or in the project root
 - `API_URL` (default: '<http://localhost:3000>')
 - `PINO_LOG_LEVEL` (default: 'info')
 
-#### CORS
+#### 🌐 CORS
 
 - `CORS_ORIGINS` (default: '<http://localhost:4200>')
 
-#### Security
+#### 🔒 Security
 
 - `COOKIE_SECRET` (min 32 characters)
 
-#### Rate Limiting
+#### ⏱️ Rate Limiting
 
 - `THROTTLE_SHORT_TTL` (default: 1000)
 - `THROTTLE_SHORT_LIMIT` (default: 1)
@@ -155,16 +155,16 @@ Create `.env` files in respective application directories or in the project root
 - `THROTTLE_LONG_TTL` (default: 60000)
 - `THROTTLE_LONG_LIMIT` (default: 10)
 
-#### Authentication
+#### 🔑 Authentication
 
 - `PRIVY_APP_ID`
 - `PRIVY_SECRET`
 
-#### Database
+#### 💾 Database
 
 - `DATABASE_URL`
 
-#### Storage (Storj/S3)
+#### 📦 Storage (Storj/S3)
 
 - `STORJ_ACCESS_KEY_ID`
 - `STORJ_SECRET_ACCESS_KEY`
@@ -172,58 +172,58 @@ Create `.env` files in respective application directories or in the project root
 - `STORJ_READ_URL_EXPIRATION` (default: 3600)
 - `STORJ_UPLOAD_URL_EXPIRATION` (default: 3600)
 
-#### AI Integration
+#### 🤖 AI Integration
 
 - `AI_API_KEY`
 - `AI_MODEL_ID` (default: 'gpt-4o-mini')
 - `ENABLE_AI_ANALYZE` (default: true)
 
-#### Redis
+#### 🔄 Redis
 
 - `REDIS_URL` (default: 'redis://localhost:6379')
 - `REDIS_REJECT_UNAUTHORIZED` (default: false)
 
-### Web
+### 🌐 Web
 
-#### Application
+#### 📱 Application
 
 - `NODE_ENV` (default: 'development')
 
-#### Authentication
+#### 🔑 Authentication
 
 - `VITE_PRIVY_APP_ID` (required)
 - `VITE_PRIVY_CLIENT_ID` (required)
 
-#### API Configuration
+#### 🔌 API Configuration
 
 - `VITE_API_URL` (default: '<http://localhost:3000/api>')
 
-#### Blockchain
+#### ⛓️ Blockchain
 
 - `RPC_URL` (default: '<https://api.devnet.solana.com>')
 
-### Indexer
+### 🔍 Indexer
 
-#### Application
+#### 📱 Application
 
 - `NODE_ENV` (default: 'development')
 - `PORT` (default: 3004)
 - `PINO_LOG_LEVEL` (default: 'info')
 
-#### Database
+#### 💾 Database
 
 - `DATABASE_URL` (default: 'postgresql://postgres:1234@localhost:5432/solx')
 
-#### Blockchain
+#### ⛓️ Blockchain
 
 - `RPC_URL` (required)
 - `INDEX_ENV` (default: 'devnet')
 
-#### Indexer Configuration
+#### ⚙️ Indexer Configuration
 
 - `INDEXER_LOOP_CYCLE_DELAY` (default: 5000)
 
-#### Redis
+#### 🔄 Redis
 
 - `REDIS_URL` (default: 'redis://localhost:6379')
 - `REDIS_USE_CLUSTER` (default: false)

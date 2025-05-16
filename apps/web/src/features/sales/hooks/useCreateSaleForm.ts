@@ -26,9 +26,9 @@ const FILE_TYPE_CONFIG = {
   },
   [FileType.SALE_PREVIEW]: {
     required: false,
-    maxCount: 5,
+    maxCount: 1,
     missingError: 'Preview file is missing',
-    exceededError: 'You can upload at most 5 preview images',
+    exceededError: 'You can upload only one preview file',
   },
 };
 
@@ -38,13 +38,11 @@ export const useCreateSaleForm = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { wallets, ready: walletsReady } = useSolanaWallets();
 
-  const {
-    isUploading,
-    uploadedFiles,
-    error: uploadError,
-    uploadFiles,
-    removeFile,
-  } = useFileUploadQuery();
+  const [selectedFiles, setSelectedFiles] = useState<{
+    [key in FileType]?: File[];
+  }>({});
+
+  const { isUploading, error: uploadError, uploadFiles } = useFileUploadQuery();
 
   const apiMutation = useMutation({
     mutationFn: async ({
@@ -93,7 +91,7 @@ export const useCreateSaleForm = () => {
 
         const filesByType = Object.entries(FILE_TYPE_CONFIG).map(
           ([type, config]) => {
-            const files = uploadedFiles.filter((file) => file.type === type);
+            const files = selectedFiles[type as FileType] || [];
             return { type, files, config };
           },
         );
@@ -132,9 +130,22 @@ export const useCreateSaleForm = () => {
           }
         }
 
-        const fileIds = uploadedFiles.map((file) => file.id);
+        // Upload all files now
+        const fileIdsPromises = Object.entries(selectedFiles).map(
+          async ([type, files]) => {
+            if (!files || files.length === 0) return [];
+            const uploadedFilesResult = await uploadFiles(
+              files,
+              type as FileType,
+            );
+            return uploadedFilesResult.map((file) => file.id);
+          },
+        );
 
-        // 1. Create the sale in the backend
+        const fileIdsArrays = await Promise.all(fileIdsPromises);
+        const fileIds = fileIdsArrays.flat();
+
+        // Create the sale in the backend
         const saleResponse = await apiMutation.mutateAsync({
           title: value.title,
           description: value.description,
@@ -169,23 +180,37 @@ export const useCreateSaleForm = () => {
   });
 
   const createFileChangeHandler =
-    (fileType: FileType) => async (e: React.ChangeEvent<HTMLInputElement>) => {
+    (fileType: FileType) => (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
         // Convert FileList to array
         const filesArray = Array.from(e.target.files);
 
-        // For SALE_CONTENT, ensure only one ZIP file is uploaded
+        // For SALE_CONTENT, ensure only one ZIP file is selected
         if (fileType === FileType.SALE_CONTENT) {
           const file = filesArray[0];
           if (file.type !== 'application/zip' && !file.name.endsWith('.zip')) {
             setFormError('Content file must be a ZIP archive');
             return;
           }
-          // Only upload the first file
-          await uploadFiles([file], fileType);
+
+          // Store only the first file
+          setSelectedFiles((prev) => ({
+            ...prev,
+            [fileType]: [file],
+          }));
+        } else if (fileType === FileType.SALE_PREVIEW) {
+          // Store only the first file
+          const file = filesArray[0];
+          setSelectedFiles((prev) => ({
+            ...prev,
+            [fileType]: [file],
+          }));
         } else {
-          // Upload all selected files for other types
-          await uploadFiles(filesArray, fileType);
+          // Store all selected files for other types
+          setSelectedFiles((prev) => ({
+            ...prev,
+            [fileType]: [...(prev[fileType] || []), ...filesArray],
+          }));
         }
       }
     };
@@ -198,9 +223,19 @@ export const useCreateSaleForm = () => {
     FileType.SALE_PREVIEW,
   );
 
-  // Get all files of a specific type
+  const removeSelectedFile = (fileType: FileType, index: number) => {
+    setSelectedFiles((prev) => {
+      const updatedFiles = [...(prev[fileType] || [])];
+      updatedFiles.splice(index, 1);
+      return {
+        ...prev,
+        [fileType]: updatedFiles,
+      };
+    });
+  };
+
   const getFilesByType = (fileType: FileType) => {
-    return uploadedFiles.filter((file) => file.type === fileType);
+    return selectedFiles[fileType] || [];
   };
 
   const validateTitle = (title: string) => {
@@ -239,9 +274,8 @@ export const useCreateSaleForm = () => {
 
   return {
     form,
-    isSubmitting: apiMutation.isPending || isCreatingOnchain,
+    isSubmitting: apiMutation.isPending || isCreatingOnchain || isUploading,
     isUploading,
-    uploadedFiles,
     formError,
     setFormError,
     uploadError,
@@ -250,7 +284,7 @@ export const useCreateSaleForm = () => {
     handleContentFileChange,
     handleDemoFileChange,
     handlePreviewFileChange,
-    removeFile,
+    removeSelectedFile,
     getFilesByType,
     validateTitle,
     validateDescription,

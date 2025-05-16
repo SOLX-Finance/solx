@@ -58,7 +58,7 @@ const MarketPage = () => {
   const filterOptions = [{ value: 'all', label: 'All' }];
 
   return (
-    <div className="container mx-auto p-4 flex flex-col gap-[20px]">
+    <div className="mx-auto py-4 flex flex-col gap-[20px]">
       <Banner />
       <Categories
         selectedCategories={selectedCategories}

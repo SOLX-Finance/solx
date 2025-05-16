@@ -73,6 +73,12 @@ Custom errors are defined in `error.rs` and returned for invalid actions, such a
 
 ## Development
 
+The contract is built with:
+
+- Anchor Framework v0.28.0
+- Rust v1.78.0 - v1.89.0
+- Solana CLI v1.18.0 - v2.0.0
+
 ### Prerequisites
 
 - [Rust](https://www.rust-lang.org/)

@@ -75,8 +75,8 @@ export const ProfileHeader = ({
   };
 
   return (
-    <div className="flex gap-[40px]">
-      <div className="flex gap-[40px]">
+    <div className="flex gap-[40px] max-lg:flex-col">
+      <div className="flex lg:gap-[40px] gap-[20px]">
         <input
           type="file"
           ref={fileInputRef}
@@ -101,14 +101,14 @@ export const ProfileHeader = ({
           />
         ) : (
           <div
-            className={`my-auto min-w-[180px] min-h-[180px] size-[180px] bg-gray-200 flex items-center justify-center rounded-full ${
+            className={`lg:my-auto lg:min-w-[180px] lg:min-h-[180px] lg:size-[180px] min-w-[50px] min-h-[50px] size-[50px] bg-gray-200 flex items-center justify-center rounded-full ${
               isOwnProfile && onProfilePictureChange
                 ? 'cursor-pointer hover:bg-gray-300 transition-colors'
                 : ''
             }`}
             onClick={handleProfilePictureClick}
           >
-            <span className="text-gray-500">No Image</span>
+            <span className="text-gray-500 max-lg:hidden">No Image</span>
           </div>
         )}
         <div className="flex flex-col gap-[10px]">
@@ -124,10 +124,8 @@ export const ProfileHeader = ({
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyDown={handleUsernameKeyDown}
-                className="text-[50px] leading-[60px] font-semibold py-0 bg-transparent border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus:outline-none focus:ring-0 px-0 transition-all duration-300 w-full placeholder:text-[50px] h-[60px]"
+                className="tlg:ext-[50px] text-[28px] lg:leading-[60px] font-semibold py-0 bg-transparent border-0 rounded-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus:outline-none focus:ring-0 px-0 transition-all duration-300 w-full placeholder:text-[50px] h-[60px]"
                 style={{
-                  fontSize: '50px',
-                  lineHeight: '60px',
                   fontWeight: 600,
                   boxSizing: 'border-box',
                   outline: 'none',
@@ -139,7 +137,7 @@ export const ProfileHeader = ({
           ) : (
             <div
               ref={usernameRef}
-              className="text-[50px] leading-[60px] font-semibold inline-block h-[60px]"
+              className="lg:text-[50px] text-[28px] lg:leading-[60px] font-semibold inline-block lg:h-[60px]"
               style={{ boxSizing: 'border-box', position: 'relative' }}
             >
               {user.username || 'Anonymous'}
@@ -154,21 +152,21 @@ export const ProfileHeader = ({
         </div>
         {isOwnProfile && onUsernameEdit && (
           <button
-            className="border self-start mt-1 border-[#C7C7C7] rounded-full size-[60px] min-w-[60px] min-h-[60px] flex justify-center items-center hover:bg-gray-100 transition-colors"
+            className="border self-start mt-1 border-[#C7C7C7] rounded-full size-[30px] lg:size-[60px] min-w-[30px] lg:min-w-[60px] min-h-[30px] lg:min-h-[60px] flex justify-center items-center hover:bg-gray-100 transition-colors"
             onClick={handleUsernameEdit}
           >
-            <Pen className="size-5" />
+            <Pen className="lg:size-5 size-3" />
           </button>
         )}
       </div>
       {isOwnProfile && (
         <div
           style={{ backgroundImage: "url('/create-sale-bg.webp')" }}
-          className="bg-black flex-1 h-[180px] rounded-[40px] relative flex justify-center items-center bg-cover bg-center"
+          className="bg-black flex-1 max-lg:!bg-none max-lg:bg-transparent h-[180px] rounded-[40px] relative flex justify-center items-center bg-cover bg-center"
         >
           <Button
             onClick={() => navigate('/sales/create')}
-            className="relative min-w-[254px] min-h-[60px] hover:bg-white bg-[#BA8FFF] rounded-[30px] text-black text-[24px] leading-[30px] font-medium duration-300"
+            className="relative min-w-[254px] max-lg:min-w-full min-h-[60px] hover:bg-white bg-[#BA8FFF] rounded-[30px] text-black text-[24px] leading-[30px] font-medium duration-300"
           >
             Create Sale
           </Button>

@@ -22,7 +22,7 @@ const KycVerification = (props: KycVerificationProps) => {
   } = useKycVerificationForm(props);
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+    <div className="bg-white shadow-md rounded-lg p-2 md:p-6 mb-6">
       <h2 className="text-xl font-semibold mb-4">KYC Verification</h2>
 
       {kycStatusMessage && (
@@ -79,7 +79,13 @@ const KycVerification = (props: KycVerificationProps) => {
                 <ul className="list-disc pl-5 mt-1">
                   {kycDocuments.map((doc) => (
                     <li key={doc.id} className="flex items-center">
-                      <span className="mr-2">{doc.name}</span>
+                      <span className="mr-2">
+                        {doc.name.length > 20
+                          ? doc.name.substring(0, 6) +
+                            '...' +
+                            doc.name.substring(doc.name.length - 6)
+                          : doc.name}
+                      </span>
                       <button
                         type="button"
                         onClick={() => removeFile(doc.id)}

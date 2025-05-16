@@ -13,10 +13,10 @@ export const ProfileSalesTabs = ({
   showBoughtTab = true,
 }: ProfileSalesTabsProps) => {
   return (
-    <div className="flex items-center gap-[20px]">
+    <div className="flex items-center max-md:flex-col gap-[20px]">
       {showBoughtTab && (
         <Button
-          className={`relative min-h-[60px] min-w-[355px] ${
+          className={`relative min-h-[60px] max-md:w-full md:min-w-[355px] ${
             activeTab === 'bought' ? 'bg-[#BA8FFF]' : 'bg-white'
           } hover:bg-[#BA8FFF] rounded-[30px] text-black px-[40px] py-[15px] text-[24px] font-medium border border-black leading-[30px] duration-300`}
           onClick={() => onTabChange('bought')}
@@ -25,7 +25,7 @@ export const ProfileSalesTabs = ({
         </Button>
       )}
       <Button
-        className={`relative min-h-[60px] min-w-[355px] ${
+        className={`relative min-h-[60px] max-md:w-full md:min-w-[355px] ${
           activeTab === 'created' ? 'bg-[#BA8FFF]' : 'bg-white'
         } hover:bg-[#BA8FFF] rounded-[30px] text-black px-[40px] py-[15px] text-[24px] font-medium border border-black leading-[30px] duration-300`}
         onClick={() => onTabChange('created')}

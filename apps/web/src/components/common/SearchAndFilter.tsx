@@ -78,16 +78,18 @@ export const SearchAndFilter = ({
   );
 
   return (
-    <div className={`flex items-center gap-[10px] ${className || ''}`}>
+    <div
+      className={`flex items-center max-md:flex-col gap-[10px] ${className || ''}`}
+    >
       <Input
         ref={inputRef}
-        className="rounded-[30px] w-[600px]"
+        className="rounded-[30px] md:w-[600px]"
         placeholder="Search"
         value={inputValue}
         onChange={handleInputChange}
       />
       <Select value={sortBy} onValueChange={onSortChange}>
-        <SelectTrigger className="w-[260px] rounded-[30px]">
+        <SelectTrigger className="md:w-[260px] rounded-[30px]">
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
         <SelectContent>
@@ -98,7 +100,7 @@ export const SearchAndFilter = ({
       </Select>
       {filterOptions.length > 0 && onFilterChange && (
         <Select value={filterBy} onValueChange={onFilterChange}>
-          <SelectTrigger className="w-[180px] rounded-[30px]">
+          <SelectTrigger className="md:w-[180px] rounded-[30px]">
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
           <SelectContent>

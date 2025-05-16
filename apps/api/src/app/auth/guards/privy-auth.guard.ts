@@ -30,7 +30,9 @@ export class PrivyAuthGuard implements CanActivate {
     const idToken = request.cookies?.['privy-token'];
 
     if (!idToken) {
-      throw new UnauthorizedException('`privy-token` cookie is required');
+      throw new UnauthorizedException(
+        '`privy-token` cookie is required; Cookies: ' + request.cookies,
+      );
     }
 
     try {

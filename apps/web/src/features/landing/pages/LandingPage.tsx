@@ -19,7 +19,6 @@ import vova from '../../../assets/landing/vova.svg';
 import logo from '../../../assets/logo/logo.svg';
 
 import { Footer } from '@/components/common/Footer';
-import { Button } from '@/components/ui/button';
 
 const team = [
   {
@@ -41,6 +40,11 @@ const team = [
     name: 'Dmytro Horbatenko',
     image: dmytro,
     link: 'https://www.linkedin.com/in/dmytro-horbatenko-688a77240/',
+  },
+  {
+    name: 'Denys Proskura',
+    image: vova,
+    link: 'https://www.linkedin.com/in/denys-proskura-576026227/',
   },
   {
     name: 'Maxwell B.',

@@ -1,10 +1,10 @@
-import { ImageIcon, SquareCheckBig, Star } from 'lucide-react';
+import { ImageIcon, SquareCheckBig } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatUnits } from 'viem';
 
 import { Badge } from '../ui/badge';
-import { Button, buttonVariants } from '../ui/button';
+import { buttonVariants } from '../ui/button';
 import { Separator } from '../ui/separator';
 import { Spinner } from '../ui/spinner';
 

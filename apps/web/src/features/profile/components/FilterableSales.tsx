@@ -3,7 +3,6 @@ import { ProfileSalesGrid } from './ProfileSalesGrid';
 import { SalesFilter } from '../hooks/useUserSales';
 
 import { Pagination } from '@/components/common/Pagination';
-import { SalesGrid } from '@/components/common/SalesGrid';
 import { Spinner } from '@/components/ui/spinner';
 import { Sale } from '@/features/sales/api/salesApi';
 

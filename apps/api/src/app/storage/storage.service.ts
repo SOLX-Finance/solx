@@ -62,6 +62,9 @@ export class StorageService {
     // TODO: use repository
     const file = await this.prisma.file.findUnique({
       where: { id: fileId },
+      include: {
+        Sale: true, // Include the Sale relation
+      },
     });
 
     if (!file) {
@@ -82,8 +85,22 @@ export class StorageService {
         throw new Error('User id is required for sale content file type');
       }
 
-      if (file.userId !== userId) {
-        throw new UnauthorizedException('File does not belong to the user');
+      // Get user's wallet address for buyer comparison
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { walletAddress: true },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      // Check if user is either the file owner OR the buyer of the associated sale
+      const isFileOwner = file.userId === userId;
+      const isSaleBuyer = file.Sale?.buyer === user.walletAddress;
+
+      if (!isFileOwner && !isSaleBuyer) {
+        throw new UnauthorizedException('You do not have access to this file');
       }
     }
 

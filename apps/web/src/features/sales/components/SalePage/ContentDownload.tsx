@@ -27,7 +27,7 @@ const ContentDownload: React.FC<ContentDownloadProps> = ({
       <button
         onClick={onDownloadContent}
         disabled={isLoading}
-        className={`bg-[#3B82F6] border border-black text-white font-medium text-2xl py-2.5 px-10 rounded-full transition-colors flex items-center justify-center relative ${
+        className={`bg-[#3B82F6] border min-w-[120px] min-h-[54px] border-black text-white font-medium text-2xl py-2.5 px-10 rounded-full transition-colors flex items-center justify-center relative ${
           isLoading ? 'bg-blue-400 cursor-not-allowed' : 'hover:bg-[#2563EB]'
         }`}
       >

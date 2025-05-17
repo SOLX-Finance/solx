@@ -1,3 +1,7 @@
+import { ProfileSalesGrid } from './ProfileSalesGrid';
+
+import { SalesFilter } from '../hooks/useUserSales';
+
 import { Pagination } from '@/components/common/Pagination';
 import { SalesGrid } from '@/components/common/SalesGrid';
 import { Spinner } from '@/components/ui/spinner';
@@ -14,6 +18,9 @@ interface FilterableSalesProps {
   total: number;
   limit: number;
   isLoading: boolean;
+  activeTab: SalesFilter;
+  onDownloadContent?: (sale: Sale) => void;
+  loadingContentIds?: string[];
 }
 
 export const FilterableSales = ({
@@ -27,6 +34,9 @@ export const FilterableSales = ({
   total,
   limit,
   isLoading,
+  activeTab,
+  onDownloadContent,
+  loadingContentIds = [],
 }: FilterableSalesProps) => {
   return (
     <div className="flex flex-col gap-[40px]">
@@ -37,7 +47,13 @@ export const FilterableSales = ({
         </div>
       ) : (
         <>
-          <SalesGrid sales={sales} columns={3} />
+          <ProfileSalesGrid
+            sales={sales}
+            columns={3}
+            activeTab={activeTab}
+            onDownloadContent={onDownloadContent}
+            loadingContentIds={loadingContentIds}
+          />
 
           {/* Pagination */}
           <Pagination

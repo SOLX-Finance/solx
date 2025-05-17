@@ -19,6 +19,7 @@ import { useSale } from '../hooks/useSale';
 import { useCloseSale } from '@/hooks/contracts/useCloseSale';
 import { usePurchaseSale } from '@/hooks/contracts/usePurchaseSale';
 import { usePublicReadFileUrl } from '@/hooks/usePublicReadFileUrl';
+import { useReadFileUrl } from '@/hooks/useReadFileUrl';
 import { useSolanaBalance } from '@/hooks/useSolanaBalance';
 import { formatUnits } from '@/utils/format-sol-utils';
 import { isDefined } from '@/utils/is-defined';
@@ -43,11 +44,10 @@ const SalePage = () => {
     enabled: !!demoFile,
   });
 
-  const { url: contentUrl, isLoading: isContentUrlLoading } =
-    usePublicReadFileUrl({
-      fileId: contentFile?.id,
-      enabled: !!contentFile && !!userAddress && sale?.buyer === userAddress,
-    });
+  const { url: contentUrl, isLoading: isContentUrlLoading } = useReadFileUrl({
+    fileId: contentFile?.id,
+    enabled: !!contentFile && !!userAddress && sale?.buyer === userAddress,
+  });
 
   const { purchaseSale, isPending: isPurchasePending } = usePurchaseSale();
   const { closeSale, isPending: isClosePending } = useCloseSale();

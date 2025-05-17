@@ -1,6 +1,6 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { ChevronDown, Menu, X } from 'lucide-react';
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import LoginButton from './LoginButton';

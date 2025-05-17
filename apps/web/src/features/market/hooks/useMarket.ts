@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState, useCallback } from 'react';
 
-import { Sale, salesApi } from '@/features/sales/api/salesApi';
+import { salesApi } from '@/features/sales/api/salesApi';
 
 export type MarketFilters = {
   search?: string;

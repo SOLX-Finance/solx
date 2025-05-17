@@ -1,7 +1,6 @@
 import { useSolanaWallets } from '@privy-io/react-auth';
-import { useSendTransaction } from '@privy-io/react-auth/solana';
 import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { PublicKey, SYSVAR_RENT_PUBKEY, Transaction } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import { useMutation } from '@tanstack/react-query';
 
 import { useSolxContract } from './useSolxContract';
@@ -12,16 +11,10 @@ import { solanaConnection } from '@/config/connection';
 import {
   getCreateAssociatedTokenAccountInstruction,
   getListing,
-  getMasterEditionAccount,
-  getNftMetadata,
   getNftMint,
   getPaymentMintState,
-  getVault,
   getWhitelistedState,
-  METADATA_PROGRAM_ID,
   PYTH_PRICE_UPDATE,
-  SOL_MINT,
-  toBN,
   uuidToBytes,
 } from '@/utils/programs.utils';
 
@@ -29,7 +22,6 @@ export const usePurchaseSale = () => {
   const { wallets, ready } = useSolanaWallets();
 
   const { solxProgram } = useSolxContract();
-  const { sendTransaction } = useSendTransaction();
 
   const {
     mutate: purchaseSale,
@@ -113,13 +105,15 @@ export const usePurchaseSale = () => {
 
       tx.feePayer = payer;
       tx.recentBlockhash = (
-        await connection.getLatestBlockhash('processed')
+        await connection.getLatestBlockhash('finalized')
       ).blockhash;
 
       const receipt = await wallet.signTransaction(tx);
       console.log('receipt ==>', receipt);
       const data = await connection.sendRawTransaction(receipt.serialize());
       console.log('data ==>', data);
+
+      return data;
     },
     onMutate: () => {
       showToast({

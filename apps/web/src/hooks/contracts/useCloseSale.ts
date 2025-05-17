@@ -1,5 +1,4 @@
 import { useSolanaWallets } from '@privy-io/react-auth';
-import { useSendTransaction } from '@privy-io/react-auth/solana';
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddressSync,
@@ -24,9 +23,7 @@ import {
 
 export const useCloseSale = () => {
   const { wallets, ready } = useSolanaWallets();
-
   const { solxProgram } = useSolxContract();
-  const { sendTransaction } = useSendTransaction();
 
   const {
     mutate: closeSale,
@@ -154,13 +151,15 @@ export const useCloseSale = () => {
 
       const tx = new Transaction().add(closeListingTx);
 
-      const receipt = await sendTransaction({
-        connection: connection,
-        transaction: tx,
-        address: payer.toBase58(),
-      });
+      tx.feePayer = payer;
+      tx.recentBlockhash = (
+        await connection.getLatestBlockhash('finalized')
+      ).blockhash;
 
-      await connection.confirmTransaction(receipt.signature, 'finalized');
+      const receipt = await wallet.signTransaction(tx);
+      const data = await connection.sendRawTransaction(receipt.serialize());
+
+      return data;
     },
     onMutate: () => {
       showToast({

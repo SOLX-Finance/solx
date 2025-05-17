@@ -8,3 +8,4 @@ export { default as ActionButtons } from './ActionButtons';
 export { default as ContentInfo } from './ContentInfo';
 export { default as DemoInfo } from './DemoInfo';
 export { default as CategoryTags } from './CategoryTags';
+export { default as ContentDownload } from './ContentDownload';

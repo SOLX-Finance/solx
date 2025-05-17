@@ -115,7 +115,7 @@ export const ProjectCard = ({
               onClick={onDownload}
               disabled={isDownloading}
               className={cn(
-                'py-[15px] px-[40px] max-md:w-full text-[24px] font-medium bg-[#C4E703] border border-black rounded-[30px] text-black hover:bg-[#d1f033] transition-colors',
+                'h-[54px] px-[40px] max-md:w-full text-[24px] font-medium bg-[#C4E703] border border-black rounded-[30px] text-black hover:bg-[#d1f033] transition-colors',
                 isDownloading && 'bg-opacity-70 cursor-not-allowed',
               )}
             >

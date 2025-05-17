@@ -59,7 +59,7 @@ The contract supports on-chain dispute resolution to handle disagreements betwee
 
 - **Raising a Dispute:** Either party can raise a dispute if they believe the terms of the transaction were not met. This updates the listing's state to "disputed."
 - **Resolving a Dispute:** Disputes can be resolved by an authorized party (e.g., an admin or arbitrator) or through predefined contract logic. The resolution determines the final distribution of assets and collateral.
-- **Outcomes:** Depending on the resolution, collateral may be refunded, partially refunded, or forfeited to the counterparty
+- **Outcomes:** Depending on the resolution, collateral may be refunded, partially refunded, or forfeited to the counterparty.
 
 ### Other Instructions
 

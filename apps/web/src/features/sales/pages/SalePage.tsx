@@ -34,8 +34,15 @@ const SalePage = () => {
   const navigate = useNavigate();
   const { user: privyUser } = usePrivy();
   const { saleId } = useParams<{ saleId: string }>();
-  const { sale, isLoading, error, previewFiles, demoFile, contentFile } =
-    useSale(saleId);
+  const {
+    sale,
+    isLoading,
+    error,
+    previewFiles,
+    demoFile,
+    contentFile,
+    refetchSale,
+  } = useSale(saleId);
 
   const userAddress = privyUser?.wallet?.address || '';
 
@@ -82,10 +89,18 @@ const SalePage = () => {
   const canClose = isSeller && (!sale.buyer || (!!sale.buyer && hasExpired));
 
   const onPurchaseSale = async () => {
-    await purchaseSale({
-      uuid: sale.id,
-      paymentMint: SOL_MINT,
-    });
+    try {
+      await purchaseSale({
+        uuid: sale.id,
+        paymentMint: SOL_MINT,
+      });
+      // After purchase is successful, refetch sale data to update the UI
+      setTimeout(() => {
+        refetchSale();
+      }, 2000); // Add a slight delay to allow transaction to be processed
+    } catch (error) {
+      console.error('Purchase failed:', error);
+    }
   };
 
   const onCloseSale = async () => {

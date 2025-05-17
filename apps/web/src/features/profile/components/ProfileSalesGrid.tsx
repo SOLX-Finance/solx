@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
 
 import { ProjectCard } from '@/components/common/ProjectCard';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
 import { env } from '@/config/env';
 import { Sale } from '@/features/sales/api/salesApi';
 import { cn } from '@/utils/cn';
@@ -76,7 +74,7 @@ export const ProfileSalesGrid = ({
         const isDownloading = loadingContentIds.includes(sale.id);
 
         return (
-          <div key={sale.id} className="flex flex-col">
+          <div key={sale.id}>
             <ProjectCard
               id={sale.id}
               title={sale.title || ''}
@@ -86,23 +84,10 @@ export const ProfileSalesGrid = ({
               image={imageUrl}
               tags={sale.categories || []}
               isAudited={sale.isAudited || false}
+              showDownload={isDownloadable}
+              onDownload={() => onDownloadContent && onDownloadContent(sale)}
+              isDownloading={isDownloading}
             />
-            {isDownloadable && (
-              <Button
-                className="mt-2 bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => onDownloadContent && onDownloadContent(sale)}
-                disabled={isDownloading}
-              >
-                {isDownloading ? (
-                  <span className="flex items-center">
-                    <Spinner size="small" className="mr-2" /> Generating
-                    download link...
-                  </span>
-                ) : (
-                  'Download Content'
-                )}
-              </Button>
-            )}
           </div>
         );
       })}

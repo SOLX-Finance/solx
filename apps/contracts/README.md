@@ -1,6 +1,6 @@
 # SolX Contracts
 
-This directory contains the SolX smart contract program, written in Rust using the [Anchor framework](https://project-serum.github.io/anchor/). The contract implements the core logic for creating and managing NFT-based listings on Solana.
+This directory contains the SolX smart contract program, written in Rust using the [Anchor framework](https://www.anchor-lang.com/docs). The contract implements the core logic for creating and managing NFT-based listings on Solana.
 
 ## Overview
 
@@ -83,7 +83,7 @@ The contract is built with:
 
 - [Rust](https://www.rust-lang.org/)
 - [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
-- [Anchor CLI](https://project-serum.github.io/anchor/getting-started/installation.html)
+- [Anchor CLI](https://www.anchor-lang.com/docs/installation)
 
 ### Build & Test
 
